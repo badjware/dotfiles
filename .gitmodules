@@ -1,16 +1,12 @@
 [submodule "files/.config/zsh/oh-my-zsh"]
 	path = files/.config/zsh/oh-my-zsh
 	url = https://github.com/robbyrussell/oh-my-zsh.git
-    branch = master
 [submodule "files/.config/zsh/custom/plugins/zsh-syntax-highlighting"]
 	path = files/.config/zsh/custom/plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
-    branch = master
 [submodule "files/.config/zsh/custom/plugins/zsh-autosuggestions"]
 	path = files/.config/zsh/custom/plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
-    branch = master
 [submodule "files/.vim/bundle/repos/github.com/Shougo/dein.vim"]
 	path = files/.vim/bundle/repos/github.com/Shougo/dein.vim
 	url = https://github.com/Shougo/dein.vim.git
-    branch = master

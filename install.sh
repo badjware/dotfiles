@@ -14,9 +14,10 @@ USAGE
 
 OPTIONS
   -h, --help      Display this help message.
+  -y  --yes       Skip confirmations.
       --symlink   Symlink the files. This is the default behavior.
       --copy      Copy the files.
-      --noscript  Skip the  post-install script
+      --noscript  Skip the pre-install and the post-install scripts
 
 EOF
 }
@@ -99,11 +100,6 @@ make_link() {
     fi
 }
 
-post_install() {
-    # install vim plugins
-    vim -E +"call dein#update()" +"qall!" /dev/null &>/dev/null 
-}
-
 short_args=hy
 long_args=help,yes,symlink,copy,noscript
 
@@ -154,6 +150,11 @@ fi
 
 pushd "${0%/*}" >/dev/null
 
+if [[ -f "./scripts/pre-install.sh" && -z "$OPT_NOSCRIPT" ]]; then
+    log "*" "Running pre-install"
+    bash ./scripts/pre-install.sh
+fi
+
 for file_source in "files"; do
     log "*" "Processing $file_source"
     for file_path in $(get_path "$file_source"); do
@@ -161,9 +162,9 @@ for file_source in "files"; do
     done
 done
 
-if [[ -z "$OPT_NOSCRIPT" ]]; then
+if [[ -f "./scripts/post-install.sh" && -z "$OPT_NOSCRIPT" ]]; then
     log "*" "Running post-install"
-    post_install
+    bash ./scripts/post-install.sh
 fi
 
 popd >/dev/null

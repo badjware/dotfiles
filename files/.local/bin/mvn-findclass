@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#Colors
+col_normal=$(tput sgr0)
+col_red=$(tput setaf 1)
+col_green=$(tput setaf 2)
+col_magenta=$(tput setaf 5)
+col_cyan=$(tput setaf 6)
+
+#validation
+if [[ -z $1 ]]
+then
+  echo 'USAGE: mvn-findclass [classname]'
+  exit 1
+fi
+
+query="$(echo "$1" | sed 's%\.%/%g')"
+
+find ~/.m2 -type f -name '*.jar' -print0 | while read -d '' -r jar
+do
+  unzip -l "$jar" | sed -r 's%^.* .* (.*)$%\1%gm' | while read -r file
+  do
+    if [[ "$file" == *"$query.class" ]]
+    then
+      echo "$file" | sed -r "s%^(.*)($query)(.*)$%Found \1${col_green}\2${col_normal}\3%"
+      echo "   in ${col_cyan}$jar${col_normal}"
+    fi
+  done
+done

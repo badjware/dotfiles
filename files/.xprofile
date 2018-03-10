@@ -1,0 +1,29 @@
+systemctl --user import-environment DISPLAY
+
+# screen layout
+if xrandr | grep 'HDMI-1 connected'; then
+    xrandr \
+        --output HDMI-1 --auto --pos 1080x420 --primary \
+        --output HDMI-2 --rotate right --auto --pos 0x0
+fi
+export PRIMARY_MONITOR="$(xrandr | grep 'primary' | grep -Eo '^[^ ]+')"
+
+# lockscreen
+xss-lock -- lock &
+
+# key binding
+[ -f ~/.xbindkeysrc  ] && xbindkeys 
+[ -f ~/.Xmodmap  ] && xmodmap ~/.Xmodmap
+
+# xrdb
+[ -f ~/.Xresources ] && xrdb -I"$HOME" ~/.Xresources
+
+# wallpaper and colorschemes
+sh ~/.fehbg || \
+feh --bg-fill --no-fehbg /usr/share/pixmaps/wallpaper.png
+
+# set screen blanking to 30 minutes
+xset s 1800 1800
+
+source ~/.local/profile.d/*
+

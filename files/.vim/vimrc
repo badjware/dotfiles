@@ -1,0 +1,231 @@
+set nocompatible
+" Syntax highlighting
+syntax on
+" Line numbering
+set number
+" highlight
+set cursorline
+" Auto-indentation
+set ai
+set tabstop=4
+set shiftwidth=4
+set expandtab
+" Matching paren highlighting
+set showmatch
+" Sane colors
+set background=dark
+" Show cursor pos
+set ruler
+" Make the status line always show up
+set laststatus=2
+set ttimeoutlen=50
+" Shut the annoying bell
+set novisualbell
+" Set the updatetime
+set updatetime=1000
+" Ignore case for ex command completion
+set smartcase
+nnoremap / /\C
+nnoremap / /\C
+
+" Remap arrow keys
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+nnoremap <Left> :bprev<CR>
+nnoremap <Right> :bnext<CR>
+
+" write the file when you accidentally opened it without the right (root)privileges
+cmap w!! w !sudo tee % > /dev/null
+
+" Remember mouse cursor position
+augroup resCur
+  autocmd!
+  autocmd BufReadPost * call setpos(".", getpos("'\""))
+augroup END
+
+" Plugins
+let deinpath=$HOME."/.vim/bundle/repos/github.com/Shougo/dein.vim"
+let pluginpath=$HOME."/.vim/bundle"
+let &rtp.=",".deinpath
+
+if dein#load_state(pluginpath)
+  call dein#begin(pluginpath)
+
+  "call dein#add(deinpath)
+
+  " Colorscheme
+  call dein#add("ajh17/Spacegray.vim.git")
+  
+  " Interface
+  call dein#add("itchyny/lightline.vim")
+  call dein#add('taohex/lightline-buffer')
+  call dein#add("airblade/vim-gitgutter")
+  call dein#add("christoomey/vim-tmux-navigator")
+  call dein#add("scrooloose/nerdtree")
+
+  " Tools / Commands
+  call dein#add("tpope/vim-surround")
+  call dein#add("jiangmiao/auto-pairs")
+  call dein#add("tpope/vim-endwise")
+  call dein#add("chrisbra/unicode.vim")
+  call dein#add("ctrlpvim/ctrlp.vim")
+
+  " Linting / Completion
+  call dein#add("w0rp/ale")
+  call dein#add("maralla/completor.vim")
+
+  " Language
+  call dein#add("sheerun/vim-polyglot")
+
+  call dein#end()
+  call dein#save_state()
+endif
+
+filetype plugin indent on
+syntax enable
+
+" Automatically install plugins
+if dein#check_install()
+    call dein#install()
+endif
+
+" Completor
+" TAB to choose completion
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+"inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
+let g:completor_python_binary = '/usr/bin/python'
+let g:completor_node_binary = '/usr/bin/node'
+let g:completor_clang_binary = '/usr/bin/clang'
+
+" ALE
+let g:ale_sign_error = ''
+let g_sign_warning = ''
+
+" nerdtree
+map <C-n> :NERDTreeToggle<CR>
+
+" ctrlp
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_show_hidden = 1
+" From lightline help
+let g:ctrlp_status_func = {
+      \ 'main': 'CtrlPStatusFunc_1',
+      \ 'prog': 'CtrlPStatusFunc_2',
+      \ }
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+    return lightline#statusline(0)
+endfunction
+function! CtrlPStatusFunc_2(str)
+    return lightline#statusline(0)
+endfunction
+
+" gitgutter
+let g:gitgutter_realtime = 1
+let g:gitgutter_eager = 0
+let g:gitgutter_sign_added = ''
+let g:gitgutter_sign_modified = ''
+let g:gitgutter_sign_removed = ''
+let g:gitgutter_sign_removed_first_line = ''
+let g:gitgutter_sign_modified_removed = ''
+
+" lightline
+set noshowmode
+set showtabline=2
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+        \ 'left': [ [ 'mode', 'paste' ],
+        \           [ 'readonly', 'filename' ],
+        \           [ 'ctrlpmark' ] ],
+        \ 'right': [ [ 'lineinfo' ],
+        \            [ 'percent' ],
+        \            [ 'linter_errors' ],
+        \            [ 'fileformat', 'fileencoding', 'filetype', 'linter_ok', 'linter_warnings' ] ],
+    \ },
+    \ 'tabline': {
+        \ 'left': [ [ 'bufferinfo' ], [ 'bufferbefore', 'buffercurrent', 'bufferafter' ], ],
+        \ 'right': [  ],
+    \ },
+    \ 'component_expand': {
+        \ 'buffercurrent': 'lightline#buffer#buffercurrent2',
+        \ 'linter_warnings': 'LightlineLinterWarnings',
+        \ 'linter_errors': 'LightlineLinterErrors',
+        \ 'linter_ok': 'LightlineLinterOK'
+    \ },
+    \ 'component_type': {
+        \ 'buffercurrent': 'tabsel',
+        \ 'readonly': 'error',
+        \ 'linter_errors': 'error',
+        \ 'linter_warning': 'warning',
+    \ },
+    \ 'component_function': {
+        \ 'filename': 'LightlineFilename',
+        \ 'ctrlpmark': 'CtrlPMark',
+        \ 'bufferbefore': 'lightline#buffer#bufferbefore',
+        \ 'bufferafter': 'lightline#buffer#bufferafter',
+        \ 'bufferinfo': 'lightline#buffer#bufferinfo',
+    \ },
+\ }
+
+function! LightlineFilename()
+  let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+  let modified = &modified ? ' +' : ''
+  return filename . modified
+endfunction
+
+function! CtrlPMark()
+  if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
+     call lightline#link('iR'[g:lightline.ctrlp_regex])
+     return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+                 \ , g:lightline.ctrlp_next], 0)
+  else
+     return ''
+  endif
+endfunction
+
+function! LightlineLinterWarnings() abort
+  let l:counts = ale#statusline#Count(bufnr(''))
+  let l:all_errors = l:counts.error + l:counts.style_error
+  let l:all_non_errors = l:counts.total - l:all_errors
+  return l:counts.total == 0 ? '' : printf('%d ', all_non_errors)
+endfunction
+
+function! LightlineLinterErrors() abort
+  let l:counts = ale#statusline#Count(bufnr(''))
+  let l:all_errors = l:counts.error + l:counts.style_error
+  let l:all_non_errors = l:counts.total - l:all_errors
+  return l:counts.total == 0 ? '' : printf('%d ', all_errors)
+endfunction
+
+function! LightlineLinterOK() abort
+  let l:counts = ale#statusline#Count(bufnr(''))
+  let l:all_errors = l:counts.error + l:counts.style_error
+  let l:all_non_errors = l:counts.total - l:all_errors
+  return l:counts.total == 0 ? '0 ' : ''
+endfunction
+
+autocmd User ALELint call s:MaybeUpdateLightline()
+
+" Update and show lightline but only if it's visible (e.g., not in Goyo)
+function! s:MaybeUpdateLightline()
+  if exists('#lightline')
+    call lightline#update()
+  end
+endfunction
+
+" Color scheme
+colorscheme spacegray
+" 16 millions colors
+"set termguicolors
+" Disable background
+"hi Normal guibg=NONE ctermbg=NONE
+let g:spacegray_underline_search = 1
+"let g:spacegray_italicize_comments = 1
+
+" Italic comments
+highlight Comment cterm=italic
+set t_ZH=[3m
+set t_ZR=[23m
+

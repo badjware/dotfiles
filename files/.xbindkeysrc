@@ -1,0 +1,30 @@
+# backlight
+"brightnessctl set +5%"
+    XF86MonBrightnessUp
+
+"brightnessctl set 5%-"
+    XF86MonBrightnessDown
+
+# volume
+"amixer sset Master toggle"
+    XF86AudioMute
+
+"amixer sset Master unmute 5%+"
+    XF86AudioRaiseVolume
+
+"amixer sset Master unmute 5%-"
+    XF86AudioLowerVolume
+
+# printscreen
+"sshot --pin"
+    Shift + Print
+
+"sshot --partial"
+    Control + Print
+
+"sshot --window"
+    Alt + Print
+
+"sshot"
+    Print
+

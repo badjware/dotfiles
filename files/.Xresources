@@ -1,0 +1,150 @@
+#define C_BACKGROUND  #1c1c1c
+#define C_FOREGROUND  #B7BBB7
+#define C_BLACK       #2C2F33
+#define C_RED         #B04C50
+#define C_GREEN       #919652
+#define C_YELLOW      #E2995C
+#define C_BLUE        #66899D
+#define C_MAGENTA     #8D6494
+#define C_CYAN        #527C77
+#define C_LIGHT_GREY  #606360
+#define C_DARK_GREY   #4B5056
+#define C_WHITE       #DDE3DC
+
+#define C_PRIMARY     C_YELLOW
+#define C_SECONDARY   C_MAGENTA
+#define C_ERROR       C_RED
+#define C_FG          C_FOREGROUND
+#define C_FG_ENABLED  C_WHITE
+#define C_FG_DISABLED C_LIGHT_GREY
+#define C_BG          #111314
+#define C_BG_ENABLED  #2c2f33
+#define C_BG_DISABLED C_BACKGROUND
+
+
+! Fonts
+#define F_MONO   Knack Nerd Font
+#define F_SANS   Roboto
+#define F_ICON_1 Material Icons
+#define F_ICON_2 material\-wifi
+
+! Colors
+*color.bg: C_BG
+*color.bg-enabled: C_BG_ENABLED
+*color.bg-disabled: C_BG_DISABLED
+*color.fg: C_FG
+*color.fg-enabled: C_FG_ENABLED
+*color.fg-disabled: C_FG_DISABLED
+*color.primary: C_PRIMARY
+*color.secondary: C_SECONDARY
+*color.error: C_ERROR
+
+! X
+Xcursor.size: 16
+
+! Rofi
+! State:           'bg',  'fg',        'bgalt',      'hlbg',       'hlfg'
+rofi.color-normal:  C_BG, C_FG,        C_BG_DISABLED, C_BG_ENABLED, C_FG_ENABLED
+rofi.color-urgent:  C_BG, C_SECONDARY, C_BG_DISABLED, C_BG_ENABLED, C_SECONDARY
+rofi.color-active:  C_BG, C_PRIMARY,   C_BG_DISABLED, C_BG_ENABLED, C_PRIMARY
+
+!                  'background',  'border',     'separator'
+rofi.color-window: C_BG_DISABLED, C_FG_DISABLED, C_FG_DISABLED
+
+rofi.separator-style: none
+rofi.bw: 0
+rofi.width: 40
+rofi.location: 0
+rofi.font: F_SANS 12
+
+! i3
+i3wm*font: F_MONO
+
+! lock
+lock.font: F_SANS
+
+! urxvt
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: full
+urxvt.font: xft:F_MONO:size=11
+urxvt.cursorBlink: on
+
+urxvt.scrollBar: false
+urxvt.scrollTtykeypress: true
+urxvt.secondaryScreen: 1
+urxvt.secondaryWheel: 1
+urxvt.secondaryScroll: 0
+
+!urxvt.transparent: true
+!urxvt.shading: 20
+urxvt.depth: 32
+urxvt.background: rgba:0200/0200/0200/c800
+
+!urxvt.background: C_BACKGROUND
+urxvt.foreground: C_FOREGROUND
+urxvt.color0:  C_BLACK
+urxvt.color8:  C_DARK_GREY 
+urxvt.color1:  C_RED
+urxvt.color9:  C_RED
+urxvt.color2:  C_GREEN
+urxvt.color10: C_GREEN
+urxvt.color3:  C_YELLOW
+urxvt.color11: C_YELLOW
+urxvt.color4:  C_CYAN
+urxvt.color12: C_CYAN
+urxvt.color5:  C_MAGENTA
+urxvt.color13: C_MAGENTA
+urxvt.color6:  C_BLUE
+urxvt.color14: C_BLUE
+urxvt.color7:  C_LIGHT_GREY
+urxvt.color15: C_WHITE
+
+! xterm
+xterm.termName: xterm-256color
+xterm.vt100.locale: true
+
+xterm*borderWidth: 0
+
+! font
+xterm*renderFont: true
+xterm*faceName: F_MONO
+xterm*faceSize: 11
+
+! encoding
+xterm.ttyModes: erase ^?
+xterm.vt100.backarrowKey: false
+xterm.vt100.metaSendsEscape: true
+xterm.vt100.translations: #override \n\
+    Ctrl <Key> minus: smaller-vt-font() \n\
+    Ctrl <Key> plus: larger-vt-font() \n\
+    Ctrl <Key> 0: set-vt-font(d) \n\
+    Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>V: insert-selection(CLIPBOARD) \n\
+    Shift <Btn1Up>: exec-formatted("xdg-open '%t'", PRIMARY)
+
+! mouse selection
+xterm*on3Clicks: regex ([[:alpha:]]+://)?([[:alnum:]!#+,./=?@_~-]|(%[[:xdigit:]][[:xdigit:]]))+
+xterm*highlightSelection: true
+xterm*trimSelection: true
+
+! color
+xterm*background: C_BACKGROUND
+xterm*foreground: C_FOREGROUND
+xterm*color0:  C_BLACK
+xterm*color8:  C_DARK_GREY 
+xterm*color1:  C_RED
+xterm*color9:  C_RED
+xterm*color2:  C_GREEN
+xterm*color10: C_GREEN
+xterm*color3:  C_YELLOW
+xterm*color11: C_YELLOW
+xterm*color4:  C_CYAN
+xterm*color12: C_CYAN
+xterm*color5:  C_MAGENTA
+xterm*color13: C_MAGENTA
+xterm*color6:  C_BLUE
+xterm*color14: C_BLUE
+xterm*color7:  C_LIGHT_GREY
+xterm*color15: C_WHITE
+

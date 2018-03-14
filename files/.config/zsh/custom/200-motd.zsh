@@ -10,8 +10,7 @@ if [ "$IS_ROOT" = false ]; then
 
 	# Check tmux
 	if tmux info &>/dev/null; then
-    	tmux ls
-    	echo " "
+        printf "\n%s\n\n" "$(tmux ls)"
 	fi
 fi
 

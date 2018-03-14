@@ -9,6 +9,7 @@ fi
 alias http-server="python -m http.server"
 alias nmap-libvirt="nmap 192.168.122.0/24"
 alias xsel="xsel -b"
+alias rename="perl-rename"
 
 alias drun-it="docker run -it"
 alias dexec-it="docker exec -it"

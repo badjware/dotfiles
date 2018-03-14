@@ -1,7 +1,3 @@
-mkcdir() {
-	mkdir -p "$1" && cd "$1"
-}
-
 vialias() {
 	$EDITOR $ZSH_CUSTOM/100-alias.zsh
 	source $ZSH_CUSTOM/100-alias.zsh

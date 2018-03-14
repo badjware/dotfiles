@@ -1,4 +1,4 @@
-# ZSH
+# make word splitting behave like bash
 setopt SH_WORD_SPLIT
 
 # Evaluate if root user
@@ -22,6 +22,4 @@ export IS_ROOT
 # gpg-agent
 export GPG_TTY=$(tty)
 gpg-connect-agent updatestartuptty /bye >/dev/null
-
-source ~/.local/profile.d/*
 

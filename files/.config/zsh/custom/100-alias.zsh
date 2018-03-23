@@ -19,7 +19,7 @@ alias wifi-menu="sudo wifi-menu -o"
 alias netctl="sudo netctl"
 
 # serial
-alias minicom="docker run --device=/dev/ttyUSB0 -it minicom"
+alias minicom="docker run --device=/dev/ttyUSB0 -it registry.massaki.ca/minicom"
 
 # open-sourced build of vs code is named code-oss
 alias code="code-oss"

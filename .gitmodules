@@ -10,3 +10,6 @@
 [submodule "files/.vim/bundle/repos/github.com/Shougo/dein.vim"]
 	path = files/.vim/bundle/repos/github.com/Shougo/dein.vim
 	url = https://github.com/Shougo/dein.vim.git
+[submodule "files/.config/zsh/custom/plugins/history-search-multi-word"]
+	path = files/.config/zsh/custom/plugins/history-search-multi-word
+	url = https://github.com/zdharma/history-search-multi-word.git

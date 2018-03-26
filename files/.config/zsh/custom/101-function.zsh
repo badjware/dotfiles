@@ -9,23 +9,28 @@ vifunction() {
 }
 
 nmap-libvirt() {
-    local addr_list=""
-    for link in $(ip link show up | grep -Eo 'virbr[0-9]+'); do
-        for addr in $(ip addr show $link | grep -oP '(?<=inet )([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}'); do
-            addr_list="$addr_list $addr"
-        done
-    done
-    echo "Scanning $addr_list"
-    nmap $@ $addr_list
+    __nmap_iface 'virbr[0-9]+' $@
+}
+
+nmap-tun() {
+    __nmap_iface 'tun[0-9]+' $@
 }
 
 nmap-local() {
-    local addr_list=""
-    for link in $(ip link show up | grep -Eo '(eth|wlan)[0-9]+'); do
+    __nmap_iface '(eth|wlan)[0-9]+' $@
+}
+
+__nmap_iface() {
+    local iface="$1"
+    shift
+    local opt=${@:--T5}
+
+    for link in $(ip link show up | grep -Eo "$iface"); do
         for addr in $(ip addr show $link | grep -oP '(?<=inet )([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}'); do
             addr_list="$addr_list $addr"
         done
     done
-    echo "Scanning $addr_list"
-    nmap $@ $addr_list
+
+    printf "Scanning %s\n" "$addr"
+    nmap $opt $addr_list
 }

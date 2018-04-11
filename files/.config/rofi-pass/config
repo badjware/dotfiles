@@ -4,9 +4,15 @@
 # rofi command. Make sure to have "$@" as last argument
 _rofi () {
     domain="$(xdotool getactivewindow getwindowname | grep -Eo 'https?://\S+' | sed -E 's%^https?://(www.)?([a-zA-Z0-9\-\.]+).+%\2%')"
-    if [[ -n "$domain"  ]]; then
-        extra_arg="-select $domain"
-    fi
+    while true; do
+        if [[ "$(pass find "$domain" | wc -l)" -gt 1 ]]; then
+            extra_arg="-select $domain"
+            break
+        else
+            # we search the next domain level until we hit the TLD
+            domain="$(echo "$domain" | sed -E '/^[a-zA-Z0-0]*\./{s///;q}; //!q1')" || break
+        fi
+    done
     rofi -i -no-auto-select $extra_arg "$@"
 }
 
@@ -37,7 +43,7 @@ wait=0.2
 EDITOR='gvim -f'
 
 # Browser
-#BROWSER='chromium'
+BROWSER='firefox'
 
 ## Misc settings
 

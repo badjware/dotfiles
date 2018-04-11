@@ -12,4 +12,5 @@ sleep 3
 nextcloud &
 remmina --icon &
 slack &
+discord &
 

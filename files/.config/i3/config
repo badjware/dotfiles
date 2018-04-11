@@ -172,7 +172,7 @@ bindsym $mod+Shift+0 move container to workspace 10
 
 # Assignation
 assign [class="^Slack$"] 1
-assign [class="^Discord$"] 1
+assign [class="^discord$"] 1
 assign [class="^looking-glass-client$"] 3
 
 # screen

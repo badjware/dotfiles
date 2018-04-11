@@ -2,10 +2,7 @@ alias svim="sudo -e"
 alias vissh="$EDITOR ~/.ssh/config"
 alias vihosts="sudo -e /etc/hosts"
 
-if type htop >/dev/null; then
-    alias top="htop"
-fi
-
+alias top="htop"
 alias http-server="python -m http.server"
 alias rename="perl-rename"
 

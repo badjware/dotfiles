@@ -1,19 +1,22 @@
+# edit alias
 vialias() {
 	$EDITOR $ZSH_CUSTOM/100-alias.zsh
 	source $ZSH_CUSTOM/100-alias.zsh
 }
 
+# edit function
 vifunction() {
 	$EDITOR $ZSH_CUSTOM/101-function.zsh
 	source $ZSH_CUSTOM/101-function.zsh
 }
 
+# scan network
 nmap-libvirt() {
     __nmap_iface 'virbr[0-9]+' $@
 }
 
 nmap-tun() {
-    __nmap_iface 'tun[0-9]+' $@
+    __nmap_iface '(tun|tap)[0-9]+' $@
 }
 
 nmap-local() {
@@ -33,4 +36,9 @@ __nmap_iface() {
 
     printf "Scanning %s\n" "$addr"
     nmap $opt $addr_list
+}
+
+# calculator
+\=() {
+   bc -l <<<"$*"
 }

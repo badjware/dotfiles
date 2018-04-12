@@ -12,13 +12,14 @@ query_prop() {
 echo RELOADAGENT | gpg-connect-agent
 
 exec i3lock --image="$HOME/Pictures/wallpaper" --indicator  --force-clock \
-    --textcolor="00000000" --insidevercolor="00000000" --insidewrongcolor="00000000" --insidecolor="00000000" \
+    --veriftext="" --wrongtext="" --noinputtext="" --layoutcolor="00000000" --insidevercolor="00000000" --insidewrongcolor="00000000" --insidecolor="00000000" \
     --ringvercolor="$(query_color primary)FF" --ringwrongcolor="$(query_color error)FF" --ringcolor="$(query_color fg-enabled)FF" \
     --keyhlcolor="$(query_color primary)FF" --bshlcolor="$(query_color secondary)FF" \
+    --modifpos="w:h" \
     --separatorcolor="00000000" --line-uses-inside \
     --radius=50 --indpos="x+100:h-150" \
-    --timefont="$(query_color font)" --timecolor="$(query_color fg-enabled)FF" --timesize=72 \
-    --time-align=1 --timepos="ix+r+30:iy-50" --timestr="%H:%M" \
-    --datefont="$(query_prop font_sans)" --datecolor="$(query_color fg-enabled)FF" --datesize=48 \
+    --timecolor="00000000" --time-font="$(query_prop font)" --timecolor="$(query_color fg-enabled)FF" --timesize=72 \
+    --time-align=1 --timepos="ix+r+20:iy+50" --timestr="%H:%M" \
+    --date-font="$(query_prop font)" --datecolor="$(query_color fg-enabled)FF" --datesize=48 \
     --date-align=1 --datepos="tx:ty-70" --datestr="%A, %b %e"
 

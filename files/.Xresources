@@ -24,7 +24,7 @@
 
 ! Fonts
 #define F_MONO   Knack Nerd Font
-#define F_SANS   Roboto
+#define F_SANS   Noto Sans
 #define F_ICON_1 Material Icons
 #define F_ICON_2 material\-wifi
 

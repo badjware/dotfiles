@@ -42,3 +42,25 @@ __nmap_iface() {
 \=() {
    bc -l <<<"$*"
 }
+
+# start looking-glass
+game() {
+    echo "Stopping services"
+    sudo systemctl stop cronie
+    systemctl --user stop redshift
+    pkill compton
+
+    echo "Setup cpuset cgroup for host"
+    sudo cset set -c 0,4 -s system
+    sudo cset proc -m -f root -t system
+    sudo cset proc -k -f root -t system --force
+
+    echo "Starting looking-glass"
+    LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -o opengl:preventBuffer=0 -MF
+
+    echo "Restore system"
+    sudo cset set -d system &>/dev/null
+    compton &>/dev/null & disown
+    systemctl --user start redshift
+    sudo systemctl start cronie
+}

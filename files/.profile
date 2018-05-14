@@ -8,6 +8,9 @@ export VISUAL=vim
 export EDITOR=vim
 export PAGER=less
 
+# motd
+export MOTD_SERVICES="docker $MOTD_SERVICES"
+
 # firefox
 export MOZ_USE_XINPUT2=1
 

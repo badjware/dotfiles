@@ -55,11 +55,18 @@ game() {
     sudo cset proc -m -f root -t system
     sudo cset proc -k -f root -t system --force
 
+    echo "Setup cpumask"
+    sudo bash -c "echo 5 > /sys/devices/virtual/workqueue/cpumask"
+
     echo "Starting looking-glass"
-    LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -o opengl:preventBuffer=0 -MF
+    LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -o opengl:preventBuffer=0 -MFk
 
     echo "Restore system"
+    # cpumask
+    sudo bash -c "echo f > /sys/devices/virtual/workqueue/cpumask"
+    # cpuset
     sudo cset set -d system &>/dev/null
+    # services
     compton &>/dev/null & disown
     systemctl --user start redshift
     sudo systemctl start cronie

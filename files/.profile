@@ -9,7 +9,7 @@ export EDITOR=vim
 export PAGER=less
 
 # motd
-export MOTD_SERVICES="docker $MOTD_SERVICES"
+export MOTD_SERVICES="docker.socket $MOTD_SERVICES"
 
 # firefox
 export MOZ_USE_XINPUT2=1

@@ -52,7 +52,7 @@ class Termutils:
             elif i == math.ceil(length * 0.6):
                 bar += Termutils.YELLOW
                 percent_color = Termutils.YELLOW
-            elif i == math.ceil(length * 0.85):
+            elif i == math.ceil(length * 0.9):
                 bar += Termutils.RED
                 percent_color = Termutils.RED
 
@@ -79,23 +79,6 @@ def print_hostname():
         + '\n'
     )
 
-def print_tmux():
-    try:
-        check_call(['tmux', 'info'], stdout=DEVNULL, stderr=DEVNULL)
-        print('tmux:')
-        tmux_session = os.popen('tmux display-message -p "#S"', 'r').read().strip()
-        with os.popen('tmux list-sessions', 'r') as tmux_ls:
-            for line in tmux_ls:
-                line = line.strip()
-                if line.startswith(tmux_session) and 'TMUX' in os.environ:
-                    print(Termutils.GREEN, end='')
-                Termutils.print_padded(
-                      line
-                    + Termutils.DISABLE)
-        print('')
-    except CalledProcessError:
-        pass
-
 def print_services():
     if 'MOTD_SERVICES' in os.environ:
         print('Services:')
@@ -103,9 +86,9 @@ def print_services():
             Termutils.print_padded('{:<15.15}'.format(service), end='')
             try:
                 check_call(['systemctl', 'is-active', service], stdout=DEVNULL, stderr=DEVNULL)
-                print('{}    active{}'.format(Termutils.GREEN, Termutils.DISABLE))
+                print('{}  ● active{}'.format(Termutils.GREEN, Termutils.DISABLE))
             except CalledProcessError:
-                print('{}  inactive{}'.format(Termutils.RED, Termutils.DISABLE))
+                print('{}  ● inactive{}'.format(Termutils.RED, Termutils.DISABLE))
         print('')
 
 
@@ -143,8 +126,26 @@ def print_fs():
                 )
     print('')
 
+def print_tmux():
+    try:
+        check_call(['tmux', 'info'], stdout=DEVNULL, stderr=DEVNULL)
+        print('tmux:')
+        tmux_session = os.popen('tmux display-message -p "#S"', 'r').read().strip()
+        with os.popen('tmux list-sessions', 'r') as tmux_ls:
+            for line in tmux_ls:
+                line = line.strip()
+                if line.startswith(tmux_session) and 'TMUX' in os.environ:
+                    print(Termutils.GREEN, end='')
+                Termutils.print_padded(
+                      line
+                    + Termutils.DISABLE)
+        print('')
+    except CalledProcessError:
+        pass
+
+
 print_hostname()
-print_tmux()
 print_services()
 print_mem()
 print_fs()
+print_tmux()

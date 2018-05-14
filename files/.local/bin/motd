@@ -82,7 +82,9 @@ def print_hostname():
 def print_services():
     if 'MOTD_SERVICES' in os.environ:
         print('Services:')
-        for service in set(os.environ['MOTD_SERVICES'].split()):
+        services = list(set(os.environ['MOTD_SERVICES'].split()))
+        services.sort()
+        for service in services:
             Termutils.print_padded('{:<15.15}'.format(service), end='')
             try:
                 check_call(['systemctl', 'is-active', service], stdout=DEVNULL, stderr=DEVNULL)

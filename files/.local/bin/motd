@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
 import math
-import psutil
 import shutil
 import sys
 import os
 import re
 
 from subprocess import check_call, DEVNULL, CalledProcessError
+
+try:
+    import psutil
+except:
+    pass
 
 try:
     from pyfiglet import figlet_format
@@ -106,15 +110,18 @@ def print_services():
 
 
 def print_mem():
-    print('Memory:')
-    memory = psutil.virtual_memory()
-    Termutils.print_padded('{:.2f}G used  {:6.2f}G free  {:6.2f}G total'.format(
-        to_gb(memory.used),
-        to_gb(memory.free),
-        to_gb(memory.total)
-    ))
-    Termutils.print_progress_bar(memory.used / memory.total)
-    print('')
+    try:
+        memory = psutil.virtual_memory()
+        print('{:<18}  {:6.2f}G used  {:6.2f}G free  {:6.2f}G total'.format(
+            'Memory:',
+            to_gb(memory.used),
+            to_gb(memory.free),
+            to_gb(memory.total)
+        ))
+        Termutils.print_progress_bar(memory.used / memory.total)
+        print('')
+    except NameError:
+        pass
 
 
 def print_fs():

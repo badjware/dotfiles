@@ -47,8 +47,7 @@ __nmap_iface() {
 game() {
     echo "Stopping services"
     sudo systemctl stop cronie
-    systemctl --user stop redshift
-    pkill compton
+    systemctl --user stop redshift compton wallpaper
 
     echo "Setup cpuset cgroup for host"
     sudo cset set -c 0,4 -s system
@@ -67,7 +66,6 @@ game() {
     # cpuset
     sudo cset set -d system &>/dev/null
     # services
-    compton &>/dev/null & disown
-    systemctl --user start redshift
+    systemctl --user start redshift compton wallpaper
     sudo systemctl start cronie
 }

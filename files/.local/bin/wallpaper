@@ -1,0 +1,4 @@
+#!/bin/bash
+if ! acpi --ac-adapter | grep -q 'off-line'; then
+    exec $HOME/.local/bin/mpv-bg --really-quiet --no-config --loop --panscan=1.0 --video-pan-y=-0.1 --scale=oversample "$HOME/Pictures/wallpaper.gif"
+fi

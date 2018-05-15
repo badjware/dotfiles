@@ -1,0 +1,2 @@
+#!/bin/bash
+exec xwinwrap -ov -fs -- mpv --no-osc --wid WID $@

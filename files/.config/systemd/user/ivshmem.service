@@ -1,0 +1,10 @@
+[Unit]
+Description=IVSHMEM server for looking-glass
+After=user-graphical-login.target
+
+[Service]
+ExecStart=/usr/bin/ivshmem-server -F -p /tmp/ivshmem.pid -S /tmp/ivshmem_socket -l 16M -n 8
+Restart=always
+
+[Install]
+WantedBy=user-graphical-login.target

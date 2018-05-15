@@ -1,0 +1,11 @@
+[Unit]
+Description=Animated wallpaper
+Requires=user-graphical-login.target
+After=user-graphical-login.target
+
+[Service]
+ExecStart=/bin/bash -c '"$HOME/.local/bin/wallpaper"'
+Restart=always
+
+[Install]
+WantedBy=user-graphical-login.target

@@ -226,7 +226,9 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-exec --no-startup-id compton --config ~/.config/compton/compton.conf
-exec --no-startup-id polybar top
+# reach systemd target
+exec --no-startup-id systemctl --user import-environment
+exec --no-startup-id systemctl --user start user-graphical-login.target
+
 exec --no-startup-id /bin/bash ~/.config/i3/startup.bash
 

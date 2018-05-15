@@ -1,0 +1,12 @@
+[Unit]
+Description=Redshift display colour temperature adjustment
+Documentation=http://jonls.dk/redshift/
+Requires=user-graphical-login.target
+After=user-graphical-login.target
+
+[Service]
+ExecStart=/usr/bin/redshift
+Restart=always
+
+[Install]
+WantedBy=user-graphical-login.target

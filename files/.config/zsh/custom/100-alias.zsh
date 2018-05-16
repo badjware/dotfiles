@@ -5,6 +5,7 @@ alias vihosts="sudo -e /etc/hosts"
 alias top="htop"
 alias http-server="python -m http.server"
 alias rename="perl-rename"
+alias userctl="systemctl --user"
 
 # powershell seems to have trouble with xterm-256colors
 alias pwsh="TERM=xterm pwsh"

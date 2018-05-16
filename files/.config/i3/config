@@ -132,7 +132,10 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
+bindsym $mod+Shift+space exec center-float
+
+# toggle sticky
+bindsym $mod+Ctrl+space sticky toggle
 
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
@@ -144,6 +147,7 @@ bindsym $mod+a focus parent
 bindsym $mod+d focus child
 
 # switch to workspace
+bindsym $mod+q workspace back_and_forth 
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
 bindsym $mod+3 workspace 3
@@ -194,7 +198,7 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 # toggle compton
-bindsym $mod+c exec --no-startup-id killall compton || compton --config ~/.config/compton/compton.conf
+bindsym $mod+c exec --no-startup-id systemctl --user is-active compton && systemctl --user stop compton || systemctl --user start compton
 # lock the screen
 bindsym $mod+Pause exec lock
 # suspend

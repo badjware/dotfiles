@@ -5,7 +5,7 @@
 
 # Initial workspace and startup app
 i3-msg "workspace 2"
-i3-sensible-terminal &
+uxterm -e "center-float && $SHELL -l" &
 
 # sleep a bit to allow polybar to fully load
 sleep 3

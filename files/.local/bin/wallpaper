@@ -12,19 +12,19 @@ if [ ! -f "$wallpaper_anim" ]; then
     screen_size="$(xrandr --screen 0 | grep '^Screen' | grep -Eo 'current [0-9]+ x [0-9]+' | sed -E 's/current ([0-9]+) x ([0-9]+)/\1 \2/g')"
     set -- $screen_size
 
-    # download and resize
-    ffmpeg -i "$wallpaper_source" -vf "scale=w=$1:h=$2:force_original_aspect_ratio=decrease" \
-        -c:v libx264 -preset slow -r 30 "$wallpaper_anim"
+    # download, crop and scale
+    ffmpeg -i "$wallpaper_source" -vf "scale=w=$1:h=$2:force_original_aspect_ratio=increase, crop=w=$1:h=$2:y=(in_w-out_w)" -sws_flags lanczos \
+        -c:v libx264 -tune fastdecode -preset ultrafast -crf 18 -r 15 "$wallpaper_anim"
 
     # extract static image
     ffmpeg -i "$wallpaper_anim" -vframes 1 "$wallpaper_static"
 
     # set static wallpaper
-    feh --bg-fill "$wallpaper_static"
+    feh --bg-fill --no-xinerama "$wallpaper_static"
 fi
 
 if ! acpi --ac-adapter 2>/dev/null | grep -q 'off-line'; then
     exec "$HOME/.local/bin/mpv-bg" --really-quiet \
-        --no-config --no-border --no-audio --vd-lavc-fast --x11-bypass-compositor=no \
+        --no-config --no-border --no-audio --vd-lavc-fast \
         --loop --panscan=1.0 --scale=oversample --cache-file=TMP "$wallpaper_anim"
 fi

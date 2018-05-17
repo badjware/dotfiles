@@ -11,7 +11,7 @@ query_prop() {
 # flush gpg-agent cache
 echo RELOADAGENT | gpg-connect-agent
 
-exec i3lock --image="$HOME/Pictures/wallpaper" --indicator  --force-clock \
+exec i3lock --image="$HOME/.local/share/wallpaper.png" --indicator  --force-clock \
     --veriftext="" --wrongtext="" --noinputtext="" --layoutcolor="00000000" --insidevercolor="00000000" --insidewrongcolor="00000000" --insidecolor="00000000" \
     --ringvercolor="$(query_color primary)FF" --ringwrongcolor="$(query_color error)FF" --ringcolor="$(query_color fg-enabled)FF" \
     --keyhlcolor="$(query_color primary)FF" --bshlcolor="$(query_color secondary)FF" \

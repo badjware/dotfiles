@@ -18,6 +18,7 @@ export MOZ_USE_XINPUT2=1
 export DESKTOP_SESSION=gnome
 export QT_STYLE_OVERRIDE=gtk
 export QT_QPA_PLATFORMTHEME=gtk2
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
 
 # java
 export _JAVA_OPTIONS="-XX:MaxPermSize=128m -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dsun.java2d.opengl=true"

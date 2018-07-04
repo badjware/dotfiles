@@ -5,6 +5,8 @@ syntax on
 set number
 " highlight
 set cursorline
+" Encoding
+set encoding=UTF-8
 " Auto-indentation
 set ai
 set tabstop=4
@@ -34,7 +36,7 @@ noremap <Down> <NOP>
 nnoremap <Left> :bprev<CR>
 nnoremap <Right> :bnext<CR>
 
-" write the file when you accidentally opened it without the right (root)privileges
+" write the file when you accidentally opened it without the right (root) privileges
 cmap w!! w !sudo tee % > /dev/null
 
 " Remember mouse cursor position
@@ -58,7 +60,8 @@ if dein#load_state(pluginpath)
   
   " Interface
   call dein#add("itchyny/lightline.vim")
-  call dein#add('taohex/lightline-buffer')
+  call dein#add('mgee/lightline-bufferline')
+  call dein#add('ryanoasis/vim-devicons')
   call dein#add("airblade/vim-gitgutter")
   call dein#add("christoomey/vim-tmux-navigator")
   call dein#add("scrooloose/nerdtree")
@@ -111,9 +114,9 @@ let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_show_hidden = 1
 " From lightline help
 let g:ctrlp_status_func = {
-      \ 'main': 'CtrlPStatusFunc_1',
-      \ 'prog': 'CtrlPStatusFunc_2',
-      \ }
+    \ 'main': 'CtrlPStatusFunc_1',
+    \ 'prog': 'CtrlPStatusFunc_2',
+\ }
 function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
     return lightline#statusline(0)
 endfunction
@@ -144,18 +147,12 @@ let g:lightline = {
         \            [ 'linter_errors' ],
         \            [ 'fileformat', 'fileencoding', 'filetype', 'linter_ok', 'linter_warnings' ] ],
     \ },
-    \ 'tabline': {
-        \ 'left': [ [ 'bufferinfo' ], [ 'bufferbefore', 'buffercurrent', 'bufferafter' ], ],
-        \ 'right': [  ],
-    \ },
     \ 'component_expand': {
-        \ 'buffercurrent': 'lightline#buffer#buffercurrent2',
         \ 'linter_warnings': 'LightlineLinterWarnings',
         \ 'linter_errors': 'LightlineLinterErrors',
         \ 'linter_ok': 'LightlineLinterOK'
     \ },
     \ 'component_type': {
-        \ 'buffercurrent': 'tabsel',
         \ 'readonly': 'error',
         \ 'linter_errors': 'error',
         \ 'linter_warning': 'warning',
@@ -163,11 +160,20 @@ let g:lightline = {
     \ 'component_function': {
         \ 'filename': 'LightlineFilename',
         \ 'ctrlpmark': 'CtrlPMark',
-        \ 'bufferbefore': 'lightline#buffer#bufferbefore',
-        \ 'bufferafter': 'lightline#buffer#bufferafter',
-        \ 'bufferinfo': 'lightline#buffer#bufferinfo',
     \ },
 \ }
+
+"lightline-bufferline
+let g:lightline#bufferline#show_number=2
+let g:lightline#bufferline#number_map = {
+    \ 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴',
+    \ 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹'
+\ }
+let g:lightline#bufferline#enable_devicons=1
+let g:lightline#bufferline#min_buffer_count=2
+let g:lightline.tabline          = {'left': [['buffers']], 'right': []}
+let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
+let g:lightline.component_type   = {'buffers': 'tabsel'}
 
 function! LightlineFilename()
   let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
@@ -219,9 +225,11 @@ endfunction
 colorscheme spacegray
 " 16 millions colors
 "set termguicolors
-" Disable background
-"hi Normal guibg=NONE ctermbg=NONE
-let g:spacegray_underline_search = 1
+" Disable background in terminal
+hi Normal ctermbg=NONE
+
+" Those don't seem to do anything in xterm
+"let g:spacegray_underline_search = 1
 "let g:spacegray_italicize_comments = 1
 
 " Italic comments

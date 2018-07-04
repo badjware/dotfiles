@@ -24,7 +24,7 @@ set ttimeoutlen=50
 " Shut the annoying bell
 set novisualbell
 " Set the updatetime
-set updatetime=1000
+set updatetime=750
 " Ignore case for ex command completion
 set smartcase
 nnoremap / /\C
@@ -46,9 +46,9 @@ augroup resCur
 augroup END
 
 " Plugins
-let deinpath=$HOME."/.vim/bundle/repos/github.com/Shougo/dein.vim"
-let pluginpath=$HOME."/.vim/bundle"
-let &rtp.=",".deinpath
+let deinpath=$HOME.'/.vim/bundle/repos/github.com/Shougo/dein.vim'
+let pluginpath=$HOME.'/.vim/bundle'
+let &rtp.=','.deinpath
 
 if dein#load_state(pluginpath)
   call dein#begin(pluginpath)
@@ -56,29 +56,29 @@ if dein#load_state(pluginpath)
   "call dein#add(deinpath)
 
   " Colorscheme
-  call dein#add("ajh17/Spacegray.vim.git")
+  call dein#add('ajh17/Spacegray.vim.git')
   
   " Interface
-  call dein#add("itchyny/lightline.vim")
+  call dein#add('itchyny/lightline.vim')
   call dein#add('mgee/lightline-bufferline')
   call dein#add('ryanoasis/vim-devicons')
-  call dein#add("airblade/vim-gitgutter")
-  call dein#add("christoomey/vim-tmux-navigator")
-  call dein#add("scrooloose/nerdtree")
+  call dein#add('airblade/vim-gitgutter')
+  call dein#add('christoomey/vim-tmux-navigator')
+  call dein#add('scrooloose/nerdtree')
 
   " Tools / Commands
-  call dein#add("tpope/vim-surround")
-  call dein#add("jiangmiao/auto-pairs")
-  call dein#add("tpope/vim-endwise")
-  call dein#add("chrisbra/unicode.vim")
-  call dein#add("ctrlpvim/ctrlp.vim")
+  call dein#add('tpope/vim-surround')
+  call dein#add('jiangmiao/auto-pairs')
+  call dein#add('tpope/vim-endwise')
+  call dein#add('chrisbra/unicode.vim')
+  call dein#add('ctrlpvim/ctrlp.vim')
 
   " Linting / Completion
-  call dein#add("w0rp/ale")
-  call dein#add("maralla/completor.vim")
+  call dein#add('w0rp/ale')
+  call dein#add('maralla/completor.vim')
 
   " Language
-  call dein#add("sheerun/vim-polyglot")
+  call dein#add('sheerun/vim-polyglot')
 
   call dein#end()
   call dein#save_state()
@@ -94,9 +94,9 @@ endif
 
 " Completor
 " TAB to choose completion
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-"inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
+inoremap <expr> <Tab> pumvisible() ? '\<C-n>' : '\<Tab>'
+inoremap <expr> <S-Tab> pumvisible() ? '\<C-p>' : '\<S-Tab>'
+"inoremap <expr> <cr> pumvisible() ? '\<C-y>\<cr>' : '\<cr>'
 let g:completor_python_binary = '/usr/bin/python'
 let g:completor_node_binary = '/usr/bin/node'
 let g:completor_clang_binary = '/usr/bin/clang'

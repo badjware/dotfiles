@@ -4,8 +4,8 @@ export PATH="$PATH:$HOME/.local/bin:$HOME/bin"
 # applications
 export TERMINAL=uxterm
 export BROWSER=firefox
-export VISUAL=vim
-export EDITOR=vim
+export VISUAL=nvim
+export EDITOR=nvim
 export PAGER=less
 
 # motd

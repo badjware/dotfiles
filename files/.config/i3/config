@@ -59,6 +59,7 @@ smart_gaps on
 
 # Floating mod
 for_window [class="^Pavucontrol$"] floating enable
+for_window [class="^Pulseeffects$"] floating enable
 for_window [class="Remmina" title="Remmina Remote Desktop Client"] floating enable
 for_window [class="feh" title="pinned screenshot"] floating enable sticky enable
 for_window [class="TeamViewer"] floating enable

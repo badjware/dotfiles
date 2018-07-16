@@ -1,5 +1,9 @@
 systemctl --user import-environment DISPLAY
 
+# gtk3-nocsd
+export GTK_CSD=0
+export LD_PRELOAD="$LD_PRELOAD /usr/lib/libgtk3-nocsd.so.0"
+
 # screen layout
 if xrandr | grep 'HDMI-1 connected'; then
     xrandr \

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if which rfkill >/dev/null && [[ -f /dev/rfkill ]]; then
+if which rfkill &>/dev/null && [[ -f /dev/rfkill ]]; then
     if rfkill list bluetooth | grep "yes" >/dev/null; then
 	    if [[ "$1" == "toggle"  ]]; then
 		    rfkill unblock bluetooth

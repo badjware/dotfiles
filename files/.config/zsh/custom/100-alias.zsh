@@ -16,8 +16,9 @@ alias powershell="TERM=xterm pwsh"
 alias wifi-menu="sudo wifi-menu -o"
 alias netctl="sudo netctl"
 
-# serial
+# docker
 alias minicom="docker run --device=/dev/ttyUSB0 -it registry.massaki.ca/minicom"
+alias browsh="docker run --rm -it browsh/browsh"
 
 # open-sourced build of vscode is named code-oss
 alias code="code-oss"

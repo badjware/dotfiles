@@ -9,7 +9,7 @@ export EDITOR=nvim
 export PAGER=less
 
 # motd
-export MOTD_SERVICES="$MOTD_SERVICES docker.socket libvirtd"
+export MOTD_SERVICES="$MOTD_SERVICES docker.socket"
 
 # firefox
 export MOZ_USE_XINPUT2=1

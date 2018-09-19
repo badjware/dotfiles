@@ -7,7 +7,7 @@
 #define C_BLUE        #66899D
 #define C_MAGENTA     #8D6494
 #define C_CYAN        #527C77
-#define C_LIGHT_GREY  #606360
+#define C_LIGHT_GREY  #A6ABA6
 #define C_DARK_GREY   #4B5056
 #define C_WHITE       #DDE3DC
 
@@ -23,7 +23,7 @@
 
 
 ! Fonts
-#define F_MONO   Knack Nerd Font
+#define F_MONO   Hack Nerd Font
 #define F_SANS   Noto Sans
 #define F_ICON_1 Material Icons
 #define F_ICON_2 material\-wifi
@@ -62,43 +62,6 @@ i3wm*font: F_MONO
 
 ! lock
 lock.font: F_SANS
-
-! urxvt
-Xft.dpi: 96
-Xft.antialias: true
-Xft.hinting: full
-urxvt.font: xft:F_MONO:size=11
-urxvt.cursorBlink: on
-
-urxvt.scrollBar: false
-urxvt.scrollTtykeypress: true
-urxvt.secondaryScreen: 1
-urxvt.secondaryWheel: 1
-urxvt.secondaryScroll: 0
-
-!urxvt.transparent: true
-!urxvt.shading: 20
-urxvt.depth: 32
-urxvt.background: rgba:0200/0200/0200/c800
-
-!urxvt.background: C_BACKGROUND
-urxvt.foreground: C_FOREGROUND
-urxvt.color0:  C_BLACK
-urxvt.color8:  C_DARK_GREY 
-urxvt.color1:  C_RED
-urxvt.color9:  C_RED
-urxvt.color2:  C_GREEN
-urxvt.color10: C_GREEN
-urxvt.color3:  C_YELLOW
-urxvt.color11: C_YELLOW
-urxvt.color4:  C_CYAN
-urxvt.color12: C_CYAN
-urxvt.color5:  C_MAGENTA
-urxvt.color13: C_MAGENTA
-urxvt.color6:  C_BLUE
-urxvt.color14: C_BLUE
-urxvt.color7:  C_LIGHT_GREY
-urxvt.color15: C_WHITE
 
 ! xterm
 xterm.termName: xterm-256color

@@ -2,7 +2,7 @@
 export PATH="$PATH:$HOME/.local/bin:$HOME/bin"
 
 # applications
-export TERMINAL=uxterm
+export TERMINAL=termite
 export BROWSER=firefox
 export VISUAL=nvim
 export EDITOR=nvim

@@ -1,25 +1,33 @@
-#define C_BACKGROUND  #1c1c1c
-#define C_FOREGROUND  #B7BBB7
-#define C_BLACK       #2C2F33
-#define C_RED         #B04C50
-#define C_GREEN       #919652
-#define C_YELLOW      #E2995C
-#define C_BLUE        #66899D
-#define C_MAGENTA     #8D6494
-#define C_CYAN        #527C77
-#define C_LIGHT_GREY  #A6ABA6
-#define C_DARK_GREY   #4B5056
-#define C_WHITE       #DDE3DC
+#define C_BG  #1c1c1c
+#define C_FG  #B7BBB7
+! black
+#define C_COLOR0  #2C2F33
+! red
+#define C_COLOR1  #B04C50
+! green
+#define C_COLOR2  #919652
+! yellow
+#define C_COLOR3  #E2995C
+! light blue
+#define C_COLOR4  #527C77
+! magenta
+#define C_COLOR5  #8D6494
+! blue
+#define C_COLOR6  #66899D
+! light
+#define C_COLOR7  #A6ABA6
+! dark
+#define C_COLOR8  #4B5056
+! white
+#define C_COLOR15 #DDE3DC
 
-#define C_PRIMARY     C_YELLOW
-#define C_SECONDARY   C_MAGENTA
-#define C_ERROR       C_RED
-#define C_FG          C_FOREGROUND
-#define C_FG_ENABLED  C_WHITE
-#define C_FG_DISABLED C_LIGHT_GREY
-#define C_BG          #111314
+#define C_PRIMARY     C_COLOR3
+#define C_SECONDARY   C_COLOR5
+#define C_ERROR       C_COLOR1
+#define C_FG_ENABLED  C_COLOR15
+#define C_FG_DISABLED C_COLOR8
 #define C_BG_ENABLED  #2c2f33
-#define C_BG_DISABLED C_BACKGROUND
+#define C_BG_DISABLED C_BG
 
 
 ! Fonts
@@ -38,6 +46,26 @@
 *color.primary: C_PRIMARY
 *color.secondary: C_SECONDARY
 *color.error: C_ERROR
+
+! color
+xtrem*background: C_BG
+xterm*foreground: C_FG
+*color0:  C_COLOR0
+*color8:  C_COLOR8 
+*color1:  C_COLOR1
+*color9:  C_COLOR1
+*color2:  C_COLOR2
+*color10: C_COLOR2
+*color3:  C_COLOR3
+*color11: C_COLOR3
+*color4:  C_COLOR4
+*color12: C_COLOR4
+*color5:  C_COLOR5
+*color13: C_COLOR5
+*color6:  C_COLOR6
+*color14: C_COLOR6
+*color7:  C_COLOR7
+*color15: C_COLOR15
 
 ! X
 Xcursor.size: 16
@@ -90,24 +118,4 @@ xterm.vt100.translations: #override \n\
 xterm*on3Clicks: regex ([[:alpha:]]+://)?([[:alnum:]!#+,./=?@_~-]|(%[[:xdigit:]][[:xdigit:]]))+
 xterm*highlightSelection: true
 xterm*trimSelection: true
-
-! color
-xterm*background: C_BACKGROUND
-xterm*foreground: C_FOREGROUND
-xterm*color0:  C_BLACK
-xterm*color8:  C_DARK_GREY 
-xterm*color1:  C_RED
-xterm*color9:  C_RED
-xterm*color2:  C_GREEN
-xterm*color10: C_GREEN
-xterm*color3:  C_YELLOW
-xterm*color11: C_YELLOW
-xterm*color4:  C_CYAN
-xterm*color12: C_CYAN
-xterm*color5:  C_MAGENTA
-xterm*color13: C_MAGENTA
-xterm*color6:  C_BLUE
-xterm*color14: C_BLUE
-xterm*color7:  C_LIGHT_GREY
-xterm*color15: C_WHITE
 

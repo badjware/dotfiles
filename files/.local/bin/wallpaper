@@ -3,9 +3,14 @@
 # quick and dirty script, but it works
 
 wallpaper_source="https://massaki.ca/extra/wallpaper.mp4"
-wallpaper_static="$HOME/.local/share/wallpaper.png"
+wallpaper_static="$HOME/.local/share/wallpaper.jpg"
 wallpaper_anim="$HOME/.local/share/wallpaper.mp4"
 
+if [ ! -f "$HOME/.cache/wallpaper_enabled" ]; then
+    echo "Animated wallpaper disabled"
+    echo "touch $HOME/.cache/wallpaper_enabled to enable it"
+    exit
+fi
 
 if [ ! -f "$wallpaper_anim" ]; then
     # calculate screen geometry

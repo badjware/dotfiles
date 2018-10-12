@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#mount_dir="$(mktemp -d /tmp/ramdisk.XXXX)"
+mount_dir="/tmp/ramdisk"
+mkdir "$mount_dir"
+img_file="$mount_dir/img"
+
+if [[ ! -f "$1" ]]; then
+    echo "'$1' is an invalid file"
+    exit 1
+fi
+
+# create tmpfs and copy the file on it
+img_size="$(stat --printf="%s" "$1")"
+sudo mount -t tmpfs size=$img_size,noexec,nosid,uid=$UID,gid=$GID "$mount_dir"
+cp "$1" "$img_file"
+
+read -p "press enter to unmount"
+
+# check if the file is in use
+while lsof "$mount_dir" | grep -q "$mount_dir"; do
+    echo "Device is busy"
+    read -p "press enter to unmount"
+done
+
+# save the image to disk
+if cp "$img_file" "$1.tmp"; then
+    mv "$1.tmp" "$1"
+else
+    echo "Error copying '$img_file' back to disk!"
+    exit 1
+fi
+
+# cleanup
+sudo umount "$mount_dir"
+rmdir "$mount_dir"

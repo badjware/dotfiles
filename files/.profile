@@ -7,6 +7,7 @@ export BROWSER=firefox
 export VISUAL=nvim
 export EDITOR=nvim
 export PAGER=less
+export DIFFPROG=meld
 
 # motd
 export MOTD_SERVICES="$MOTD_SERVICES docker.socket"

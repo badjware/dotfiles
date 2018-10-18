@@ -8,9 +8,12 @@ alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
 
-# powershell seems to have trouble with xterm-256colors
+# powershell seems to have trouble with xterm-256color
 alias pwsh="TERM=xterm pwsh"
 alias powershell="TERM=xterm pwsh"
+
+# remote often does not have the correct terminfo for termite
+alias ssh="TERM=xterm-256color ssh"
 
 # network stuff must always be run with sudo anyway
 alias wifi-menu="sudo wifi-menu -o"

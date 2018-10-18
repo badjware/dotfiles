@@ -35,7 +35,7 @@ DISABLE_AUTO_UPDATE="true"
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+# ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # COMPLETION_WAITING_DOTS="true"
@@ -57,7 +57,7 @@ ZSH_CUSTOM="$HOME/.config/zsh/custom/"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git archlinux tmux thefuck zsh-autosuggestions history-search-multi-word zsh-syntax-highlighting)
+plugins=(git archlinux tmux thefuck fzf fast-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 

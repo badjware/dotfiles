@@ -2,8 +2,8 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/marchambault/.gtkrc-2.0.mine"
-gtk-theme-name="Vertex"
-gtk-icon-theme-name="Vibrancy-Full-Dark-Orange"
+gtk-theme-name="vimix-ruby"
+gtk-icon-theme-name="Mint-Y-Red"
 gtk-font-name="Cantarell 11"
 gtk-cursor-theme-name="Breeze_Snow"
 gtk-cursor-theme-size=0

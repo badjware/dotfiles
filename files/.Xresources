@@ -35,20 +35,9 @@
 #define F_SANS   Noto Sans
 #define F_ICON_1 Material Icons
 #define F_ICON_2 material\-wifi
-
-! Colors
-*color.bg: C_BG
-*color.bg-enabled: C_BG_ENABLED
-*color.bg-disabled: C_BG_DISABLED
-*color.fg: C_FG
-*color.fg-enabled: C_FG_ENABLED
-*color.fg-disabled: C_FG_DISABLED
-*color.primary: C_PRIMARY
-*color.secondary: C_SECONDARY
-*color.error: C_ERROR
-
+!
 ! color
-xtrem*background: C_BG
+xterm*background: C_BG
 xterm*foreground: C_FG
 *color0:  C_COLOR0
 *color8:  C_COLOR8 
@@ -71,13 +60,13 @@ xterm*foreground: C_FG
 Xcursor.size: 16
 
 ! Rofi
-! State:           'bg',  'fg',        'bgalt',      'hlbg',       'hlfg'
-rofi.color-normal:  C_BG, C_FG,        C_BG_DISABLED, C_BG_ENABLED, C_FG_ENABLED
-rofi.color-urgent:  C_BG, C_SECONDARY, C_BG_DISABLED, C_BG_ENABLED, C_SECONDARY
-rofi.color-active:  C_BG, C_PRIMARY,   C_BG_DISABLED, C_BG_ENABLED, C_PRIMARY
+! State:           'bg',     'fg',    'bgalt', 'hlbg',  'hlfg'
+rofi.color-normal:  #383838, #ffffff, #383838, #f0544c, #ffffff
+rofi.color-urgent:  #383838, #ffffff, #383838, #f0544c, #ffffff
+rofi.color-active:  #383838, #ffffff, #383838, #f0544c, #ffffff
 
-!                  'background',  'border',     'separator'
-rofi.color-window: C_BG_DISABLED, C_FG_DISABLED, C_FG_DISABLED
+!                  'bg',    'border','separator'
+rofi.color-window: #383838, #c7c7c7, #383838
 
 rofi.separator-style: none
 rofi.bw: 0
@@ -86,7 +75,11 @@ rofi.location: 0
 rofi.font: F_SANS 12
 
 ! i3
-i3wm*font: F_MONO
+i3wm*font:   F_MONO
+i3wm*bg:     #3838383
+i3wm*fg:     C_FG
+i3wm*border: #c7c7c7
+i3wm*active: #f0544c
 
 ! lock
 lock.font: F_SANS

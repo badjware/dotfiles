@@ -16,18 +16,16 @@
 # NOTE: The '#f0f0f0' in the lines below is the color i3 will use if
 # it fails to get colors from Xresources for some reason.
 set_from_resource $fg          i3wm.color.fg #000000
-set_from_resource $fg_disabled i3wm.color.fg-disabled #000000
 set_from_resource $bg          i3wm.color.bg #FFFFFF
-set_from_resource $bg_enabled  i3wm.color.bg-enabled #FFFFFF
-set_from_resource $color3      i3wm.color.color3 #FF0000
-set_from_resource $color5      i3wm.color.color5 #FF0000
+set_from_resource $border      i3wm.color.border #FF0000
+set_from_resource $active      i3wm.color.active #FF0000
 
-# class                 border        backgr.      text          indicator   child_border
-client.focused          $bg_enabled   $bg_enabled  $fg           $color5    $color3
-client.focused_inactive $bg           $bg          $fg           $color5    $bg
-client.unfocused        $bg           $bg          $fg_disabled  $color5    $bg
-client.urgent           $bg           $bg          $color3       $color5    $bg
-client.placeholder      $bg           $bg          $fg_disabled  $color5    $bg
+# class                 border    backgr.   text     indicator   child_border
+client.focused          $active   $bg       $fg      $border    $active
+client.focused_inactive $bg       $bg       $fg      $border    $border
+client.unfocused        $bg       $bg       $fg      $border    $border
+client.urgent           $bg       $bg       $active  $border    $border
+client.placeholder      $bg       $bg       $fg      $border    $border
 
 client.background       $bg
 

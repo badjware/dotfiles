@@ -41,5 +41,19 @@ function get_hostname_color () {
     done
     printf "$col"
 }
-export ZSH_THEME_HOSTNAME_COLOR="$(get_hostname_color)"
+case "$HOST" in
+    "devbox")
+        ZSH_THEME_HOSTNAME_COLOR="002"
+        ;;
+    "pallet")
+        ZSH_THEME_HOSTNAME_COLOR="004"
+        ;;
+    "pewter")
+        ZSH_THEME_HOSTNAME_COLOR="005"
+        ;;
+    *)
+        ZSH_THEME_HOSTNAME_COLOR="$(get_hostname_color)"
+        ;;
+esac
+export ZSH_THEME_HOSTNAME_COLOR
 unset -f get_hostname_color

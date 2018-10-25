@@ -1,7 +1,12 @@
-setopt prompt_subst # enable command substitution in prompt
+# enable command substitution in prompt
+setopt prompt_subst 
 
 PROMPT='$(prompt_cmd)'
 RPROMPT=''
+
+[[ -v ZSH_THEME_HOSTNAME_COLOR ]] || ZSH_THEME_HOSTNAME_COLOR="$(printf "%03d" "$(hostname | md5sum | head -c2)")"
+# we export this for motd
+export ZSH_THEME_HOSTNAME_COLOR
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$FG[008]%} on %{$fg[cyan]%}"
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
@@ -46,12 +51,11 @@ prompt_cmd() {
     fi
 
     # name@hostname
-    local default_color="green"
-    local user_color="$default_color"
+    local user_color="$ZSH_THEME_HOSTNAME_COLOR"
     if __is_root; then
         local user_color="red"
     fi
-    local name_hostname="%{$fg[$user_color]%}$USER%{$fg[$default_color]%}@%m"
+    local name_hostname="%{$FG[$user_color]%}$USER%{$FG[$ZSH_THEME_HOSTNAME_COLOR]%}@%m"
 
     # working directory
     local wd_base="${PWD/$HOME/~}"

@@ -33,6 +33,8 @@ class Termutils:
     GREY = '\33[30;1m'
     DISABLE = '\033[0m'
 
+    HOSTNAME_COLOR = '\033[38;5;%sm' % os.environ.get('ZSH_THEME_HOSTNAME_COLOR', '004')
+
     PADDING = '  '
 
     @staticmethod
@@ -71,7 +73,7 @@ def to_gb(bytes_count):
 
 def print_hostname():
     print(
-          Termutils.CYAN
+          Termutils.HOSTNAME_COLOR
         + figlet_format(os.uname()[1], 'slant')
         + Termutils.DISABLE
         + '\n'

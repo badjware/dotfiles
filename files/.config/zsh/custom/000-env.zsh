@@ -23,3 +23,5 @@ export IS_ROOT
 export GPG_TTY=$(tty)
 gpg-connect-agent updatestartuptty /bye >/dev/null
 
+# Color
+export ZSH_THEME_HOSTNAME_COLOR="$(printf "%03d" "$(hostname | md5sum | head -c2)")"

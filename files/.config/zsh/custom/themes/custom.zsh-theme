@@ -61,7 +61,9 @@ prompt_cmd() {
     local wd_base="${PWD/$HOME/~}"
     local wd_post=$(echo "$wd_base" | grep -Eo '(^~|/[^/]+){1,4}$')
     local wd_pre=$(echo "${wd_base/$wd_post/}" | grep -Eo '^~|/[^/]{2}' | tr -d '\n' )
-    local wd="%{$fg[yellow]%}$wd_pre$wd_post"
+    local wd="$wd_pre$wd_post"
+    [[ "$wd" == "" ]] && wd="/"
+    wd="%{$fg[yellow]%}$wd"
 
     # prompt
     if __is_root; then

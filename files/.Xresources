@@ -83,6 +83,11 @@ i3wm*active: #f0544c
 
 ! lock
 lock.font: F_SANS
+lock.color.foreground: C_FG_ENABLED
+lock.color.background: C_BG_ENABLED
+lock.color.primary: C_PRIMARY
+lock.color.secondary: C_SECONDARY
+lock.color.error: C_ERROR
 
 ! xterm
 xterm.termName: xterm-256color

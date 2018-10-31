@@ -57,8 +57,8 @@ set $ws9 "9: 9 "
 set $ws10 "10: 10 "
 
 # window title
-for_window [class="^.*"] border pixel 1 title_format " %title"
-for_window [floating] border pixel 2
+for_window [class="^.*"] border pixel 2 title_format " %title"
+for_window [floating] border pixel 1
 smart_borders on
 
 # GapS
@@ -72,6 +72,7 @@ for_window [class="^Pulseeffects$"] floating enable
 for_window [class="Remmina" title="Remmina Remote Desktop Client"] floating enable
 for_window [class="feh" title="pinned screenshot"] floating enable sticky enable
 for_window [class="TeamViewer"] floating enable
+for_window [class="Thunar"] floating enable
 
 # https://github.com/ValveSoftware/steam-for-linux/issues/1040
 for_window [class="^Steam$" title="^Friends$"] floating enable
@@ -93,6 +94,9 @@ floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
+
+# thunar
+bindsym $mod+Mod1+Return exec thunar
 
 # kill focused window
 bindsym $mod+Shift+q kill

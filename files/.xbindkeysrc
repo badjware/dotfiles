@@ -1,18 +1,18 @@
 # backlight
-"brightnessctl set +5%"
+"brightness-control up"
     XF86MonBrightnessUp
 
-"brightnessctl set 5%-"
+"brightness-control down"
     XF86MonBrightnessDown
 
 # volume
-"amixer sset Master toggle"
+"volume-control mute"
     XF86AudioMute
 
-"amixer sset Master unmute 5%+"
+"volume-control up"
     XF86AudioRaiseVolume
 
-"amixer sset Master unmute 5%-"
+"volume-control down"
     XF86AudioLowerVolume
 
 # printscreen

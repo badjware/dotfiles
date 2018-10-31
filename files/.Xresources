@@ -78,7 +78,8 @@ rofi.font: F_SANS 12
 i3wm*font:   F_MONO
 i3wm*bg:     #3838383
 i3wm*fg:     C_FG
-i3wm*border: #c7c7c7
+i3wm*border: #3838383
+!i3wm*border: #c7c7c7
 i3wm*active: #f0544c
 
 ! lock

@@ -48,10 +48,6 @@ play-vm() {
     if ! [ -S /tmp/win10.sock ]; then
         echo "Cannot find spice socket! Is the vm started?"
     else
-        echo "Stopping services"
-        sudo systemctl stop cronie
-        systemctl --user stop redshift compton wallpaper
-
         echo "Setup cpuset cgroup for host"
         sudo cset set -c 0,4 -s system
         sudo cset proc -m -f root -t system
@@ -68,8 +64,5 @@ play-vm() {
         sudo bash -c "echo f > /sys/devices/virtual/workqueue/cpumask"
         # cpuset
         sudo cset set -d system &>/dev/null
-        # services
-        systemctl --user start redshift compton wallpaper
-        sudo systemctl start cronie
     fi
 }

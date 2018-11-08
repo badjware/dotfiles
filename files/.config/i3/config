@@ -105,6 +105,8 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Control+Return exec /bin/bash ~/.config/i3/rofi.bash
 # start rofi-pass for password autotype
 bindsym $mod+Shift+Return exec rofi-pass
+# start rofi-radio
+bindsym $mod+p exec ~/.config/i3/rofi-radio.py
 
 # change focus
 bindsym $mod+h focus left
@@ -255,7 +257,7 @@ exec --no-startup-id /bin/dex -a
 exec --no-startup-id /bin/bash ~/.config/i3/startup.bash
 
 bar {
-    status_command i3status --config ~/.config/i3/i3status.conf
+    status_command i3status --config ~/.config/i3/i3status.conf | ~/.config/i3/wrapper.py
 
     output primary
     font pango:$font 10

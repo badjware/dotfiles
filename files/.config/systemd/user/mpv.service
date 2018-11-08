@@ -1,0 +1,8 @@
+[Unit]
+Description=mpv - a media player
+
+[Service]
+ExecStart=/usr/bin/mpv --idle --input-ipc-server /tmp/mpv.sock
+
+[Install]
+WantedBy=default.target

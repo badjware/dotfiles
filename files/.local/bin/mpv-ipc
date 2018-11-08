@@ -1,0 +1,4 @@
+#!/bin/bash
+
+jq -nc --arg argv "$(echo "$@" | tr ' ' '\n')" '{ command: $argv | split("\n")  }' | socat - /tmp/mpv.sock 2>/dev/null
+

@@ -2,7 +2,7 @@
 exec 1<&-
 
 system_services="cronie"
-user_services="compton redshift"
+user_services="compton redshift mpv"
 
 if [[ "$1" == "start" ]]; then
     for service in $system_services; do

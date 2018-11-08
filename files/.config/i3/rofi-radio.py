@@ -5,6 +5,9 @@ from subprocess import Popen, PIPE, check_output, check_call
 
 import yaml
 
+
+station_name_file = '/run/user/%s/rofi-radio-name' % os.getuid()
+
 def mpv_ipc(*args):
     try:
         j = json.loads(check_output(['mpv-ipc'] + list(args)))
@@ -14,15 +17,21 @@ def mpv_ipc(*args):
         pass
     return ''
 
-with open(os.path.expanduser("~/.local/share/rofi-radio/playlists.yaml")) as y:
-    stations = yaml.load(y)
+with open(os.path.expanduser("~/.local/share/rofi-radio/playlists.yaml")) as f:
+    stations = yaml.load(f)
 
 rofi_command = ['rofi', '-i', '-selected-row', '0', '-dmenu', '-p', 'mpv']
 
 current_song = mpv_ipc('get_property_string', 'media-title')
 if current_song:
-    rofi_command += ['-mesg', current_song]
+    try:
+        with open(station_name_file) as f:
+            station_name = f.readline()
+    except:
+        station_name = ''
+    rofi_command += ['-mesg', station_name]
     commands = b"Play/Pause\nStop\nShuffle\nNext\nPrevious"
+
 else:
     commands = bytes('\n'.join([s["name"] for s in stations]), 'utf8')
 
@@ -45,6 +54,7 @@ else:
     if s:
         # Load the selected playlist
         loc = s[0]["loc"]
+        station_name = s[0]["name"]
         if loc.startswith('http') or loc.startswith('ytdl'):
             # Load the url
             mpv_ipc('loadfile', loc)
@@ -52,6 +62,9 @@ else:
             # Load the file
             workdir = mpv_ipc('get_property_string', 'working-directory')
             mpv_ipc('loadfile', os.path.expanduser(loc))
+            station_name = loc
+        with open(station_name_file, 'w') as f:
+            f.write(station_name)
     else:
         # Try to load the user input
         mpv_ipc('loadfile', choice)

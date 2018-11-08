@@ -24,19 +24,22 @@
 # 2, as published by Sam Hocevar. See http://sam.zoy.org/wtfpl/COPYING for more
 # details.
 
-import subprocess
 import sys
 import json
+from subprocess import check_output
 
 def get_song_name():
     """ Get the name of the currently playing song """
     try:
-        j = json.loads(subprocess.check_output(['mpv-ipc', 'get_property_string', 'media-title']))
+        j = json.loads(check_output(['mpv-ipc', 'get_property_string', 'media-title']))
         if j['data']:
             return ' ' + j['data']
     except:
         pass
     return ''
+
+def is_virtualbox():
+    return check_output(['lspci']).find(b"VirtualBox") != -1
 
 def print_line(message):
     """ Non-buffered printing to stdout. """
@@ -74,5 +77,7 @@ if __name__ == '__main__':
         song_name = get_song_name()
         if song_name:
             j.insert(0, {'full_text' : '%s' % song_name, 'name' : 'music'})
+        if is_virtualbox():
+            j = [b for b in j if b["name"] not in ("wireless", "battery", "path_exists") or b["instance"] == "/"]
         # and echo back new encoded json
         print_line(prefix+json.dumps(j))

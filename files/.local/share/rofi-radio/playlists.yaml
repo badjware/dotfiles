@@ -1,9 +1,20 @@
 - name: Nectarine
-  loc: http://nectarine.ers35.net:8000/necta192.mp3
+  loc: 'http://nectarine.ers35.net:8000/necta192.mp3'
 - name: TheBase
-  loc: http://radio.thebase.sc:8000/stream
+  loc: 'http://radio.thebase.sc:8000/stream'
 - name: CJPX 99.5 Radio-Classique Montréal
-  loc: http://stream.statsradio.com:8030/stream
+  loc: 'http://stream.statsradio.com:8030/stream'
 - name: CBF 95.1 ICI Radio-Canada Première Montréal
-  loc: http://2qmtl0.akacast.akamaistream.net/7/953/177387/v1/rc.akacast.akamaistream.net/2QMTL0
-
+  loc: 'http://2qmtl0.akacast.akamaistream.net/7/953/177387/v1/rc.akacast.akamaistream.net/2QMTL0'
+- name: CBFX-FM 100.7 ICI Musique Montréal
+  loc: 'http://7qmtl0.akacast.akamaistream.net/7/445/177407/v1/rc.akacast.akamaistream.net/7QMTL0'
+- name: '----- Youtube playlists'
+  loc: ''
+- name: Two Step From Hell - Battlecry
+  loc: 'https://www.youtube.com/playlist?list=PLR5APJwPaxYLbEsztLyouK8VaOqh8b3vm'
+- name: Two Step From Hell - Invicible
+  loc: 'https://www.youtube.com/playlist?list=PL7B16C924C1FAD7BD'
+- name: Falkkone - Monster Hunter
+  loc: 'https://www.youtube.com/playlist?list=PLkU8l1ITH2CUKg-4zZMzBO2tZGLNTWGui'
+- name: Falkkone - Undertale
+  loc: 'https://www.youtube.com/playlist?list=PLkU8l1ITH2CUoLhyOjBgj3av9Tl0YqBB8'

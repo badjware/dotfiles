@@ -67,7 +67,7 @@ done
 out_dir="$PWD"
 
 for f in "$@"; do
-    tmp_dir="$(mktemp -d /tmp/to7zip.XXX)"
+    tmp_dir="$(mktemp -d "$PWD/to7zip.XXX")"
     output="$(echo "$f" | sed -E 's/\.(zip|rar|7z)$//g').7z"
     backup_file="$output".backup
     do_backup=

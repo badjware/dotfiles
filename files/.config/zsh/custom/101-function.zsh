@@ -57,7 +57,7 @@ play-vm() {
         sudo bash -c "echo 5 > /sys/devices/virtual/workqueue/cpumask"
 
         echo "Starting looking-glass"
-        LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -o opengl:preventBuffer=0 -MF
+        LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -o opengl:preventBuffer=0 -MFk $@
 
         echo "Restore system"
         # cpumask

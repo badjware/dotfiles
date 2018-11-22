@@ -10,3 +10,6 @@
 [submodule "files/.config/zsh/custom/plugins/fast-syntax-highlighting"]
 	path = files/.config/zsh/custom/plugins/fast-syntax-highlighting
 	url = https://github.com/zdharma/fast-syntax-highlighting.git
+[submodule "files/.tmux/plugins/tpm"]
+	path = files/.tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm

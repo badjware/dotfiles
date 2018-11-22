@@ -56,6 +56,7 @@ if dein#load_state(pluginpath)
     call dein#begin(pluginpath)
 
     "call dein#add(deinpath)
+    call dein#add('tpope/vim-sensible')
 
     " Colorscheme
     call dein#add('ajh17/Spacegray.vim.git')

@@ -76,6 +76,7 @@ if dein#load_state(pluginpath)
     "call dein#add('chrisbra/unicode.vim')
     call dein#add('ctrlpvim/ctrlp.vim')
     call dein#add('easymotion/vim-easymotion')
+    call dein#add('tpope/vim-obsession')
 
     " Linting / Completion
     call dein#add('w0rp/ale')

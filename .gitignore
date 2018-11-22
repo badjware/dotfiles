@@ -7,3 +7,6 @@ files/.vim/swap/
 files/.vim/bundle/
 !files/.vim/bundle/repos/github.com/Shougo/dein.vim/
 
+files/.tmux/plugins/
+!files/.tmux/plugins/tpm
+

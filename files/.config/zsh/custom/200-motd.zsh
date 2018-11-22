@@ -33,5 +33,7 @@ esac
 unset -f get_hostname_color
 
 # print motd
-ZSH_THEME_HOSTNAME_COLOR="$ZSH_THEME_HOSTNAME_COLOR" motd
+if [[ ! "$TERM" =~ '^screen|tmux' ]]; then
+    ZSH_THEME_HOSTNAME_COLOR="$ZSH_THEME_HOSTNAME_COLOR" motd
+fi
 

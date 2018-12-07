@@ -54,14 +54,27 @@ play-vm() {
         sudo cset proc -k -f root -t system --force
 
         echo "Setup cpumask"
-        sudo bash -c "echo 5 > /sys/devices/virtual/workqueue/cpumask"
+        for i in /sys/devices/virtual/workqueue/*/cpumask; do
+            sudo sh -c "echo 001 > $i"
+        done;
+
+        echo "Setup interrupt affinity"
+        for i in $(sed -n -e 's/ \([0-9]\+\):.*vfio.*/\1/p' /proc/interrupts); do
+            sudo sh -c "echo 0,4 > /proc/irq/$i/smp_affinity_list"
+        done
 
         echo "Starting looking-glass"
         LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -o opengl:preventBuffer=0 -MFk $@
 
         echo "Restore system"
+        # irq
+        for i in $(sed -n -e 's/ \([0-9]\+\):.*vfio.*/\1/p' /proc/interrupts); do
+            sudo sh -c "echo ff > /proc/irq/$i/smp_affinity"
+        done
         # cpumask
-        sudo bash -c "echo f > /sys/devices/virtual/workqueue/cpumask"
+        for i in /sys/devices/virtual/workqueue/*/cpumask; do
+            sudo sh -c "echo ff > $i"
+        done;
         # cpuset
         sudo cset set -d system &>/dev/null
     fi

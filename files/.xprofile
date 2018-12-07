@@ -7,7 +7,7 @@ export LD_PRELOAD="$LD_PRELOAD /usr/lib/libgtk3-nocsd.so.0"
 # screen layout
 if xrandr | grep 'HDMI-1 connected'; then
     xrandr \
-        --output HDMI-1 --auto --pos 1080x420 --primary \
+        --output HDMI-1 --auto --pos 1080x190 --primary \
         --output HDMI-2 --rotate right --auto --pos 0x0
 fi
 export PRIMARY_MONITOR="$(xrandr | grep 'primary' | grep -Eo '^[^ ]+')"

@@ -64,7 +64,7 @@ play-vm() {
         done
 
         echo "Starting looking-glass"
-        LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -o opengl:preventBuffer=0 -MFk $@
+        LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -K 60 -MFk $@
 
         echo "Restore system"
         # irq

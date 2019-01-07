@@ -3,7 +3,7 @@
 # run units
 systemctl --user daemon-reload
 systemctl --user enable --now tmux.service
-systemctl --user enable --now mpv.service
+systemctl --user enable --now mpd.service
 
 # install tmux plugins
 tmux run-shell ~/.tmux/plugins/tpm/bin/install_plugins

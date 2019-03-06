@@ -27,10 +27,9 @@ set ttimeoutlen=50
 set novisualbell
 " Set the updatetime
 set updatetime=500
-" Ignore case for ex command completion
+" Case insensitive when all lowercase
+set ignorecase
 set smartcase
-nnoremap / /\C
-nnoremap / /\C
 
 " Remap arrow keys
 noremap <Up> <NOP>
@@ -98,6 +97,18 @@ if dein#check_install()
     call dein#install()
 endif
 
+" Color scheme
+colorscheme spacegray
+" 16 millions colors
+"set termguicolors
+" Disable background in terminal
+hi Normal ctermbg=NONE
+
+" Italic comments
+highlight Comment cterm=italic
+set t_ZH=[3m
+set t_ZR=[23m
+
 " Completor
 " TAB to choose completion
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -109,7 +120,11 @@ let g:completor_clang_binary = '/usr/bin/clang'
 
 " ALE
 let g:ale_sign_error = ''
-let g_sign_warning = ''
+let g:ale_sign_warning = ''
+highlight ALEErrorSign ctermfg=Red
+highlight ALEWarningSign ctermfg=Blue
+highlight ALEError ctermfg=Red ctermbg=None cterm=underline
+highlight ALEWarning ctermfg=Blue ctermbg=None cterm=underline
 
 " nerdtree
 map <C-n> :NERDTreeToggle<CR>
@@ -238,14 +253,3 @@ function! s:MaybeUpdateLightline()
     end
 endfunction
 
-" Color scheme
-colorscheme spacegray
-" 16 millions colors
-"set termguicolors
-" Disable background in terminal
-hi Normal ctermbg=NONE
-
-" Italic comments
-highlight Comment cterm=italic
-set t_ZH=[3m
-set t_ZR=[23m

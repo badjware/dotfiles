@@ -8,6 +8,13 @@ alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
 
+# ls
+alias ls="lsd --group-dirs first"
+alias l='ls -l --group-dirs first'
+alias la='ls -a --group-dirs first'
+alias lla='ls -la --group-dirs first'
+alias lt='ls --tree --group-dirs first'
+
 # powershell seems to have trouble with xterm-256color
 alias pwsh="TERM=xterm pwsh"
 alias powershell="TERM=xterm pwsh"

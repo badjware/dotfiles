@@ -1,3 +1,10 @@
+# show file preview on CTRL+T
+export FZF_DEFAULT_OPTS="--height 90% --preview '([[ -d {} ]] && lsd --color always --icon always --tree --depth 3 {} || highlight -O ansi -l {} || (file {} | grep -q text && cat {} || od -A x -t xz -v {})) 2>/dev/null | head -200'"
+
+# Use tmux pane if available
+export FZF_TMUX=1
+export FZF_TMUX_HEIGHT=90%
+
 # Remove duplicate when using Ctrl+R
 # https://github.com/junegunn/fzf/issues/626
 __fzf_history__() (

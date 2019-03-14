@@ -10,10 +10,10 @@ alias userctl="systemctl --user"
 
 # ls
 alias ls="lsd --group-dirs first"
-alias l='ls -l --group-dirs first'
-alias la='ls -a --group-dirs first'
-alias lla='ls -la --group-dirs first'
-alias lt='ls --tree --group-dirs first'
+alias l='lsd --group-dirs -l'
+alias la='lsd --group-dirs -a'
+alias lla='lsd --group-dirs -la'
+alias lt='lsd --group-dirs --tree'
 
 # powershell seems to have trouble with xterm-256color
 alias pwsh="TERM=xterm pwsh"

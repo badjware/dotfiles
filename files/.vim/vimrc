@@ -74,7 +74,8 @@ if dein#load_state(pluginpath)
     call dein#add('jiangmiao/auto-pairs')
     call dein#add('tpope/vim-endwise')
     "call dein#add('chrisbra/unicode.vim')
-    call dein#add('ctrlpvim/ctrlp.vim')
+    "call dein#add('ctrlpvim/ctrlp.vim')
+    call dein#add('junegunn/fzf.vim')
     call dein#add('easymotion/vim-easymotion')
     call dein#add('tpope/vim-obsession')
 
@@ -129,21 +130,8 @@ highlight ALEWarning ctermfg=Blue ctermbg=None cterm=underline
 " nerdtree
 map <C-n> :NERDTreeToggle<CR>
 
-" ctrlp
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_show_hidden = 1
-" From lightline help
-let g:ctrlp_status_func = {
-    \ 'main': 'CtrlPStatusFunc_1',
-    \ 'prog': 'CtrlPStatusFunc_2',
-\ }
-function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
-    return lightline#statusline(0)
-endfunction
-function! CtrlPStatusFunc_2(str)
-    return lightline#statusline(0)
-endfunction
+" fzf
+map <C-p> :FZF<CR>
 
 " easymotion
 map <Leader> <Plug>(easymotion-prefix)
@@ -197,7 +185,6 @@ let g:lightline = {
     \ },
     \ 'component_function': {
         \ 'filename': 'LightlineFilename',
-        \ 'ctrlpmark': 'CtrlPMark',
     \ },
 \ }
 
@@ -217,16 +204,6 @@ function! LightlineFilename()
     let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
-endfunction
-
-function! CtrlPMark()
-    if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
-        call lightline#link('iR'[g:lightline.ctrlp_regex])
-        return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
-                     \ , g:lightline.ctrlp_next], 0)
-    else
-        return ''
-    endif
 endfunction
 
 function! LightlineLinterWarnings() abort

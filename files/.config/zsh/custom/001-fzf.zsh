@@ -1,3 +1,23 @@
+# show file preview on CTRL+T
+export FZF_DEFAULT_OPTS="--height 90%"
+export FZF_CTRL_T_OPTS="--preview '([[ -d {} ]] && lsd --color always --icon always --tree --depth 3 {} || highlight -O ansi -l {} || (file {} | grep -q text && cat {} || od -A x -t xz -v {})) 2>/dev/null | head -200'"
+export FZF_ALT_C_OPTS="$FZF_CTRL_T_OPTS"
+
+# Use tmux pane if available
+export FZF_TMUX=1
+export FZF_TMUX_HEIGHT=90%
+
+# attach some extra options to path and dir completion
+eval "_$(declare -f _fzf_path_completion)"
+_fzf_path_completion() {
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_path_completion $@
+}
+
+eval "_$(declare -f _fzf_dir_completion)"
+_fzf_dir_completion() {
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_dir_completion $@
+}
+
 # Remove duplicate when using Ctrl+R
 # https://github.com/junegunn/fzf/issues/626
 __fzf_history__() (

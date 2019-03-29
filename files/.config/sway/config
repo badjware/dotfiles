@@ -256,9 +256,8 @@ bindsym $mod+r mode "resize"
 
 ### Startup
 # reach systemd target
-#exec /bin/systemctl --user import-environment WAYLAND_DISPLAY
 exec /bin/systemctl --user import-environment
-exec /bin/systemctl --user start user-graphical-login.target
+exec /bin/systemctl --user start sway-session.target
 
 # autorun .desktop
 exec /bin/dex -a

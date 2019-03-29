@@ -9,6 +9,11 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     export ECORE_EVAS_ENGINE=wayland_egl
     export ELM_ENGINE=wayland_egl
 
+    # FIXME: This is a workaround
+    # see: https://github.com/swaywm/wlroots/pull/1344
+    #export WLR_DRM_NO_ATOMIC=1
+    #export WLR_DRM_NO_ATOMIC_GAMMA=1
+
     exec sway
 fi
 

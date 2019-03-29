@@ -1,12 +1,12 @@
 [Unit]
 Description=Redshift display colour temperature adjustment
 Documentation=http://jonls.dk/redshift/
-Requires=user-graphical-login.target
-After=user-graphical-login.target
+Requires=sway-session.target
+After=sway-session.target
 
 [Service]
-ExecStart=/usr/bin/redshift
+ExecStart=/usr/bin/redshift -m wayland
 Restart=always
 
 [Install]
-WantedBy=user-graphical-login.target
+WantedBy=sway-session.target

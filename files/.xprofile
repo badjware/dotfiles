@@ -29,5 +29,4 @@ feh --bg-fill --no-fehbg /usr/share/pixmaps/wallpaper.png
 # set screen blanking to 30 minutes
 xset s 1800 1800
 
-source ~/.local/profile.d/*
 

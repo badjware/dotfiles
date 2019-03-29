@@ -1,6 +1,15 @@
-# Autostart Xorg if we are on tty1
-if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-  exec startx
+# Autostart sway if we are on tty1
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    export XDG_SESSION_TYPE=wayland
+
+    # SDL
+    export SDL_VIDEODRIVER=wayland
+
+    # Elementary/EFL
+    export ECORE_EVAS_ENGINE=wayland_egl
+    export ELM_ENGINE=wayland_egl
+
+    exec sway
 fi
 
 

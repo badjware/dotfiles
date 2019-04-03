@@ -14,7 +14,7 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     #export WLR_DRM_NO_ATOMIC=1
     #export WLR_DRM_NO_ATOMIC_GAMMA=1
 
-    exec sway
+    exec sway -d -V &>~/sway.log
 fi
 
 

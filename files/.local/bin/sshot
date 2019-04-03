@@ -16,37 +16,24 @@ mkdir -p "$(dirname $file)" 2>/dev/null
 
 if [[ -n "$ARG_PARTIAL" ]]; then
     # prompt the user for the area to take a screenshot from
-    read -r geometry < <(slop --highlight --color="0.6,0.4,0.3,0.4" --tolerance=0 --format "%wx%h+%x+%y")
-
+    geometry="$(slurp)"
     if [ -z "$geometry" ]; then
         exit 1
     fi
 elif [[ -n $ARG_WINDOW  ]]; then
     # get the active window geometry
-    while read -r line; do
-        if echo "$line" | grep -q "Position"; then
-            p="$(echo "$line" | grep -Eo '[0-9]+,[0-9]+' | sed 's/,/+/')"
-        elif echo "$line" | grep -q "Geometry"; then
-            g="$(echo "$line" | grep -Eo '[0-9]+x[0-9]+')"
-        fi
-    done <<< "$(xdotool getactivewindow getwindowgeometry)"
-    geometry="$g"+"$p"
+    geometry="$(get-focused-window-geometry)"
 fi
 
 # take a screenshot
-scrot "$file"
-
-if [[ -n "$geometry" ]]; then
-    # crop the screenshot to geometry
-    convert "$file" -crop "$geometry" "$file"
-fi
+grim -g "$geometry" -- "$file"
 
 # place to image in the clipboard
-xclip -selection clipboard -target image/png "$file"
+wl-copy < "$file"
 
 if [[ -n "$ARG_PIN" ]]; then
     # pin the screenshot
-    feh --title "pinned screenshot" --geometry "$geometry" "$file" &
+    feh --geometry "$(echo -n "$geometry" | sed -E 's/([0-9]+),([0-9]+) ([0-9]+)x([0-9]+)/\3x\4+\1+\2/')" "$file" &
 fi
 
 # print the file name

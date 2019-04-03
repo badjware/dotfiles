@@ -46,11 +46,15 @@ gaps outer -8
 smart_gaps on
 
 # Floating mod
-for_window [class="^Pavucontrol$"] floating enable
-for_window [class="^Pulseeffects$"] floating enable
+for_window [app_id="pavucontrol"] floating enable
 for_window [class="Remmina" title="Remmina Remote Desktop Client"] floating enable
-for_window [class="feh" title="pinned screenshot"] floating enable sticky enable
+for_window [class="feh"] floating enable
 for_window [class="TeamViewer"] floating enable
+
+for_window [window_type="dialog"] floating enable
+for_window [window_type="utility"] floating enable
+for_window [window_type="toolbar"] floating enable
+for_window [window_type="splash"] floating enable
 
 # https://github.com/ValveSoftware/steam-for-linux/issues/1040
 for_window [class="^Steam$" title="^Friends$"] floating enable
@@ -223,10 +227,10 @@ bindsym XF86MonBrightnessDown exec brightness-control down
 bindsym XF86AudioMute exec volume-control mute
 bindsym XF86AudioRaiseVolume exec volume-control up
 bindsym XF86AudioLowerVolume exec volume-control down
-bindsym Shift+Print exec sshot --pin
-bindsym Control+Print exec sshot --partial
-bindsym Alt+Print exec sshot --window
-bindsym Print exec sshot
+bindsym Shift+print exec sshot --pin
+bindsym Control+print exec sshot --partial
+bindsym Alt+print exec sshot --window
+bindsym print exec sshot
 
 # resize window (you can also use the mouse for that)
 mode "resize" {

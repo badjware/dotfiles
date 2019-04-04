@@ -3,6 +3,8 @@
 # run units
 systemctl --user daemon-reload
 systemctl --user enable --now tmux.service
+systemctl --user enable --now redshift.service
+systemctl --user enable --now swayidle.service
 systemctl --user enable --now mpv.service
 
 # install tmux plugins

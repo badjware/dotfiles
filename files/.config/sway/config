@@ -74,7 +74,7 @@ for_window [title="^Steam Keyboard$"] floating enable
 
 ### Output configuration
 output "*" {
-    background ~/.local/share/wallpaper.jpg fill
+    background ~/.local/share/wallpaper fill
 }
 
 ### Input configuration

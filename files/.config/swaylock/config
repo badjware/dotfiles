@@ -2,6 +2,7 @@ image=~/.local/share/wallpaper
 scaling=fill
 color=111111
 
+ignore-empty-password
 disable-caps-lock-text
 line-uses-ring
 

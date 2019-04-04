@@ -1,5 +1,5 @@
 # PATH
-export PATH="$PATH:$HOME/.local/bin:$HOME/bin"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 # applications
 export TERMINAL=termite

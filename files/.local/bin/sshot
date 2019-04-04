@@ -33,7 +33,7 @@ wl-copy < "$file"
 
 if [[ -n "$ARG_PIN" ]]; then
     # pin the screenshot
-    feh --geometry "$(echo -n "$geometry" | sed -E 's/([0-9]+),([0-9]+) ([0-9]+)x([0-9]+)/\3x\4+\1+\2/')" "$file" &
+    feh --title "Pinned screenshot" --geometry "$(echo -n "$geometry" | sed -E 's/([0-9]+),([0-9]+) ([0-9]+)x([0-9]+)/\3x\4+\1+\2/')" "$file" &
 fi
 
 # print the file name

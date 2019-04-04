@@ -157,7 +157,7 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space exec center-float
+bindsym $mod+Shift+space floating toggle
 
 # toggle sticky
 bindsym $mod+Ctrl+space sticky toggle

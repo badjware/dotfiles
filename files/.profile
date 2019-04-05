@@ -22,7 +22,6 @@ export QT_QPA_PLATFORMTHEME=gtk2
 export QT_AUTO_SCREEN_SCALE_FACTOR=0
 
 # java
-export _JAVA_AWT_WM_NONREPARENTING=1
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dsun.java2d.opengl=true"
 export JAVA_FONTS=/usr/share/fonts/TTF
 

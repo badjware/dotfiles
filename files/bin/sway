@@ -31,4 +31,7 @@ export ELM_ENGINE=wayland_egl
 # SDL
 export SDL_VIDEODRIVER=wayland
 
+# Java
+export _JAVA_AWT_WM_NONREPARENTING=1
+
 exec /usr/bin/sway $@

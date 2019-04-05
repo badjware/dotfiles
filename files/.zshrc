@@ -1,6 +1,6 @@
 # Autostart sway if we are on tty1
 if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    exec ~/.local/bin/sway
+    exec ~/bin/sway
 fi
 
 

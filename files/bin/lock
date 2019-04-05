@@ -2,14 +2,6 @@
 
 unset LD_PRELOAD
 
-query_color() {
-    xrdb -query | grep -m 1 "lock.color.$1" | sed -E 's/^.+:\s*#?//g'
-}
-
-query_prop() {
-    xrdb -query | grep -m 1 "lock.$1" | sed -E 's/^.+:\s*//g'
-}
-
 # flush gpg-agent cache
 echo RELOADAGENT | gpg-connect-agent
 

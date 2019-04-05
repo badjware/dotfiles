@@ -274,7 +274,7 @@ exec /bin/dex -a
 exec $terminal
 
 bar {
-    status_command i3status --config ~/.config/sway/i3status.conf
+    status_command i3status
 
     font pango:$font 10
     height 30

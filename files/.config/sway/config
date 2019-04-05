@@ -115,7 +115,7 @@ bindsym $mod+Control+Return exec rofi -combi drun -show drun -modi drun,window
 # start rofi-pass for password autotype
 bindsym $mod+Shift+Return exec rofi-pass
 # start rofi-radio
-bindsym $mod+p exec ~/.config/sway/rofi-radio.py
+bindsym $mod+p exec ~/bin/rofi-radio
 
 # change focus
 bindsym $mod+h focus left

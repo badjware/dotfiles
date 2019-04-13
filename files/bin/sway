@@ -13,6 +13,10 @@ import-gsettings() {
 
 export XDG_SESSION_TYPE=wayland
 
+# Qt
+export QT_QPA_PLATFORM=wayland
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+
 # GTK
 export CLUTTER_BACKEND=wayland
 export GTK_CSD=0

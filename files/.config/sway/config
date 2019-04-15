@@ -48,6 +48,7 @@ smart_gaps on
 # Floating mod
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="org.remmina.Remmina" title="Remmina Remote Desktop Client"] floating enable
+for_window [app_id="desktopclient.nextcloud.com.nextcloud"] floating enable
 for_window [class="TeamViewer"] floating enable
 
 for_window [class="feh" title="Pinned screenshot"] {
@@ -88,16 +89,32 @@ floating_modifier $mod
 # disable focus follow mouse
 #focus_follows_mouse no
 
+# Touchpad
 input "2:18:FocalTechPS/2_FocalTech_Touchpad" {
     tap enabled
     tap_button_map lrm
     middle_emulation enabled
+    scroll_method two_finger
+    dwt enable
+    drag enable
+}
+
+# Touchscreen
+input "1003:35393:Atmel" {
+    map_to_output eDP-1
+    tap enabled
+    drag enable
 }
 
 input "*" {
+    # Keyboard
     xkb_layout us
     xkb_variant altgr-intl
     xkb_options caps:super
+
+    # Mouse
+    accel_profile flat
+    pointer_accel 0
 }
 
 ### Key bindings

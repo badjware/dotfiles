@@ -1,7 +1,7 @@
 {
     "layer": "top", // Waybar at top layer
     // "position": "bottom", // Waybar position (top|bottom|left|right)
-    "height": 24, // Waybar height (to be removed for auto height)
+    "height": 23, // Waybar height (to be removed for auto height)
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
@@ -61,7 +61,7 @@
         //"scroll-step": 1,
         "format": "{icon} {volume}%",
         "format-bluetooth": "{icon} {volume}%",
-        "format-muted": "",
+        "format-muted": " --%",
         "format-icons": {
             "headphones": "",
             "headset": "",

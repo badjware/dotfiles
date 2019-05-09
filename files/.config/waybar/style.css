@@ -1,6 +1,6 @@
 * {
     border: none;
-    font-family: "Font Awesome 5 Free", Verdana, sans-serif;
+    font-family: "Font Awesome 5 Free", sans-serif;
     font-size: 13px;
 }
 
@@ -19,11 +19,15 @@ window#waybar {
     background: #64727D;
 }
 
-#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #mode {
+#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio {
     padding: 0 10px;
-    border-right: 1px solid white;
+    border-right: 1px solid #b7bbb7;
 }
 
 #idle_inhibitor, #tray, #custom-vpn {
-    margin-left: 10px;
+    min-width: 25px;
+}
+
+#tray {
+    margin-left: 5px;
 }

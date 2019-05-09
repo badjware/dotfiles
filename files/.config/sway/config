@@ -20,19 +20,19 @@ client.background       $bg
 set $font Hack Nerd Font
 font pango:$font 8
 
-set $ws1 "1:[1]"
-set $ws2 "2:[2]"
-set $ws3 "3:[3]"
-set $ws4 "4:[4]"
-set $ws5 "5:[5]"
-set $ws6 "6:[6]"
-set $ws7 "7:[7]"
-set $ws8 "8:[8]"
-set $ws9 "9:[9]"
-set $ws10 "10:[10]"
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
 
 # default workspace
-workspace "2:[2]"
+workspace "2"
 
 # window title
 #for_window [class="^.*"] border pixel 2 title_format " %title"
@@ -291,23 +291,24 @@ exec /bin/dex -a
 exec $terminal
 
 bar {
-    status_command i3status
-
-    font pango:$font 10
-    height 30
-    tray_padding 7
-    position top
-    separator_symbol " ▏"
-    strip_workspace_numbers yes
-
-    colors {
-        background #000000
-        statusline $fg
-
-        focused_workspace  #2c2f33     #2c2f33     $fg
-        active_workspace   #000000     #000000     $fg
-        inactive_workspace #000000     #000000     #4b5056
-        urgent_workspace   #000000     #000000     #e27c77
-    }
+    swaybar_command waybar
+#    status_command i3status
+#
+#    font pango:$font 10
+#    height 30
+#    tray_padding 7
+#    position top
+#    separator_symbol " ▏"
+#    strip_workspace_numbers yes
+#
+#    colors {
+#        background #000000
+#        statusline $fg
+#
+#        focused_workspace  #2c2f33     #2c2f33     $fg
+#        active_workspace   #000000     #000000     $fg
+#        inactive_workspace #000000     #000000     #4b5056
+#        urgent_workspace   #000000     #000000     #e27c77
+#    }
 }
 

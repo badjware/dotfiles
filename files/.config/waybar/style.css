@@ -1,0 +1,29 @@
+* {
+    border: none;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+}
+
+window#waybar {
+    background: rgba(43, 48, 59, 0.8);
+    color: white;
+}
+
+#workspaces button {
+    padding: 0 5px;
+    background: transparent;
+    color: white;
+}
+
+#workspaces button.focused {
+    background: #64727D;
+}
+
+#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #mode {
+    padding: 0 10px;
+    border-right: 1px solid white;
+}
+
+#idle_inhibitor, #tray, #custom-vpn {
+    margin-left: 10px;
+}

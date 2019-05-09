@@ -31,7 +31,7 @@
         "format": " {:%Y-%m-%d %H:%M}"
     },
     "cpu": {
-        "format": " {usage}%",
+        "format": " {usage}%",
         "tooltip": false
     },
     "memory": {
@@ -39,7 +39,7 @@
     },
     "backlight": {
         "format": "{icon} {percent}%",
-        "format-icons": ["", ""]
+        "format-icons": ["", "", ""]
     },
     "battery": {
         "states": {
@@ -53,27 +53,26 @@
         "format-icons": ["", "", "", "", ""]
     },
     "network": {
-        // "interface": "wlp2s0", // (Optional) To force the use of this interface
         "format-wifi": "  &lt;{essid}&gt; {ipaddr}/{cidr}",
-        "format-ethernet": " {ipaddr}/{cidr}",
+        "format-ethernet": " {ipaddr}/{cidr}",
         "format-disconnected": "⚠ Disconnected"
     },
     "pulseaudio": {
         //"scroll-step": 1,
         "format": "{icon} {volume}%",
-        //"format-bluetooth": "{icon} {volume}%",
-        "format-muted": "婢",
+        "format-bluetooth": "{icon} {volume}%",
+        "format-muted": "",
         "format-icons": {
-            "headphones": "",
-            "headset": "",
-            "default": ["", ""]
+            "headphones": "",
+            "headset": "",
+            "default": ["", "", ""]
         },
         "on-click": "pavucontrol"
     },
     "custom/vpn": {
         "format": "{}",
         "interval": 5,
-        "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo "
+        "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo "
     }
 }
 

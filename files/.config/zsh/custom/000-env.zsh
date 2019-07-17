@@ -11,3 +11,5 @@ setopt HIST_REDUCE_BLANKS  # Remove superfluous blanks before recording entry.
 export GPG_TTY=$(tty)
 gpg-connect-agent updatestartuptty /bye >/dev/null
 
+# keychain (for ssh agent)
+eval $(keychain --eval --quiet --noask --nogui)

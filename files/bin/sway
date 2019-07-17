@@ -14,6 +14,10 @@ import-gsettings() {
 export XDG_SESSION_TYPE=wayland
 
 # Qt
+export DESKTOP_SESSION=gnome
+export QT_STYLE_OVERRIDE=gtk
+export QT_QPA_PLATFORMTHEME=gtk2
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
 export QT_QPA_PLATFORM=wayland
 export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 
@@ -38,4 +42,18 @@ export SDL_VIDEODRIVER=wayland
 # Java
 export _JAVA_AWT_WM_NONREPARENTING=1
 
+# wlroot rdp
+wlroot_rdp_cache="$HOME/.cache/wlr-rdp"
+wlroot_rdp_cert="$wlroot_rdp_cache/tls.crt"
+wlroot_rdp_key="$wlroot_rdp_cache/tls.key"
+wlroot_rdp_csr="$wlroot_rdp_cache/tls.csr"
+mkdir "$wlroot_rdp_cache" 2>/dev/null
+if [[ ! -e "$wlroot_rdp_cert" ]] || [[ ! -e "$wlroot_rdp_key" ]]; then
+    openssl genrsa -out "$wlroot_rdp_key" 2048
+    openssl req -new -key "$wlroot_rdp_key" -out "$wlroot_rdp_csr"
+    openssl x509 -req -days 365 -signkey "$wlroot_rdp_key" -in "$wlroot_rdp_csr" -out "$wlroot_rdp_cert"
+fi
+
+WLR_RDP_TLS_CERT_PATH="$wlroot_rdp_cert" \
+WLR_RDP_TLS_KEY_PATH="$wlroot_rdp_key" \
 exec /usr/bin/sway $@

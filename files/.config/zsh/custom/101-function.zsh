@@ -43,8 +43,8 @@ __nmap_iface() {
    bc -l <<<"$*"
 }
 
-# start looking-glass
-play-vm() {
+# start game mode
+gamemode() {
     if ! [ -S /tmp/win10.sock ]; then
         echo "Cannot find spice socket! Is the vm started?"
     else
@@ -63,8 +63,7 @@ play-vm() {
             sudo sh -c "echo 0,4 > /proc/irq/$i/smp_affinity_list"
         done
 
-        echo "Starting looking-glass"
-        LD_PRELOAD=/usr/\$LIB/libgamemodeauto.so looking-glass-client -p 0 -c /tmp/win10.sock -K 60 -MFk $@
+        LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" looking-glass-wrapper
 
         echo "Restore system"
         # irq

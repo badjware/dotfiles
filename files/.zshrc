@@ -1,8 +1,7 @@
-# Autostart Xorg if we are on tty1
-if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-  exec startx
+# Autostart sway if we are on tty1
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    exec ~/bin/sway
 fi
-
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -89,20 +88,3 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# Remove duplicate when using Ctrl+R
-# https://github.com/junegunn/fzf/issues/626
-__fzf_history__() (
-    local line
-    shopt -u nocaseglob nocasematch
-    line=$(
-    HISTTIMEFORMAT= history | tac | sort --key=2.1 -bus | sort -n |
-    FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} $FZF_DEFAULT_OPTS --tac -n2..,.. --tiebreak=index --bind=ctrl-r:toggle-sort $FZF_CTRL_R_OPTS +m" $(__fzfcmd) |
-    command grep '^ *[0-9]') &&
-    if [[ $- =~ H ]]; then
-        sed 's/^ *\([0-9]*\)\** .*/!\1/' <<< "$line"
-    else
-        sed 's/^ *\([0-9]*\)\** *//' <<< "$line"
-    fi
-)
-

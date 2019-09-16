@@ -1,0 +1,3 @@
+#!/bin/bash
+
+get-focused-window-properties | jq --raw-output '.rect|((.x|tostring)+","+(.y|tostring)+" "+(.width|tostring)+"x"+(.height|tostring))'

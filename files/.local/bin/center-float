@@ -1,6 +1,0 @@
-#!/bin/bash
-set -- \
-    $(i3-msg -t get_workspaces | jq --raw-output '. | map(select(.focused == true)) | .[].rect | [.width, .height] | @sh')
-i3-msg -q floating toggle
-i3-msg -q resize set $(( $1/3*2 )) $(( $2/3*2 ))
-i3-msg -q move absolute position center

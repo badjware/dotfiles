@@ -1,0 +1,9 @@
+#!/bin/bash
+
+unset LD_PRELOAD
+
+# flush gpg-agent cache
+echo RELOADAGENT | gpg-connect-agent
+
+# lock
+exec swaylock

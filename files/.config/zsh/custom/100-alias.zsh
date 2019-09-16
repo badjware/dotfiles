@@ -9,11 +9,11 @@ alias rename="perl-rename"
 alias userctl="systemctl --user"
 
 # ls
-alias ls="lsd --group-dirs first"
-alias l='lsd --group-dirs -l'
-alias la='lsd --group-dirs -a'
-alias lla='lsd --group-dirs -la'
-alias lt='lsd --group-dirs --tree'
+alias ls='lsd --group-dirs=first'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree'
 
 # powershell seems to have trouble with xterm-256color
 alias pwsh="TERM=xterm pwsh"

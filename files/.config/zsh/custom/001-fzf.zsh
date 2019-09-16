@@ -10,12 +10,12 @@ export FZF_TMUX_HEIGHT=90%
 # attach some extra options to path and dir completion
 eval "_$(declare -f _fzf_path_completion)"
 _fzf_path_completion() {
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_path_completion $@
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_path_completion "$1" "$2"
 }
 
 eval "_$(declare -f _fzf_dir_completion)"
 _fzf_dir_completion() {
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_dir_completion $@
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" __fzf_dir_completion "$1" "$2"
 }
 
 # Remove duplicate when using Ctrl+R

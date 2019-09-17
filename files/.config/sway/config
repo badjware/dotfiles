@@ -72,9 +72,34 @@ for_window [class="^Steam$" title="^Screenshot Uploader$"] floating enable
 for_window [class="^Steam$" title="^Steam Guard - Computer Authorization Required$"] floating enable
 for_window [title="^Steam Keyboard$"] floating enable
 
+## Application assignement
+assign [class="[Ss]lack"] 1
+assign [class="[Dd]iscord"] 1
+
 ### Output configuration
 output "*" {
     background ~/.local/share/wallpaper fill
+}
+
+set $output1 "Goldstar Company Ltd LG QHD 0x00001F95"
+workspace $ws3 output $output1
+workspace $ws4 output $output1
+workspace $ws5 output $output1
+workspace $ws6 output $output1
+workspace $ws7 output $output1
+workspace $ws8 output $output1
+workspace $ws9 output $output1
+workspace $ws10 output $output1
+output $output1 {
+    position 1080 220
+}
+
+set $output2 "Ancor Communications Inc ASUS VH238 BALMIB547836"
+workspace $ws1 output $output2
+workspace $ws2 output $output2
+output $output2 {
+    position 0 0
+    transform 90
 }
 
 ### Input configuration

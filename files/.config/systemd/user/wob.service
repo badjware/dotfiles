@@ -1,0 +1,10 @@
+[Unit]
+Description=A lightweight overlay volume/backlight/progress/anything bar for Wayland.
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "exec $HOME/bin/wob"
+
+[Install]
+WantedBy=sway-session.target

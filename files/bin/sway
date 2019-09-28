@@ -42,6 +42,9 @@ export SDL_VIDEODRIVER=wayland
 # Java
 export _JAVA_AWT_WM_NONREPARENTING=1
 
+# Firefox
+export MOZ_ENABLE_WAYLAND=1
+
 # wlroot rdp
 wlroot_rdp_cache="$HOME/.cache/wlr-rdp"
 wlroot_rdp_cert="$wlroot_rdp_cache/tls.crt"

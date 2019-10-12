@@ -47,6 +47,7 @@
             "warning": 30,
             "critical": 15
         },
+        "bat": "BAT0",
         "format": " {icon} {capacity}%",
         // "format-good": "", // An empty format will hide the module
         // "format-full": "",

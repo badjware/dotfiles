@@ -57,6 +57,7 @@ if [[ ! -e "$wlroot_rdp_cert" ]] || [[ ! -e "$wlroot_rdp_key" ]]; then
     openssl x509 -req -days 365 -signkey "$wlroot_rdp_key" -in "$wlroot_rdp_csr" -out "$wlroot_rdp_cert"
 fi
 
+# start sway
 WLR_RDP_TLS_CERT_PATH="$wlroot_rdp_cert" \
 WLR_RDP_TLS_KEY_PATH="$wlroot_rdp_key" \
 exec /usr/bin/sway $@

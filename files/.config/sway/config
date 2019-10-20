@@ -93,6 +93,9 @@ workspace $ws8 output $output1
 workspace $ws9 output $output1
 workspace $ws10 output $output1
 output $output1 {
+    # we need to explicitly select the mode, otherwise
+    # sway will select 4k 30Hz
+    mode 2560x1440@60Hz
     position 1080 220
 }
 

@@ -65,23 +65,28 @@ if dein#load_state(pluginpath)
     call dein#add('mgee/lightline-bufferline')
     call dein#add('ryanoasis/vim-devicons')
     call dein#add('airblade/vim-gitgutter')
-    call dein#add('christoomey/vim-tmux-navigator')
     call dein#add('scrooloose/nerdtree')
     call dein#add('Yggdroot/indentLine')
+
+    " Movement
+    call dein#add('christoomey/vim-tmux-navigator')
+    "call dein#add('easymotion/vim-easymotion')
+    call dein#add('unblevable/quick-scope')
 
     " Tools / Commands
     call dein#add('tpope/vim-surround')
     call dein#add('jiangmiao/auto-pairs')
     call dein#add('tpope/vim-endwise')
     "call dein#add('chrisbra/unicode.vim')
-    "call dein#add('ctrlpvim/ctrlp.vim')
-    call dein#add('junegunn/fzf.vim')
-    call dein#add('easymotion/vim-easymotion')
+    call dein#add('ctrlpvim/ctrlp.vim')
+    "call dein#add('junegunn/fzf.vim')
     call dein#add('tpope/vim-obsession')
 
     " Linting / Completion
     call dein#add('w0rp/ale')
-    call dein#add('maralla/completor.vim')
+    call dein#add('Shougo/deoplete.nvim')
+    call dein#add('ervandew/supertab')
+    call dein#add('autozimu/LanguageClient-neovim', { 'rev': 'next', 'build': 'bash install.sh'})
 
     " Language
     call dein#add('sheerun/vim-polyglot')
@@ -110,14 +115,23 @@ highlight Comment cterm=italic
 set t_ZH=[3m
 set t_ZR=[23m
 
-" Completor
-" TAB to choose completion
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-"inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
-let g:completor_python_binary = '/usr/bin/python'
-let g:completor_node_binary = '/usr/bin/node'
-let g:completor_clang_binary = '/usr/bin/clang'
+" deoplete
+let g:deoplete#enable_at_startup = 1
+
+" LanguageClient
+set hidden
+let g:LanguageClient_serverCommands = {
+    \ 'python': ['/usr/bin/pyls'],
+    \ 'sh': ['bash-language-server', 'start'],
+    \ 'terraform': ['/usr/bin/terraform-lsp'],
+    \ 'yaml': ['/usr/bin/yaml-language-server'],
+    \ }
+nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> <F12> :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+
+" supertab
+let g:SuperTabDefaultCompletionType = "<c-n>"
 
 " ALE
 let g:ale_sign_error = ''
@@ -130,11 +144,9 @@ highlight ALEWarning ctermfg=Blue ctermbg=None cterm=underline
 " nerdtree
 map <C-n> :NERDTreeToggle<CR>
 
-" fzf
-map <C-p> :FZF<CR>
-
-" easymotion
-map <Leader> <Plug>(easymotion-prefix)
+" ctrlp
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
 
 " gitgutter
 let g:gitgutter_realtime = 1

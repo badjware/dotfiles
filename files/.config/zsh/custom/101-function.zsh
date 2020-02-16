@@ -78,3 +78,4 @@ gamemode() {
         sudo cset set -d system &>/dev/null
     fi
 }
+

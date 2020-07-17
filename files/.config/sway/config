@@ -49,6 +49,12 @@ for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="org.remmina.Remmina" title="Remmina Remote Desktop Client"] floating enable
 for_window [app_id="desktopclient.nextcloud.com.nextcloud"] floating enable
 for_window [class="TeamViewer"] floating enable
+for_window [app_id="firefox" title="Firefox - Sharing Indicator"] floating enable
+
+for_window [app_id="firefox" title="Picture-in-Picture"] {
+    floating enable
+    sticky enable
+}
 
 for_window [class="feh" title="Pinned screenshot"] {
     floating enable
@@ -78,10 +84,26 @@ for_window [app_id="waybar" floating] {
     move down 120px # adjust if some menus still don't fit
 }
 
+# Inhibit idle if a window is fullscreen
+for_window [class="^.*"] inhibit_idle fullscreen
+for_window [app_id="^.*"] inhibit_idle fullscreen
+
 ### Output configuration
 output "*" {
     background ~/.local/share/wallpaper fill
 }
+
+# defaults, laptop mode
+workspace $ws1 output eDP-1
+workspace $ws2 output eDP-1
+workspace $ws3 output VGA-1
+workspace $ws4 output VGA-1
+workspace $ws5 output VGA-1
+workspace $ws6 output VGA-1
+workspace $ws7 output VGA-1
+workspace $ws8 output VGA-1
+workspace $ws9 output VGA-1
+workspace $ws10 output VGA-1
 
 set $output1 "Goldstar Company Ltd LG QHD 0x00001F95"
 workspace $ws3 output $output1

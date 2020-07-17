@@ -30,6 +30,3 @@ alias netctl="sudo netctl"
 alias minicom="docker run --device=/dev/ttyUSB0 -it registry.massaki.ca/minicom"
 alias browsh="docker run --rm -it browsh/browsh"
 
-# open-sourced build of vscode is named code-oss
-alias code="code-oss"
-

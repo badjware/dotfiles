@@ -5,7 +5,7 @@
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["clock", "network", "cpu", "memory", "battery", "backlight", "pulseaudio", "custom/vpn", "idle_inhibitor", "tray"],
+    "modules-right": ["custom/spotify", "clock", "network", "cpu", "memory", "battery", "backlight", "pulseaudio", "custom/vpn", "idle_inhibitor", "tray"],
 
     // Modules configuration
     "sway/workspaces": {
@@ -68,12 +68,23 @@
             "headset": "",
             "default": ["", "", ""]
         },
-        "on-click": "pavucontrol"
+        "on-click-right": "pavucontrol"
     },
     "custom/vpn": {
         "format": "{}",
         "interval": 5,
         "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo "
+    },
+    "custom/spotify": {
+        "format": " {}",
+        "interval": 5,
+        "max-length": 50,
+        "exec": "playerctl metadata -f '({{duration(position)}}/{{duration(mpris:length)}}) {{status}}: {{title}}\n{{artist}} - {{title}}'",
+        "exec-if": "pgrep spotify",
+        "on-scroll-up": "playerctl volume 0.05+",
+        "on-scroll-down": "playerctl volume 0.05-",
+        "on-click": "playerctl play-pause",
+        "on-click-right": "pgrep spotify$ || spotify"
     }
 }
 

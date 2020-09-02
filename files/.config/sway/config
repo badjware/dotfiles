@@ -118,6 +118,7 @@ output $output1 {
     # we need to explicitly select the mode, otherwise
     # sway will select 4k 30Hz
     mode 2560x1440@60Hz
+    adaptive_sync on
     position 1080 220
 }
 

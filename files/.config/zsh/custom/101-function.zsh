@@ -45,9 +45,9 @@ __nmap_iface() {
 
 # start game mode
 gamemode() {
-    if ! [ -S /tmp/win10.sock ]; then
-        echo "Cannot find spice socket! Is the vm started?"
-    else
+    #if ! [ -S /tmp/win10.sock ]; then
+        #echo "Cannot find spice socket! Is the vm started?"
+    #else
         echo "Setup cpuset cgroup for host"
         sudo cset set -c 0,4 -s system
         sudo cset proc -m -f root -t system
@@ -63,7 +63,8 @@ gamemode() {
             sudo sh -c "echo 0,4 > /proc/irq/$i/smp_affinity_list"
         done
 
-        LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" looking-glass-wrapper
+        #LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" auto-restart looking-glass-client -p 0 -c /tmp/win10.sock app:renderer=opengl egl:vsync=yes win:fullScreen=yes -k $@
+        gamemoderun auto-restart looking-glass-client
 
         echo "Restore system"
         # irq
@@ -76,6 +77,6 @@ gamemode() {
         done;
         # cpuset
         sudo cset set -d system &>/dev/null
-    fi
+    #fi
 }
 

@@ -7,6 +7,7 @@ alias top="htop"
 alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
+alias lock="swaylock"
 
 # ls
 alias ls='lsd --group-dirs=first'

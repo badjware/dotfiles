@@ -63,8 +63,8 @@ gamemode() {
             sudo sh -c "echo 0,4 > /proc/irq/$i/smp_affinity_list"
         done
 
-        #LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" auto-restart looking-glass-client -p 0 -c /tmp/win10.sock app:renderer=opengl egl:vsync=yes win:fullScreen=yes -k $@
-        gamemoderun auto-restart looking-glass-client
+        #LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" until-success looking-glass-client -p 0 -c /tmp/win10.sock app:renderer=opengl egl:vsync=yes win:fullScreen=yes -k $@
+        gamemoderun until-sucess looking-glass-client
 
         echo "Restore system"
         # irq

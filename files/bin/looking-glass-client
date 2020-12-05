@@ -1,0 +1,4 @@
+#!/bin/bash
+#unset XDG_SESSION_TYPE
+#unset SDL_VIDEODRIVER
+/bin/looking-glass-client $@

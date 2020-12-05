@@ -47,7 +47,7 @@ load-module module-switch-on-connect
 
 ### Automatically load driver modules depending on the hardware available
 .ifexists module-udev-detect.so
-load-module module-udev-detect
+load-module module-udev-detect ignore_dB=1
 .else
 ### Use the static hardware detection module (for systems that lack udev support)
 load-module module-detect
@@ -131,7 +131,7 @@ load-module module-systemd-login
 load-module module-position-event-sounds
 
 ### Cork music/video streams when a phone stream is active
-load-module module-role-cork
+#load-module module-role-cork
 
 ### Modules to allow autoloading of filters (such as echo cancellation)
 ### on demand. module-filter-heuristics tries to determine what filters

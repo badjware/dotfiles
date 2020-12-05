@@ -262,7 +262,7 @@ bindsym $mod+Shift+0 move container to workspace $ws10
 # Assignation
 assign [class="^[Ss]lack$"] $ws1
 assign [class="^[Dd]iscord$"] $ws1
-assign [class="^looking-glass-client$"] $ws3
+#assign [class="^looking-glass-client$"] $ws3
 
 # screen
 workspace $ws1 output HDMI-2

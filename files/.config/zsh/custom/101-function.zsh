@@ -80,3 +80,16 @@ gamemode() {
     #fi
 }
 
+# netshoot
+netshoot-docker() {
+    set +x
+    docker run --rm -it --name netshoot $@ nicolaka/netshoot
+    set -x
+}
+
+netshoot-kube() {
+    set +x
+    kubectl run netshoot --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+    set -x
+}
+

@@ -30,4 +30,3 @@ alias netctl="sudo netctl"
 # docker
 alias minicom="docker run --device=/dev/ttyUSB0 -it registry.massaki.ca/minicom"
 alias browsh="docker run --rm -it browsh/browsh"
-

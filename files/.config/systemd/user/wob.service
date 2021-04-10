@@ -4,7 +4,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "exec $HOME/bin/wob"
+ExecStart=%h/.local/bin/wob
 
 [Install]
 WantedBy=sway-session.target

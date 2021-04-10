@@ -64,7 +64,7 @@ gamemode() {
         done
 
         #LD_PRELOAD="/usr/\$LIB/libgamemodeauto.so" until-success looking-glass-client -p 0 -c /tmp/win10.sock app:renderer=opengl egl:vsync=yes win:fullScreen=yes -k $@
-        gamemoderun until-sucess looking-glass-client
+        gamemoderun until-success looking-glass-client
 
         echo "Restore system"
         # irq

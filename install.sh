@@ -75,12 +75,12 @@ make_link() {
 
         # File exists, ask to delete
         if [[ "$OPT_YES" ]]; then
-            rm -rf $home_f
+            rm -rf "$home_f"
         else
             while true; do
                 read -r -p "Override $2? [Y/n] " a
                 if [[ "${a,,}" = "y"  ]]; then
-                    rm -r $home_f
+                    rm -r "$home_f"
                     break
                 elif [[ "${a,,}" = "n"  ]]; then
                     echo "skipping..."
@@ -90,13 +90,13 @@ make_link() {
        fi
     fi
 
-    mkdir -p "$(dirname $home_f)" &>/dev/null
+    mkdir -p "$(dirname "$home_f")" &>/dev/null
     if [[ -n "$OPT_COPY"  ]]; then
         log + "Creating copy $repo_f > $home_f"
-        cp -r $repo_f $home_f
+        cp -r "$repo_f" "$home_f"
     else
         log + "Creating symlink $repo_f > $home_f"
-        ln -s $repo_f $home_f
+        ln -s "$repo_f" "$home_f"
     fi
 }
 
@@ -157,9 +157,9 @@ fi
 
 for file_source in "files"; do
     log "*" "Processing $file_source"
-    for file_path in $(get_path "$file_source"); do
+    while read file_path; do
         make_link "$PWD/$file_source/$file_path" "$file_path"
-    done
+    done < <(get_path "$file_source")
 done
 
 if [[ -f "./scripts/post-install.sh" && -z "$OPT_NOSCRIPT" ]]; then

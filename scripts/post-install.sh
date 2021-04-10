@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# refresh font cache
+fc-cache
+
 # run units
 systemctl --user daemon-reload
 systemctl --user enable --now redshift.service

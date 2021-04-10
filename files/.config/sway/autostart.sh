@@ -8,6 +8,6 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     echo "Redirecting stdout to $log_stdout"
     echo "Redirecting stderr to $log_stderr"
 
-    exec ~/bin/sway 2>"$log_stderr" >"$log_stdout"
+    exec ~/.local/bin/sway 2>"$log_stderr" >"$log_stdout"
 fi
 

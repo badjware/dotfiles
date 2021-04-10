@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkfifo "$XDG_RUNTIME_DIR/wobpipe"
+tail -f "$XDG_RUNTIME_DIR/wobpipe" | /bin/wob

@@ -1,6 +1,7 @@
 [Unit]
 Description= A VNC server for wlroots based Wayland compositors
 Requires=sway-session.target
+After=network.target
 After=sway-session.target
 
 [Service]

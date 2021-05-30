@@ -27,9 +27,13 @@ window#waybar {
     border-radius: 6.5px;
 }
 
+#custom-vpn {
+    padding-left: 5px;
+}
+
 #idle_inhibitor, #tray, #custom-vpn {
     padding-right: 0;
-    min-width: 25px;
+    min-width: 23px;
     color: white;
 }
 

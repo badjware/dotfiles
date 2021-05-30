@@ -28,18 +28,19 @@
         "spacing": 10
     },
     "clock": {
-        "format": " {:%Y-%m-%d %H:%M}"
-    },
-    "cpu": {
-        "format": " {usage}%",
+        "format": " {:%Y-%m-%d %H:%M}",
         "tooltip": false
     },
+    "cpu": {
+        "format": " {usage:2}%"
+    },
     "memory": {
-        "format": " {}%"
+        "format": " {percentage:2}%",
+        "tooltip-format": "{used:0.1f}/{total:0.1f}GiB"
     },
     "backlight": {
-        "format": "{icon} {percent}%",
-        "format-icons": ["", "", ""]
+        "format": "{icon} {percent:2}%",
+        "format-icons": ["", "", ""]
     },
     "battery": {
         "states": {
@@ -62,8 +63,8 @@
     },
     "pulseaudio": {
         //"scroll-step": 1,
-        "format": "{icon} {volume}%",
-        "format-bluetooth": "{icon} {volume}%",
+        "format": "{icon} {volume:2}%",
+        "format-bluetooth": "{icon} {volume:2}%",
         "format-muted": " --%",
         "format-icons": {
             "headphones": "",

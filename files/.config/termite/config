@@ -43,7 +43,7 @@ hyperlinks = true
 [colors]
 background = rgba(17, 19, 20, 0.85)
 cursor = #BBBBBB
-foreground = #B7BBB7
+foreground = #EBDBB2
 
 # black
 color0 = #2C2F33

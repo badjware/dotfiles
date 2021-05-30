@@ -1,8 +1,13 @@
-background-color=#383838
-border-color=#c7c7c7
-border-radius=4
+anchor=bottom-right
+background-color=#3c3836
+text-color=#ebdbb2
+border-color=#ebdbb2
+border-radius=1
 padding=10
 margin=5
 
 max-icon-size=32
-default-timeout=30000
+default-timeout=36000
+
+on-button-left=invoke-default-action
+on-button-right=dismiss

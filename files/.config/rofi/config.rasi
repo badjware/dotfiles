@@ -1,0 +1,11 @@
+configuration {
+	width: 40;
+	font: "monospace 12";
+	bw: 0;
+	location: 0;
+	separator-style: "none";
+	color-normal: "#383838, #ebdbb2, #383838, #ebddb2, #383838";
+	color-urgent: "#383838, #ebddb2, #383838, #ebdbb2, #383838";
+	color-active: "#383838, #ebdbb2, #383838, #ebdbb1, #383838";
+	color-window: "#383838, #ebddb2, #383838";
+}

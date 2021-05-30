@@ -54,9 +54,11 @@
         "format-icons": ["", "", "", "", ""]
     },
     "network": {
-        "format-wifi": "  &lt;{essid}&gt; {ipaddr}/{cidr}",
+        "format-wifi": " {ipaddr}/{cidr}",
         "format-ethernet": " {ipaddr}/{cidr}",
-        "format-disconnected": "⚠ Disconnected"
+        "format-disconnected": "⚠ Disconnected",
+        "tooltip-format": "up: {bandwidthUpBits}b/s, down: {bandwidthDownBits}b/s",
+        "tooltip-format-wifi": "{essid} -  {bandwidthUpBits}  {bandwidthDownBits}"
     },
     "pulseaudio": {
         //"scroll-step": 1,

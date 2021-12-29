@@ -1,0 +1,12 @@
+[Unit]
+Description=Set color temperature of display according to time of day.
+Documentation=https://gitlab.com/chinstrap/gammastep
+Requires=sway-session.target
+After=sway-session.target
+
+[Service]
+ExecStart=/usr/bin/gammastep
+Restart=always
+
+[Install]
+WantedBy=sway-session.target

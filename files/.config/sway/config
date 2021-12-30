@@ -1,5 +1,5 @@
 ### Vars
-set $terminal termite
+set $terminal alacritty
 
 ### Color configuration
 set $color1 #383838

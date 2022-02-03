@@ -25,4 +25,8 @@ alias netctl="sudo netctl"
 alias minicom="docker run --device=/dev/ttyUSB0 -it registry.massaki.ca/minicom"
 alias browsh="docker run --rm -it browsh/browsh"
 
+# kube
+alias netshoot="kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash"
+
+# utils
 alias convert-doc="libreoffice --headless --invisible --norestore --convert-to "

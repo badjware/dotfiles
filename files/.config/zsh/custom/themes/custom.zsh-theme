@@ -20,7 +20,6 @@ ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}?"
 ZSH_THEME_GIT_PROMPT_AHEAD="%{$fg_bold[white]%}↑"
 ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg_bold[white]%}↓"
 
-
 # Evaluate if root user
 __is_root() {
     if uname -s | egrep '^(CYGWIN)|(MINGW)|(MSYS)' 2>&1 >/dev/null; then
@@ -37,63 +36,6 @@ function __get_runtime_dir() {
     else
         echo -n "/tmp/"
     fi
-}
-
-prompt_cmd() {
-    # exit code
-    local exit_code=$?
-    local exit_code_hex=$(printf '(%02x)' $exit_code)
-
-    if [[ exit_code -eq 0 ]]; then
-        exit_code_hex="%{$FG[008]%}$exit_code_hex"
-    else
-        exit_code_hex="%{$fg[red]%}$exit_code_hex"
-    fi
-
-    # name@hostname
-    local user_color="$ZSH_THEME_HOSTNAME_COLOR"
-    if __is_root; then
-        local user_color="red"
-    fi
-    local name_hostname="%{$FG[$user_color]%}$USER%{$FG[$ZSH_THEME_HOSTNAME_COLOR]%}@%m"
-
-    # working directory
-    local wd_base="${PWD/$HOME/~}"
-    local wd_post=$(echo "$wd_base" | grep -Eo '(^~|/[^/]+){1,4}$')
-    local wd_pre=$(echo "${wd_base/$wd_post/}" | grep -Eo '^~|/[^/]{2}' | tr -d '\n' )
-    local wd="$wd_pre$wd_post"
-    [[ "$wd" == "" ]] && wd="/"
-    wd="%{$fg[yellow]%}$wd"
-
-    # prompt
-    if __is_root; then
-        # #
-        local prompt="%{$fg[red]%}#"
-    else
-        # $
-        local prompt="%{$FG[008]%}$"
-    fi
-
-    printf "%s %s %s\n%s %s" "$exit_code_hex" "$name_hostname" "$wd" "$prompt" "%{$reset_color%}"
-}
-
-rprompt_cmd() {
-    # git
-    if git rev-parse --git-dir >/dev/null 2>&1; then
-        local prompt_info="$(git_prompt_info)"
-        if [[ -z "$prompt_info" ]]; then
-            local git_rev="$(git_prompt_short_sha)"
-        else
-            local git_rev="$prompt_info"
-        fi
-
-        local prompt_status="$(git_prompt_status)"
-        if [[ -n "$prompt_status" ]]; then
-            local git_status="$(printf "%s[%s%s]" "%{$FG[008]%}" "$prompt_status" "%{$reset_color%}%{$FG[008]%}")"
-        fi
-    fi
-
-    printf "%s %s%s" "$git_rev" "$git_status" "%{$reset_color%}"
 }
 
 # Based on http://www.anishathalye.com/2015/02/07/an-asynchronous-shell-prompt/
@@ -129,6 +71,68 @@ function TRAPUSR1() {
 
     # redisplay
     zle && zle reset-prompt
+}
+
+prompt_cmd() {
+    # exit code
+    local exit_code=$?
+    local exit_code_hex="$(printf '(%02x)' $exit_code)"
+
+    if [[ exit_code -eq 0 ]]; then
+        exit_code_hex="%{$FG[008]%}$exit_code_hex"
+    else
+        exit_code_hex="%{$fg[red]%}$exit_code_hex"
+    fi
+
+    # kubernetes context
+    if which kubectl &>/dev/null; then
+        local kubectl_context="%{$FG[008]%}[$(kubectl config current-context)] "
+    fi
+
+    # name@hostname
+    local user_color="$ZSH_THEME_HOSTNAME_COLOR"
+    if __is_root; then
+        local user_color="red"
+    fi
+    local name_hostname="%{$FG[$user_color]%}$USER%{$FG[$ZSH_THEME_HOSTNAME_COLOR]%}@%m"
+
+    # working directory
+    local work_dir_base="${PWD/$HOME/~}"
+    local work_dir_post=$(echo "$work_dir_base" | grep -Eo '(^~|/[^/]+){1,4}$')
+    local work_dir_pre=$(echo "${work_dir_base/$work_dir_post/}" | grep -Eo '^~|/[^/]{2}' | tr -d '\n' )
+    local work_dir="$work_dir_pre$work_dir_post"
+    [[ "$work_dir" == "" ]] && work_dir="/"
+    work_dir="%{$fg[yellow]%}$work_dir"
+
+    # prompt
+    if __is_root; then
+        # #
+        local prompt="%{$fg[red]%}#"
+    else
+        # $
+        local prompt="%{$FG[008]%}$"
+    fi
+
+    printf "%s %s %s %s\n%s %s" "$exit_code_hex" "$name_hostname" "$work_dir" "$kubectl_context"  "$prompt" "%{$reset_color%}"
+}
+
+rprompt_cmd() {
+    # git
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+        local prompt_info="$(git_prompt_info)"
+        if [[ -z "$prompt_info" ]]; then
+            local git_rev="$(git_prompt_short_sha)"
+        else
+            local git_rev="$prompt_info"
+        fi
+
+        local prompt_status="$(git_prompt_status)"
+        if [[ -n "$prompt_status" ]]; then
+            local git_status="$(printf "%s[%s%s]" "%{$FG[008]%}" "$prompt_status" "%{$reset_color%}%{$FG[008]%}")"
+        fi
+    fi
+
+    printf "%s %s%s" "$git_rev" "$git_status" "%{$reset_color%}"
 }
 
 # vim: syn=zsh

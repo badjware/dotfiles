@@ -125,7 +125,7 @@ workspace $ws1 output $output2
 workspace $ws2 output $output2
 output $output2 {
     position 0 0
-    transform 90
+    transform 270
 }
 
 ### Input configuration

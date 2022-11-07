@@ -22,7 +22,7 @@ ZSH_THEME_GIT_PROMPT_BEHIND="%{$fg_bold[white]%}↓"
 
 # Evaluate if root user
 __is_root() {
-    if uname -s | egrep '^(CYGWIN)|(MINGW)|(MSYS)' 2>&1 >/dev/null; then
+    if uname -s | grep -E '^(CYGWIN)|(MINGW)|(MSYS)' 2>&1 >/dev/null; then
         id -G | grep 544 2>&1 >/dev/null
     else
         [ $UID -eq 0 ]

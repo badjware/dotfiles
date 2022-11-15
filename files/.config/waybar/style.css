@@ -9,6 +9,11 @@ window#waybar {
     color: rgba(235, 219, 178, 1);
 }
 
+label, button {
+    background: inherit;
+    color: inherit;
+}
+
 #workspaces button {
     padding: 0 5px;
     background: transparent;

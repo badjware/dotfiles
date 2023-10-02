@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # Autostart sway if we are on tty1
 if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
@@ -10,4 +10,3 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
 
     exec ~/.local/bin/sway 2>"$log_stderr" >"$log_stdout"
 fi
-

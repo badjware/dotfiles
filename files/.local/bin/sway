@@ -11,6 +11,11 @@ import-gsettings() {
     eval sed -E $expressions "${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini >/dev/null
 }
 
+# list DRM device priority
+# Set intel graphics as lowest priority
+# https://github.com/swaywm/sway/wiki#i-have-a-multi-gpu-setup-like-intelnvidia-or-intelamd-and-sway-does-not-start
+export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 1 else 0 end, .key] | @tsv' | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
+
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
 

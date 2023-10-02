@@ -91,42 +91,33 @@ output "*" {
     background ~/.local/share/wallpaper fill
 }
 
-# defaults, laptop mode
-workspace $ws1 output eDP-1
-workspace $ws2 output eDP-1
-workspace $ws3 output VGA-1
-workspace $ws4 output VGA-1
-workspace $ws5 output VGA-1
-workspace $ws6 output VGA-1
-workspace $ws7 output VGA-1
-workspace $ws8 output VGA-1
-workspace $ws9 output VGA-1
-workspace $ws10 output VGA-1
-
-set $output1 "Goldstar Company Ltd LG QHD 0x00001F95"
-workspace $ws3 output $output1
-workspace $ws4 output $output1
-workspace $ws5 output $output1
-workspace $ws6 output $output1
-workspace $ws7 output $output1
-workspace $ws8 output $output1
-workspace $ws9 output $output1
-workspace $ws10 output $output1
+set $output1 "LG Electronics LG QHD 0x00001F95"
+workspace $ws3 output $output1 VGA-1
+workspace $ws4 output $output1 VGA-1
+workspace $ws5 output $output1 VGA-1
+workspace $ws6 output $output1 VGA-1
+workspace $ws7 output $output1 VGA-1
+workspace $ws8 output $output1 VGA-1
+workspace $ws9 output $output1 VGA-1
+workspace $ws10 output $output1 VGA-1
 output $output1 {
     # we need to explicitly select the mode, otherwise
     # sway will select 4k 30Hz
+    position 0 0
     mode 2560x1440@60Hz
     adaptive_sync on
-    position 1080 220
 }
 
 set $output2 "Ancor Communications Inc ASUS VH238 BALMIB547836"
-workspace $ws1 output $output2
-workspace $ws2 output $output2
+workspace $ws1 output $output2 eDP-1
+workspace $ws2 output $output2 eDP-1
 output $output2 {
-    position 0 0
+    position 2560 -270
     transform 270
 }
+
+# Disable this output for consistency when running with discrete GPU enabled
+output "DP-3" disable
 
 ### Input configuration
 # mod key
@@ -263,16 +254,16 @@ assign [class="^[Dd]iscord$"] $ws1
 #assign [class="^looking-glass-client$"] $ws3
 
 # screen
-workspace $ws1 output HDMI-2
-workspace $ws2 output HDMI-2
-workspace $ws3 output HDMI-1
-workspace $ws4 output HDMI-1
-workspace $ws5 output HDMI-1
-workspace $ws6 output HDMI-1
-workspace $ws7 output HDMI-1
-workspace $ws8 output HDMI-1
-workspace $ws9 output HDMI-1
-workspace $ws10 output HDMI-1
+# workspace $ws1 output HDMI-A-2
+# workspace $ws2 output HDMI-A-2
+# workspace $ws3 output HDMI-A-1
+# workspace $ws4 output HDMI-A-1
+# workspace $ws5 output HDMI-A-1
+# workspace $ws6 output HDMI-A-1
+# workspace $ws7 output HDMI-A-1
+# workspace $ws8 output HDMI-A-1
+# workspace $ws9 output HDMI-A-1
+# workspace $ws10 output HDMI-A-1
 
 # reload the configuration file
 bindsym $mod+Shift+r reload
@@ -332,6 +323,9 @@ exec /bin/dex -a
 
 # run a terminal
 exec $terminal
+
+# setup outputs
+exec_always ~/.local/bin/setup-outputs
 
 bar {
     swaybar_command waybar

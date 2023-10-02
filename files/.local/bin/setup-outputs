@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# find displays with duplicate output
+# for each displays with duplicate output found, disable the HDMI output
+# assuming the other output is DisplayPort (prefered)
+while read -r display_with_dup_output; do 
+    while read -r hdmi_output; do
+        # disable the hdmi output
+        swaymsg "output $hdmi_output disable"
+    done < <(swaymsg -t get_outputs | jq --raw-output '.[] | [.name, .make + " " + .model] | @tsv' | grep -E "$display_with_dup_output$" | awk '{print $1}' | grep HDMI) # find the hdmi output
+done < <(swaymsg -t get_outputs | jq --raw-output '.[] | [.make + " " + .model] | @tsv' | sort | uniq -d) # list all displays with duplicate outputs

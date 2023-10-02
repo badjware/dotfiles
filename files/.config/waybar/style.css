@@ -37,7 +37,7 @@ label, button {
 }
 
 #idle_inhibitor, #tray, #custom-vpn {
-    padding-right: 0;
+    padding-right: 6px;
     min-width: 23px;
     color: white;
 }

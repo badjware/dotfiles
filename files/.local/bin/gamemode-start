@@ -1,3 +1,5 @@
 #!/bin/bash
 
 systemctl --user stop gammastep
+sudo systemctl stop docker
+

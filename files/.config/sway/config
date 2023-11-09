@@ -101,10 +101,9 @@ workspace $ws8 output $output1 VGA-1
 workspace $ws9 output $output1 VGA-1
 workspace $ws10 output $output1 VGA-1
 output $output1 {
-    # we need to explicitly select the mode, otherwise
-    # sway will select 4k 30Hz
-    position 0 0
-    mode 2560x1440@60Hz
+    position 0 270
+    # we need to explicitly select the mode
+    mode 2560x1440@144Hz
     adaptive_sync on
 }
 
@@ -112,12 +111,9 @@ set $output2 "Ancor Communications Inc ASUS VH238 BALMIB547836"
 workspace $ws1 output $output2 eDP-1
 workspace $ws2 output $output2 eDP-1
 output $output2 {
-    position 2560 -270
+    position 2560 0
     transform 270
 }
-
-# Disable this output for consistency when running with discrete GPU enabled
-output "DP-3" disable
 
 ### Input configuration
 # mod key

@@ -91,7 +91,7 @@ output "*" {
     background ~/.local/share/wallpaper fill
 }
 
-set $output1 "LG Electronics LG QHD 0x00001F95"
+set $output1 "LG Electronics LG QHD 0x00051E95"
 workspace $ws3 output $output1 VGA-1
 workspace $ws4 output $output1 VGA-1
 workspace $ws5 output $output1 VGA-1

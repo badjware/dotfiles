@@ -10,7 +10,7 @@ export PAGER=less
 export DIFFPROG=meld
 
 # motd
-export MOTD_SERVICES="$MOTD_SERVICES docker.socket sshd.service"
+export MOTD_SERVICES="$MOTD_SERVICES docker.service sshd.service"
 
 # java
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel -Dsun.java2d.opengl=true"

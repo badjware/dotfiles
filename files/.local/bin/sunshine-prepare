@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pkill --signal SIGUSR1 swaylock
+xrandr --output DP-4 --primary
+swaymsg output HDMI-A-2 disable
+swaymsg workspace sunshine

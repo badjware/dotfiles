@@ -100,6 +100,7 @@ workspace $ws7 output $output1 VGA-1
 workspace $ws8 output $output1 VGA-1
 workspace $ws9 output $output1 VGA-1
 workspace $ws10 output $output1 VGA-1
+workspace sunshine output $output1 VGA-1
 output $output1 {
     position 0 270
     # we need to explicitly select the mode

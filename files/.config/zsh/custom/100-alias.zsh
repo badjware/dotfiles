@@ -27,6 +27,9 @@ alias browsh="docker run --rm -it browsh/browsh"
 
 # kube
 alias netshoot="kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash"
+alias kubectl="kubecolor"
+
+compdef kubecolor=kubectl
 
 # utils
 alias convert-doc="libreoffice --headless --invisible --norestore --convert-to "

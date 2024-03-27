@@ -1,0 +1,17 @@
+[colors]
+#background = "#111314"
+#black = "#2C2F33"
+#blue = "#66899D"
+#cyan = "#527C77"
+#foreground = "#EBDBB2"
+#green = "#919652"
+#magenta = "#8D6494"
+#red = "#B04C50"
+#white = "#A6ABA6"
+#yellow = "#E2995C"
+
+[font.normal]
+family = "Hack Nerd Font"
+
+[window]
+opacity = 0.85

@@ -14,7 +14,7 @@ import-gsettings() {
 # list DRM device priority
 # Set intel graphics as lowest priority
 # https://github.com/swaywm/sway/wiki#i-have-a-multi-gpu-setup-like-intelnvidia-or-intelamd-and-sway-does-not-start
-export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 0 else 1 end, .key] | @tsv' | sort | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
+export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 1 else 0 end, .key] | @tsv' | sort | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
 
 # disable hardware cursor (cause mouse to stutter  on my setup)
 #export WLR_NO_HARDWARE_CURSORS=1

@@ -26,7 +26,7 @@ set $ws6 6
 set $ws7 7
 set $ws8 8
 set $ws9 9
-set $ws10 10
+set $ws10 "TV"
 
 # default workspace
 workspace $ws2
@@ -99,7 +99,6 @@ workspace $ws6 output $output1 VGA-1
 workspace $ws7 output $output1 VGA-1
 workspace $ws8 output $output1 VGA-1
 workspace $ws9 output $output1 VGA-1
-workspace $ws10 output $output1 VGA-1
 workspace sunshine output $output1 VGA-1
 output $output1 {
     position 0 270
@@ -114,6 +113,14 @@ workspace $ws2 output $output2 eDP-1
 output $output2 {
     position 2560 0
     transform 270
+}
+
+set $output3 "Sony SONY TV  *30 0x01010101"
+workspace $ws10 output $output3
+output $output3 {
+    mode 3840x2160@120Hz
+    adaptive_sync on
+    disable
 }
 
 ### Input configuration
@@ -153,7 +160,7 @@ input "*" {
 bindsym $mod+Return exec $terminal
 
 # thunar
-bindsym $mod+Mod1+Return exec thunar
+bindsym $mod+Mod1+Return exec dolphin
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -244,6 +251,9 @@ bindsym $mod+Shift+7 move container to workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
+
+# toggle TV
+bindsym $mod+Alt+0 output $output3 toggle
 
 # Assignation
 assign [class="^[Ss]lack$"] $ws1

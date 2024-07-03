@@ -13,3 +13,7 @@ gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # keychain (for ssh agent)
 eval $(keychain --eval --quiet --noask --nogui)
+
+export GOPATH="$HOME/go"
+export PATH="$PATH:$GOPATH"
+

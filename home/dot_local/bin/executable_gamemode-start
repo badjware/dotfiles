@@ -1,6 +1,6 @@
 #!/bin/bash
 
-xrandr --output "$(xrandr | grep -Eo '^DP-[0-9]' | head -1)" --primary
+xrandr --output "$(xrandr | grep '+0+' | grep -Eo '^DP-[0-9]')" --primary
 
 systemctl --user stop gammastep
 sudo systemctl stop docker.service docker.socket

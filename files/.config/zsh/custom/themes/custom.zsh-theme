@@ -86,7 +86,7 @@ prompt_cmd() {
 
     # kubernetes context
     if which kubectl &>/dev/null; then
-        local kubectl_context="%{$FG[008]%}[$(kubectl config current-context)] "
+        local kubectl_context="%{$FG[008]%}[$(kubectl config current-context)|$(kubectl config view --minify -o jsonpath='{..namespace}')] "
     fi
 
     # name@hostname

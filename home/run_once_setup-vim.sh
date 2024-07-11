@@ -1,2 +1,8 @@
 #!/bin/bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/Shougo/dein-installer.vim/master/installer.sh)"
+
+INSTALL_DIR="$HOME/.vim/bundle/repos/github.com/Shougo/dein.vim"
+
+if [ ! -d "$INSTALL_DIR" ]; then
+    mkdir -p "$(dirname $INSTALL_DIR)" || true
+    git clone https://github.com/Shougo/dein.vim "$INSTALL_DIR"
+fi

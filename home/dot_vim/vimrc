@@ -58,7 +58,7 @@ if dein#load_state(pluginpath)
     call dein#add('tpope/vim-sensible')
 
     " Colorscheme
-    call dein#add('ajh17/Spacegray.vim.git')
+    " call dein#add('ajh17/Spacegray.vim.git')
 
     " Interface
     call dein#add('itchyny/lightline.vim')
@@ -104,7 +104,7 @@ if dein#check_install()
 endif
 
 " Color scheme
-colorscheme spacegray
+" colorscheme spacegray
 " 16 millions colors
 "set termguicolors
 " Disable background in terminal

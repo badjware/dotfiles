@@ -1,0 +1,10 @@
+#!/bin/bash
+sudo systemctl daemon-reload
+{{ range .units.system -}}
+sudo systemctl enable --now {{ . }} || true
+{{ end -}}
+
+systemctl --user daemon-reload
+{{ range .units.user -}}
+systemctl --user enable --now {{ . }} || true
+{{ end -}}

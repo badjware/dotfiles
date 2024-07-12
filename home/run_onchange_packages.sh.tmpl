@@ -1,0 +1,19 @@
+#!/bin/bash
+
+{{- if eq .chezmoi.osRelease.id "arch" }}
+sudo pacman -Sy
+
+if ! which pikaur >/dev/null; then
+    git clone --depth 1 https://aur.archlinux.org/pikaur.git /tmp/pikaur
+    cd /tmp/pikaur
+    makepkg -si --noconfirm
+    rm -rf /tmp/pikaur
+fi
+
+pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
+
+{{- if not (contains .chezmoi.kernel.osrelease "WSL") }}
+pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
+{{- end }}
+
+{{- end }}

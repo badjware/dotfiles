@@ -1,0 +1,9 @@
+units:
+  system:
+    - docker.socket
+    - sshd.service
+  user:
+    - swayidle.service
+    - wob.service
+    - mako.service
+    - gammastep

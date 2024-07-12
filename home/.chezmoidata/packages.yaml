@@ -1,0 +1,96 @@
+packages:
+  arch:
+    base:
+      - etc-update
+      - pikaur
+
+      # archive
+      - 7-zip-full
+      - atool
+      - unrar
+      - unzip
+      - zip
+
+      # tools
+      - bind # for `dig`, `nslookup`
+      - curl
+      - dos2unix
+      - fzf
+      - github-cli
+      - glances
+      - keychain
+      - less
+      - lm_sensors
+      - lsd
+      - neofetch
+      - neovim
+      - pass
+      - sudo
+      - thefuck
+      - tree
+      - vim
+      - zsh
+
+      # devops
+      - ansible
+      - aws-cli-v2
+      - docker
+      - helm
+      - k9s
+      - kubecolor
+      - kubectl
+      - kustomize
+      - terraform
+
+      # language / runtimes
+      - go
+      - python-pip
+      - python-virtualenv
+
+
+      # scripting utils
+      - dialog
+      - jq
+      - pv
+      - python-pyfiglet
+
+    base_desktop:
+      - alacritty
+      - dex
+      - feh
+      - gammastep
+      - grim
+      - libappindicator-gtk3
+      - mako
+      - qt5-wayland
+      - qt6-wayland
+      - sway
+      - swayidle
+      - swaylock
+      - wob
+      - xdg-desktop-portal-wlr
+      - ydotool
+
+      # pipewire
+      - pipewire-jack
+      - pipewire-pulse
+      - wireplumber
+
+      # fonts
+      - nerd-fonts-git
+      - otf-font-awesome-5
+      - ttf-droid
+      - ttf-google-fonts-git
+      - ttf-hack
+      - ttf-liberation
+      - ttf-material-design-icons-git
+      - ttf-ms-win10-auto
+
+      # theming
+      - matcha-gtk-theme
+      - mint-y-icons
+
+      # xorg
+      - xorg-xauth
+      - xorg-xhost
+      - xorg-xwayland

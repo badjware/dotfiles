@@ -27,3 +27,5 @@ if [ -d $local_profile  ]; then
     unset i
 fi
 unset local_profile
+
+exec autostart-sway

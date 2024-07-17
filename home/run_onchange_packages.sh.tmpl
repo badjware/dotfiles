@@ -12,7 +12,7 @@ fi
 
 pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
 
-{{- if not (contains .chezmoi.kernel.osrelease "WSL") }}
+{{- if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{- end }}
 

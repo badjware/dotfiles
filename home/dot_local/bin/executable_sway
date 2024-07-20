@@ -16,6 +16,10 @@ import-gsettings() {
 # https://github.com/swaywm/sway/wiki#i-have-a-multi-gpu-setup-like-intelnvidia-or-intelamd-and-sway-does-not-start
 export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 1 else 0 end, .key] | @tsv' | sort | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
 
+# temporary fix
+# # https://github.com/swaywm/sway/issues/4763
+export WLR_DRM_NO_ATOMIC=1
+
 # disable hardware cursor (cause mouse to stutter  on my setup)
 #export WLR_NO_HARDWARE_CURSORS=1
 export XDG_CURRENT_DESKTOP=sway

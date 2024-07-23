@@ -30,6 +30,8 @@ set updatetime=500
 " Case insensitive when all lowercase
 set ignorecase
 set smartcase
+" Clipboard
+set clipboard^=unnamed,unnamedplus
 
 " Remap arrow keys
 noremap <Up> <NOP>

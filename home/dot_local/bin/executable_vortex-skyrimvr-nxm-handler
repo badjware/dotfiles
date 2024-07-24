@@ -1,0 +1,5 @@
+#!/bin/bash -x
+
+exec &>/tmp/vortex-skyrimvr-nxm-handler.last.log
+
+protontricks-launch --appid 611670 "/data/marchambault/Games/steamapps/compatdata/611670/pfx/drive_c/Program Files/Black Tree Gaming Ltd/Vortex/Vortex.exe" -d $@

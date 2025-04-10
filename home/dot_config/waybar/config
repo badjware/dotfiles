@@ -1,7 +1,8 @@
 {
     "layer": "top", // Waybar at top layer
-    // "position": "bottom", // Waybar position (top|bottom|left|right)
+    "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 23, // Waybar height (to be removed for auto height)
+    "output": ["DP-3", "HDMI-A-6", "HEADLESS-1"],
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
@@ -10,7 +11,7 @@
     // Modules configuration
     "sway/workspaces": {
          "disable-scroll": true,
-         "all-outputs": false,
+         "all-outputs": true,
          "format": "{name}"
     },
     "sway/mode": {

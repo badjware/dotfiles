@@ -31,7 +31,7 @@ set updatetime=500
 set ignorecase
 set smartcase
 " Clipboard
-set clipboard^=unnamed,unnamedplus
+"set clipboard^=unnamed,unnamedplus
 
 " Remap arrow keys
 noremap <Up> <NOP>
@@ -49,61 +49,71 @@ augroup resCur
 augroup END
 
 " Plugins
-let deinpath=$HOME.'/.vim/bundle/repos/github.com/Shougo/dein.vim'
-let pluginpath=$HOME.'/.vim/bundle'
-let &rtp.=','.deinpath
-
-if dein#load_state(pluginpath)
-    call dein#begin(pluginpath)
-
-    "call dein#add(deinpath)
-    call dein#add('tpope/vim-sensible')
-
-    " Colorscheme
-    call dein#add('https://git.sr.ht/~ackyshake/spacegray.vim')
-
-    " Interface
-    call dein#add('itchyny/lightline.vim')
-    call dein#add('mgee/lightline-bufferline')
-    call dein#add('ryanoasis/vim-devicons')
-    call dein#add('airblade/vim-gitgutter')
-    call dein#add('scrooloose/nerdtree')
-    call dein#add('Yggdroot/indentLine')
-
-    " Movement
-    call dein#add('christoomey/vim-tmux-navigator')
-    "call dein#add('easymotion/vim-easymotion')
-    call dein#add('unblevable/quick-scope')
-
-    " Tools / Commands
-    call dein#add('tpope/vim-surround')
-    call dein#add('jiangmiao/auto-pairs')
-    call dein#add('tpope/vim-endwise')
-    "call dein#add('chrisbra/unicode.vim')
-    call dein#add('ctrlpvim/ctrlp.vim')
-    "call dein#add('junegunn/fzf.vim')
-    call dein#add('tpope/vim-obsession')
-
-    " Linting / Completion
-    call dein#add('w0rp/ale')
-    call dein#add('Shougo/deoplete.nvim')
-    call dein#add('ervandew/supertab')
-    call dein#add('autozimu/LanguageClient-neovim', { 'rev': 'next', 'build': 'bash install.sh'})
-
-    " Language
-    call dein#add('sheerun/vim-polyglot')
-
-    call dein#end()
-    call dein#save_state()
+" Install vim-plug if not found
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 endif
+
+" Run PlugInstall if there are missing plugins
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
+
+call plug#begin()
+Plug 'tpope/vim-sensible'
+
+" Colorscheme
+Plug 'https://git.sr.ht/~ackyshake/spacegray.vim'
+
+" Interface
+Plug 'itchyny/lightline.vim'
+Plug 'mgee/lightline-bufferline'
+Plug 'ryanoasis/vim-devicons'
+Plug 'airblade/vim-gitgutter'
+Plug 'scrooloose/nerdtree'
+Plug 'Yggdroot/indentLine'
+
+" Movement
+Plug 'christoomey/vim-tmux-navigator'
+"Plug 'easymotion/vim-easymotion'
+Plug 'unblevable/quick-scope'
+
+" Tools / Commands
+Plug 'tpope/vim-surround'
+Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-endwise'
+"Plug'chrisbra/unicode.vim'
+Plug 'ctrlpvim/ctrlp.vim'
+"Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-obsession'
+
+" Linting / Completion
+Plug 'w0rp/ale'
+Plug 'ervandew/supertab'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
+Plug 'josa42/coc-sh', {'do': 'yarn install --frozen-lockfile'}
+Plug 'josa42/coc-go', {'do': 'yarn install --frozen-lockfile'}
+Plug 'josa42/coc-docker', {'do': 'yarn install --frozen-lockfile'}
+Plug 'yaegassy/coc-pylsp', {'do': 'yarn install --frozen-lockfile'}
+
+" Language
+Plug 'sheerun/vim-polyglot'
+
+call plug#end()
 
 filetype plugin indent on
 syntax enable
-
-" Automatically install plugins
-if dein#check_install()
-    call dein#install()
-endif
 
 " Color scheme
 colorscheme spacegray
@@ -118,19 +128,7 @@ set t_ZH=[3m
 set t_ZR=[23m
 
 " deoplete
-let g:deoplete#enable_at_startup = 1
-
-" LanguageClient
-set hidden
-let g:LanguageClient_serverCommands = {
-    \ 'python': ['/usr/bin/pyls'],
-    \ 'sh': ['bash-language-server', 'start'],
-    \ 'terraform': ['/usr/bin/terraform-lsp'],
-    \ 'yaml': ['/usr/bin/yaml-language-server'],
-    \ }
-nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> <F12> :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+"let g:deoplete#enable_at_startup = 1
 
 " supertab
 let g:SuperTabDefaultCompletionType = "<c-n>"

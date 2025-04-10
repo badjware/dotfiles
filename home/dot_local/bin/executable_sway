@@ -1,24 +1,30 @@
 #!/bin/bash
 
 import-gsettings() {
-    # usage: import-gsettings <gsettings key>:<settings.ini key> <gsettings key>:<settings.ini key> ...
-    expression=""
-    for pair in "$@"; do
-        IFS=:; set -- $pair
-        expressions="$expressions -e 's:^$2=(.*)$:gsettings set org.gnome.desktop.interface $1 \1:e'"
-    done
-    IFS=
-    eval sed -E $expressions "${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini >/dev/null
+    # usage: import-gsettings
+    config="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
+    if [ ! -f "$config" ]; then exit 1; fi
+
+    gnome_schema="org.gnome.desktop.interface"
+    gtk_theme="$(grep 'gtk-theme-name' "$config" | sed 's/.*\s*=\s*//')"
+    icon_theme="$(grep 'gtk-icon-theme-name' "$config" | sed 's/.*\s*=\s*//')"
+    cursor_theme="$(grep 'gtk-cursor-theme-name' "$config" | sed 's/.*\s*=\s*//')"
+    font_name="$(grep 'gtk-font-name' "$config" | sed 's/.*\s*=\s*//')"
+    gsettings set "$gnome_schema" gtk-theme "$gtk_theme"
+    gsettings set "$gnome_schema" icon-theme "$icon_theme"
+    gsettings set "$gnome_schema" cursor-theme "$cursor_theme"
+    gsettings set "$gnome_schema" font-name "$font_name"
 }
 
+WLR_RENDERER=vulkan
 # list DRM device priority
-# Set intel graphics as lowest priority
+# Set intel graphics as high priority
 # https://github.com/swaywm/sway/wiki#i-have-a-multi-gpu-setup-like-intelnvidia-or-intelamd-and-sway-does-not-start
 export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 1 else 0 end, .key] | @tsv' | sort | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
 
 # temporary fix
 # # https://github.com/swaywm/sway/issues/4763
-export WLR_DRM_NO_ATOMIC=1
+#export WLR_DRM_NO_ATOMIC=1
 
 # disable hardware cursor (cause mouse to stutter  on my setup)
 #export WLR_NO_HARDWARE_CURSORS=1
@@ -28,17 +34,15 @@ export XDG_SESSION_TYPE=wayland
 # Qt
 #export DESKTOP_SESSION=gnome
 #export QT_STYLE_OVERRIDE=gtk
-#export QT_QPA_PLATFORMTHEME=gtk2
+export QT_QPA_PLATFORMTHEME=gtk3
 export QT_AUTO_SCREEN_SCALE_FACTOR=0
 #export QT_QPA_PLATFORM=wayland-egl
 export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 
 # GTK
 export CLUTTER_BACKEND=wayland
-import-gsettings \
-    gtk-theme:gtk-theme-name \
-    icon-theme:gtk-icon-theme-name \
-    cursor-theme:gtk-cursor-theme-name
+export GTK_THEME=Orchis
+import-gsettings
 
 # Elementary/EFL
 export ECORE_EVAS_ENGINE=wayland_egl
@@ -53,5 +57,8 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # Firefox
 export MOZ_ENABLE_WAYLAND=1
 export MOZ_DBUS_REMOTE=1
+
+# Electron
+export ELECTRON_OZONE_PLATFORM_HINT=auto
 
 exec /usr/bin/sway $@

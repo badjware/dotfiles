@@ -38,11 +38,12 @@ for_window [floating] default_border pixel 1
 smart_borders on
 
 # Gaps
-gaps inner 16
-gaps outer -8
+gaps inner 8
+gaps outer -4
 smart_gaps on
 
 # Floating mod
+for_window [floating] shadows enable
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="org.remmina.Remmina" title="Remmina Remote Desktop Client"] floating enable
 for_window [app_id="desktopclient.nextcloud.com.nextcloud"] floating enable
@@ -63,6 +64,8 @@ for_window [window_type="dialog"] floating enable
 for_window [window_type="utility"] floating enable
 for_window [window_type="toolbar"] floating enable
 for_window [window_type="splash"] floating enable
+
+#for_window [class="^steam_app.*"] allow_tearing yes
 
 # https://github.com/ValveSoftware/steam-for-linux/issues/1040
 for_window [class="^Steam$" title="^Friends$"] floating enable
@@ -89,9 +92,14 @@ for_window [app_id="^.*"] inhibit_idle fullscreen
 ### Output configuration
 output "*" {
     background ~/.local/share/wallpaper fill
+
+    adaptive_sync off
+    allow_tearing no
+    max_render_time off
 }
 
-set $output1 "LG Electronics LG QHD 0x00051E95"
+#set $output1 "LG Electronics LG QHD 0x00051E95"
+set $output1 "Philips Consumer Electronics Company PHL 34M2C8600 AU42410000051"
 workspace $ws3 output $output1 VGA-1
 workspace $ws4 output $output1 VGA-1
 workspace $ws5 output $output1 VGA-1
@@ -101,25 +109,28 @@ workspace $ws8 output $output1 VGA-1
 workspace $ws9 output $output1 VGA-1
 workspace sunshine output $output1 VGA-1
 output $output1 {
-    position 0 270
-    # we need to explicitly select the mode
-    mode 2560x1440@144Hz
-    adaptive_sync on
+    position 0 0
+    allow_tearing yes
 }
 
-set $output2 "Ancor Communications Inc ASUS VH238 BALMIB547836"
+set $output2 "Hewlett Packard HP ZR2440w CN44020RJF"
 workspace $ws1 output $output2 eDP-1
 workspace $ws2 output $output2 eDP-1
 output $output2 {
-    position 2560 0
+    position 3440 0
     transform 270
+    max_render_time 5
 }
 
 set $output3 "Sony SONY TV  *30 0x01010101"
 workspace $ws10 output $output3
 output $output3 {
     mode 3840x2160@120Hz
-    adaptive_sync on
+    disable
+}
+
+exec "swaymsg create_output"
+output HEADLESS-1 {
     disable
 }
 
@@ -160,7 +171,7 @@ input "*" {
 bindsym $mod+Return exec $terminal
 
 # thunar
-bindsym $mod+Mod1+Return exec dolphin
+bindsym $mod+Mod1+Return exec thunar
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -252,13 +263,15 @@ bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
-# toggle TV
-bindsym $mod+Alt+0 output $output3 toggle
+# toggle
+bindsym $mod+Alt+0 exec "swaymsg output DP-3 toggle; swaymsg output DP-4 toggle; swaymsg output HDMI-A-6 toggle;"
 
 # Assignation
-assign [class="^[Ss]lack$"] $ws1
-assign [class="^[Dd]iscord$"] $ws1
-#assign [class="^looking-glass-client$"] $ws3
+assign {
+    [app_id="[Dd]iscord"] $ws1
+    [title="Microsoft Teams$"] $ws1
+    [class="steam"] $ws4
+}
 
 # screen
 # workspace $ws1 output HDMI-A-2
@@ -319,6 +332,9 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 ### Startup
+# setup theme
+exec_always import-gsettings
+
 # reach systemd target
 exec /bin/systemctl --user import-environment
 exec /bin/systemctl --user start sway-session.target

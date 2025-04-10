@@ -1,5 +1,10 @@
 #!/bin/bash
 
-systemctl --user start gammastep
+swaymsg 'output "DP-4" enable'
+swaymsg 'output * adaptive_sync off'
+
+#systemctl --user start gammastep
 sudo systemctl start docker
+
+sudo bash -c 'echo auto >/sys/class/drm/card2/device/power_dpm_force_performance_level'
 

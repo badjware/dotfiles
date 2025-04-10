@@ -26,8 +26,11 @@ label, button {
     font-weight: 900;
 }
 
-#custom-spotify, #clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #custom-vpn {
+#custom-spotify, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #pulseaudio, #custom-vpn {
     padding: 0 10px;
+/*
+    margin-left: 15px
+*/
     border-left: 1px dotted #ebdbb2;
     border-radius: 6.5px;
 }
@@ -42,6 +45,37 @@ label, button {
     color: white;
 }
 
+/*
+#clock {
+    color: #66899d;
+    border-bottom: 2px solid #66899d;
+}
+
+#network {
+    color: #527c77;
+    border-bottom: 2px solid #527c77;
+}
+
+#cpu {
+    color: #919652;
+    border-bottom: 2px solid #919652;
+}
+
+#memory {
+    color: #8d6494;
+    border-bottom: 2px solid #8d6494;
+}
+
+#pulseaudio {
+    color: #b04c50;
+    border-bottom: 2px solid #b04c50;
+}
+
+#custom-vpn {
+    border-left: 1px dotted #ebdbb2;
+    border-radius: 6.5px;
+}
+*/
 #tray {
     margin-left: 5px;
     font-family: sans-serif;

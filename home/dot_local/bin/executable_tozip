@@ -1,0 +1,128 @@
+#!/bin/bash
+
+print_help() {
+	echo ""
+	echo "Convert an archive to the zip format, or create a new archive"
+	echo ""
+	echo "Usage:   tozip [options] ...files"
+	echo ""
+	echo "Options:"
+	echo "   -h, --help         Print this help text"
+	echo "   -d, --delete-old   Delete converted file"
+	echo "   -f, --force        Replace the file with the converted file even if the file exists"
+	echo "   -r, --rezip        Extract and archive again even if the converted file is already a zip archive"
+    echo "   -t, --thread       Set the number of threads for archive extraction and creation (default: $thread_count)"
+	echo ""
+}
+
+short_args=hdfrt:
+long_args=help,delete-old,force,rezip,thread:
+
+# default
+rezip=
+delete_old=
+force=
+thread_count=8
+params=""
+
+# Parse arguments
+parsed_args=$(getopt --options $short_args --longoptions $long_args --name "$0" -- "$@")
+if [[ $? -ne 0 ]]; then
+	echo "Failed to parse arguments"
+	exit 2
+fi
+eval set -- "$parsed_args"
+while true; do
+	case "$1" in
+		-h|--help)
+			print_help
+	        exit 0
+			;;
+		-d|--delete-old)
+            delete_old=y
+			shift
+			;;
+		-f|--force)
+            force=y
+			shift
+			;;
+		-r|--rezip)
+            rezip=y
+			shift
+			;;
+		-t|--thread)
+            thread_count="$2"
+			shift 2
+			;;
+		--)
+			shift
+            break
+            ;;
+		*)
+			break
+            ;;
+    esac
+done
+
+out_dir="$PWD"
+
+for f in "$@"; do
+    tmp_dir="$(mktemp -d "$PWD/tozip.XXX")"
+    output="$(echo "$f" | sed -E 's/\.(zip|rar|7z)$//g').zip"
+    backup_file="$output".backup
+    do_backup=
+
+    if [[ ! -r "$f" ]]; then
+        echo "$f : No such file or directory"
+        continue
+    fi
+
+    echo "$f -> $output"
+
+    if [[ -f "$output" ]]; then
+        if [[ -n "$force" ]] || [[ "$f" =~ .zip$ && -n "$rezip" ]]; then
+            do_backup=y
+        else
+            echo "$output : file exists, refusing to continue (-f to force)"
+            continue
+        fi
+    fi
+
+    if [[ "$f" =~ \.tar|gz|bz2|zip|7z$ ]]; then
+        if ! 7z e -mmt="$thread_count" -o"$tmp_dir" "$f" >/dev/null; then
+            echo "$f : extract failed"
+            continue
+        fi
+    elif [[ "$f" =~ \.rar$ ]]; then
+        if ! unrar x "$f" "$tmp_dir" >/dev/null; then
+            echo "$f : unrar failed"
+            continue
+        fi
+    else
+        cp -r "$f" "$tmp_dir"
+    fi
+
+    if [[ -n "$do_backup" ]]; then
+        mv "$output" "$backup_file"
+    fi
+
+    pushd "$tmp_dir" >/dev/null
+    7z a -tzip -mmt="$thread_count" "$out_dir/$output" >/dev/null
+    return_val=$?
+    popd >/dev/null
+    if [[ $return_val -eq 0  ]]; then
+        if [[ -n "$do_backup" ]]; then
+            rm -r "$backup_file"
+        elif [[ -n "$delete_old" ]]; then
+            rm -r "$f"
+        fi
+    else
+        if [[ -n "$do_backup" ]]; then
+            mv "$backup_file" "$output"
+        fi
+        echo "$f : zip archive failed"
+    fi
+
+    rm -r "$tmp_dir"
+done
+

@@ -31,6 +31,7 @@ alias kubectl="kubecolor"
 alias k="kubecolor"
 alias kctx="kubectl config use-context"
 alias kns="kubectl config set-context --current --namespace"
+alias kclean="kubectl delete pods --field-selector status.phase=Failed"
 
 compdef kubecolor=kubectl
 

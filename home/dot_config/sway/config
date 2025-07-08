@@ -126,6 +126,7 @@ set $output3 "Sony SONY TV  *30 0x01010101"
 workspace $ws10 output $output3
 output $output3 {
     mode 3840x2160@120Hz
+    scale 2
     disable
 }
 

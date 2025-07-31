@@ -16,14 +16,15 @@ packages:
       - curl
       - dos2unix
       - fzf
-      - github-cli
       - glances
+      - gnupg
       - keychain
       - less
       - lm_sensors
       - lsd
       - neofetch
       - neovim
+      - openssh
       - pass
       - sudo
       - thefuck
@@ -35,6 +36,7 @@ packages:
       - ansible
       - aws-cli-v2
       - docker
+      - github-cli
       - helm
       - k9s
       - kubecolor
@@ -67,6 +69,7 @@ packages:
       - sway
       - swayidle
       - swaylock
+      - waybar
       - wob
       - xdg-desktop-portal-wlr
       - ydotool
@@ -94,3 +97,87 @@ packages:
       - xorg-xauth
       - xorg-xhost
       - xorg-xwayland
+
+  fedora:
+    base:
+      # tools
+      - bind-utils
+      - curl
+      - dos2unix
+      - fzf
+      - glances
+      - gnupg2
+      - keychain
+      - less
+      - lm_sensors
+      - lsd
+      - neofetch
+      - neovim
+      - openssh
+      - pass
+      - sudo
+      - thefuck
+      - tree
+      - vim
+      - zsh
+
+      # devops
+      # TODO: add kustomize
+      - ansible
+      - awscli
+      - moby-engine
+      - docker-cli
+      - docker-buildx
+      - docker-compose
+      - gh
+      - kubernetes-client
+      - k9s
+      - helm
+      - golang-github-hashicorp-terraform-exec-devel
+
+      # languages / runtimes
+      - golang
+      - python3-pip
+      - python3-virtualenv
+
+      # scripting utils
+      - dialog
+      - jq
+      - pv
+      - python3-pyfiglet
+
+    base_desktop:
+      - alacritty
+      - dex-autostart
+      - feh
+      - gammastep
+      - grim
+      - qt5-qwayland
+      - qt6-qwayland
+      - sway
+      - swayidle
+      - swaylock
+      - waybar
+      - wob
+      - xdg-desktop-portal-wlr
+      - ydotool
+
+      # pipewire
+      - pipewire
+      - pipewire-plugin-jack
+      - pipewire-pulseaudio
+      - wireplumber
+
+      # fonts
+      # TODO: missing many
+      - fontawesome-fonts-all
+      - source-foundry-hack-fonts
+
+      # theming
+      # TODO: missing matcha-gtk-theme
+      - mint-y-icons
+
+      # xorg
+      - xorg-x11-xauth
+      - xhost
+      - xorg-x11-server-Xwayland

@@ -5,7 +5,7 @@ packages:
       - pikaur
 
       # archive
-      - 7-zip-full
+      - 7zip
       - atool
       - unrar
       - unzip

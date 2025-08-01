@@ -234,6 +234,7 @@ bindsym $mod+a focus parent
 bindsym $mod+d focus child
 
 # switch to workspace
+bindsym $mod+grave scratchpad show
 bindsym $mod+q workspace back_and_forth 
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
@@ -250,6 +251,7 @@ bindsym $mod+0 workspace $ws10
 #bindsym $mod+Ctrl+Down workspace prev
 
 # move focused container to workspace
+bindsym $mod+Shift+grave move container to scratchpad
 bindsym $mod+Shift+1 move container to workspace $ws1
 bindsym $mod+Shift+2 move container to workspace $ws2
 bindsym $mod+Shift+3 move container to workspace $ws3

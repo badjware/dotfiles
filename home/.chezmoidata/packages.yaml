@@ -25,6 +25,7 @@ packages:
       - neovim
       - openssh
       - pass
+      - rsync
       - sudo
       - thefuck
       - tree
@@ -118,6 +119,7 @@ packages:
       - neovim
       - openssh
       - pass
+      - rsync
       - sudo
       - thefuck
       - tree

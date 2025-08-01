@@ -29,4 +29,17 @@ sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 if [[ ! -d "$HOME/.pyenv" ]] then
     curl -fsSL https://pyenv.run | bash
 fi
+
+git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
+pushd /tmp/orchis
+./install.sh
+popd
+rm -rf /tmp/orchis
+
+git clone --depth 1 https://github.com/vinceliuice/Tela-circle-icon-theme.git /tmp/tela-circle
+pushd /tmp/tela-circle
+./install.sh
+popd
+rm -rf /tmp/tela-circle
+
 {{- end }}

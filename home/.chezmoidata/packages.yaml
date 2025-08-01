@@ -180,6 +180,7 @@ packages:
       - breeze-cursor-theme
       - gnome-themes-extra
       - gtk-murrine-engine
+      - sassc
 
       # xorg
       - xorg-x11-xauth

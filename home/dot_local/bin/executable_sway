@@ -1,11 +1,16 @@
 #!/bin/bash
 
-import-gsettings
+# Launch sway without going through a dm
 
-WLR_RENDERER=vulkan
+# import env variable
+set -o allexport
+source <(/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
+set +o allexport
+
 # list DRM device priority
 # Set intel graphics as high priority
 # https://github.com/swaywm/sway/wiki#i-have-a-multi-gpu-setup-like-intelnvidia-or-intelamd-and-sway-does-not-start
 export WLR_DRM_DEVICES="$(drm_info -j | jq --raw-output 'to_entries[] | [if .value.driver.desc == "Intel Graphics" then 1 else 0 end, .key] | @tsv' | sort | awk '{printf "%s:", $2}' | sed -e 's/:$//')"
 
+# launch
 exec /usr/bin/sway $@

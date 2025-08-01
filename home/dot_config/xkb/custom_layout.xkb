@@ -1,0 +1,13 @@
+xkb_keymap {
+    xkb_keycodes { include "evdev+aliases(qwerty)" };
+    xkb_types { include "complete" };
+    xkb_compat { include "complete" };
+    xkb_symbols "custom" {
+        include "pc"
+        include "us(altgr-intl)"
+        include "inet(evdev)"
+        include "capslock(super)"
+
+        replace key <RCTL> { [ Print ] };
+    };
+};

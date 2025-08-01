@@ -17,6 +17,7 @@ pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{- end }}
 
 {{- else if eq .chezmoi.osRelease.id "fedora" }}
+
 sudo dnf -y install {{ .packages.fedora.base | join " " }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 

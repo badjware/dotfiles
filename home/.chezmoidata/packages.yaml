@@ -22,7 +22,6 @@ packages:
       - less
       - lm_sensors
       - lsd
-      - neofetch
       - neovim
       - openssh
       - pass
@@ -34,7 +33,7 @@ packages:
 
       # devops
       - ansible
-      - aws-cli-v2
+      - aws-cli-bin
       - docker
       - github-cli
       - helm
@@ -46,9 +45,9 @@ packages:
 
       # language / runtimes
       - go
+      - pyenv
       - python-pip
       - python-virtualenv
-
 
       # scripting utils
       - dialog
@@ -66,6 +65,7 @@ packages:
       - mako
       - qt5-wayland
       - qt6-wayland
+      - rofi-lbonn-wayland-git
       - sway
       - swayidle
       - swaylock
@@ -90,8 +90,9 @@ packages:
       - ttf-ms-win10-auto
 
       # theming
-      - matcha-gtk-theme
-      - mint-y-icons
+      - orchis-theme-git
+      - tela-circle-icon-theme-standard
+      - xcursor-breeze
 
       # xorg
       - xorg-xauth
@@ -111,7 +112,6 @@ packages:
       - less
       - lm_sensors
       - lsd
-      - neofetch
       - neovim
       - openssh
       - pass
@@ -152,8 +152,7 @@ packages:
       - feh
       - gammastep
       - grim
-      - qt5-qwayland
-      - qt6-qwayland
+      - rofi-wayland
       - sway
       - swayidle
       - swaylock
@@ -174,8 +173,9 @@ packages:
       - source-foundry-hack-fonts
 
       # theming
-      # TODO: missing matcha-gtk-theme
-      - mint-y-icons
+      - breeze-cursor-theme
+      - gnome-themes-extra
+      - gtk-murrine-engine
 
       # xorg
       - xorg-x11-xauth

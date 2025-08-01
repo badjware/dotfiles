@@ -83,11 +83,11 @@ packages:
       - nerd-fonts-git
       - otf-font-awesome-5
       - ttf-droid
-      - ttf-google-fonts-git
+      # - ttf-google-fonts-git
       - ttf-hack
       - ttf-liberation
       - ttf-material-design-icons-git
-      - ttf-ms-win10-auto
+      # - ttf-ms-win10-auto
 
       # theming
       - orchis-theme-git
@@ -100,6 +100,9 @@ packages:
       - xorg-xwayland
 
   fedora:
+    repo:
+      - https://kubecolor.github.io/packages/rpm/kubecolor.repo
+
     base:
       # tools
       - bind-utils
@@ -125,15 +128,16 @@ packages:
       # TODO: add kustomize
       - ansible
       - awscli
-      - moby-engine
-      - docker-cli
       - docker-buildx
+      - docker-cli
       - docker-compose
       - gh
-      - kubernetes-client
-      - k9s
-      - helm
       - golang-github-hashicorp-terraform-exec-devel
+      - helm
+      - k9s
+      - kubecolor
+      - kubernetes-client
+      - moby-engine
 
       # languages / runtimes
       - golang

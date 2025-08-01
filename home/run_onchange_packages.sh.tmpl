@@ -17,8 +17,15 @@ pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{- end }}
 
 {{- else if eq .chezmoi.osRelease.id "fedora" }}
+sudo dnf install dnf5-plugins
+{{ range $r := .packages.fedora.repo }}
+sudo dnf -y config-manager addrepo --overwrite --from-repofile {{ $r }}
+{{- end }}
 
 sudo dnf -y install {{ .packages.fedora.base | join " " }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
+
+# scripts for tools unavailable in package repo
+curl -fsSL https://pyenv.run | bash
 
 {{- end }}

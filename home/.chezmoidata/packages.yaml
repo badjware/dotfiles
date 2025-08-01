@@ -58,6 +58,7 @@ packages:
 
     base_desktop:
       - alacritty
+      - autotiling
       - dex
       - feh
       - gammastep
@@ -71,6 +72,7 @@ packages:
       - swayidle
       - swaylock
       - waybar
+      - wl-clipboard
       - wob
       - xdg-desktop-portal-wlr
       - ydotool
@@ -158,11 +160,13 @@ packages:
       - feh
       - gammastep
       - grim
+      - mako
       - rofi-wayland
       - sway
       - swayidle
       - swaylock
       - waybar
+      - wl-clipboard
       - wob
       - xdg-desktop-portal-wlr
       - ydotool

@@ -343,6 +343,9 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 # autorun .desktop
 exec /bin/dex -a
 
+# start autotiling
+exec autotiling -sr 1.61 -w 3 4 5 6 7 8 9
+
 # run a terminal
 exec $terminal
 

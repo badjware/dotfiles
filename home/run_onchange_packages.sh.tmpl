@@ -26,6 +26,7 @@ sudo dnf -y install {{ .packages.fedora.base | join " " }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 
 # scripts for tools unavailable in package repo
-curl -fsSL https://pyenv.run | bash
-
+if [[ ! -d "$HOME/.pyenv" ]] then
+    curl -fsSL https://pyenv.run | bash
+fi
 {{- end }}

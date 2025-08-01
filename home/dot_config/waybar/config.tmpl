@@ -2,7 +2,9 @@
     "layer": "top", // Waybar at top layer
     "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 23, // Waybar height (to be removed for auto height)
+{{- if eq .chezmoi.hostname "pallet" }}
     "output": ["DP-3", "HDMI-A-6", "HEADLESS-1"],
+{{- end }}
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
@@ -78,17 +80,6 @@
         "format": "{}",
         "interval": 5,
         "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo "
-    },
-    "custom/spotify": {
-        "format": " {}",
-        "interval": 5,
-        "max-length": 50,
-        "exec": "playerctl metadata -f '({{duration(position)}}/{{duration(mpris:length)}}) {{status}}: {{title}}\n{{artist}} - {{title}}'",
-        "exec-if": "pgrep spotify",
-        "on-scroll-up": "playerctl volume 0.05+",
-        "on-scroll-down": "playerctl volume 0.05-",
-        "on-click": "playerctl play-pause",
-        "on-click-right": "pgrep spotify$ || spotify"
     }
 }
 

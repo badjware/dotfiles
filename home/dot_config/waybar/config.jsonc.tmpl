@@ -32,7 +32,7 @@
     },
     "clock": {
         "format": " {:%Y-%m-%d %H:%M}",
-        "tooltip": false
+        "tooltip-format": "<tt><big>{calendar}</big></tt>",
     },
     "cpu": {
         "format": " {usage:2}%"
@@ -67,7 +67,7 @@
     "pulseaudio": {
         //"scroll-step": 1,
         "format": "{icon} {volume:2}%",
-        "format-bluetooth": "{icon} {volume:2}%",
+        "format-bluetooth": " {volume:2}%",
         "format-muted": " --%",
         "format-icons": {
             "headphones": "",
@@ -79,7 +79,8 @@
     "custom/vpn": {
         "format": "{}",
         "interval": 5,
-        "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo "
+        "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo ",
+        "tooltip": false,
     }
 }
 

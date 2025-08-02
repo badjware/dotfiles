@@ -4,7 +4,7 @@
     font-size: 13px;
 }
 
-window#waybar {
+window#waybar, tooltip {
     background: rgba(60, 56, 54, 0.9);
     color: rgba(235, 219, 178, 1);
 }
@@ -24,6 +24,7 @@ label, button {
     background: rgba(235, 219, 178, 1);
     color: rgba(60, 56, 54, 0.9);
     font-weight: 900;
+    border-radius: 6px;
 }
 
 #custom-spotify, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #pulseaudio, #custom-vpn {
@@ -32,15 +33,15 @@ label, button {
     margin-left: 15px
 */
     border-left: 1px dotted #ebdbb2;
-    border-radius: 6.5px;
+    border-radius: 6px;
 }
 
 #custom-vpn {
-    padding-left: 5px;
+    padding-left: 7px;
 }
 
 #idle_inhibitor, #tray, #custom-vpn {
-    padding-right: 6px;
+    padding-right: 3px;
     min-width: 23px;
     color: white;
 }
@@ -77,6 +78,6 @@ label, button {
 }
 */
 #tray {
-    margin-left: 5px;
+    margin-left: 3px;
     font-family: sans-serif;
 }

@@ -1,0 +1,130 @@
+fs:
+  # The mountpoint. Can be overwritten via the command line.
+  mountpoint: /home/marchambault/develop/code.badjware.dev
+
+  # Mount options to pass to `fusermount` as its `-o` argument. Can be overwritten via the command line.
+  # See mount.fuse(8) for the full list of options.
+  #mountoptions: nodev,nosuid
+
+  # The git forge to use as the backend.
+  # Must be one of "gitlab", "github", or "gitea"
+  forge: gitea
+
+gitlab:
+  # The gitlab url.
+  url: https://gitlab.com
+
+  # The gitlab api token.
+  # Default to anonymous (only public projects will be visible).
+  #token:
+
+  # Must be set to either "http" or "ssh".
+  # The protocol to configure the git remote on.
+  # "http" may not work on private projects unless a credential manager is configured
+  # If possible, prefer "ssh" over "http"
+  pull_method: http
+
+  # A list of the group ids to expose their projects in the filesystem.
+  group_ids:
+    - 9970 # gitlab-org
+
+  # A list of the user ids to expose their personal projects in the filesystem.
+  user_ids: []
+
+  # Set how archived projects are handled.
+  # If set to "show", it will add them to the filesystem and treat them like any other project
+  # If set to "hide", it will add them to the filesystem, but prefix the symlink with a "."
+  # If set to "ignore", it will make them absent from the filesystem
+  # Default to "hide"
+  archived_project_handling: hide
+
+  # If set to true, the user the api token belongs to will automatically be added to the list of users exposed by the filesystem.
+  include_current_user: true
+
+github:
+  # The github api token
+  # Default to anonymous (only public repositories will be visible)
+  #token:
+
+  # Must be set to either "http" or "ssh".
+  # The protocol to configure the git remote on.
+  # "http" may not work on private repositories unless a credential manager is configured
+  # If possible, prefer "ssh" over "http"
+  pull_method: http
+
+  # A list of the name of the organizations to expose in the filesystem
+  org_names: []
+
+  # A list of the name of the user to expose their repositories un the filesystem
+  user_names: []
+
+  # Set how archived repositories are handled.
+  # If set to "show", it will add them to the filesystem and treat them like any other repository
+  # If set to "hide", it will add them to the filesystem, but prefix the symlink with a "."
+  # If set to "ignore", it will make them absent from the filesystem
+  # Default to "hide"
+  archived_repo_handling: hide
+
+  # If set to true, the personal repositories and the repositories of the organizations the user the api token belongs to
+  # will be automatically be added to the list of users exposed by the filesystem.
+  include_current_user: true
+
+gitea:
+  # The gitea url.
+  url: https://code.badjware.dev
+
+  # The gitlab api token
+  # Default to anonymous (only public repositories will be visible)
+  #token:
+
+  # Must be set to either "http" or "ssh".
+  # The protocol to configure the git remote on.
+  # "http" may not work on private repositories unless a credential manager is configured
+  # If possible, prefer "ssh" over "http"
+  pull_method: http
+
+  # A list of the name of the organizations to expose in the filesystem
+  org_names: []
+
+  # A list of the name of the user to expose their repositories un the filesystem
+  user_names:
+    - badjware
+
+  # Set how archived repositories are handled.
+  # If set to "show", it will add them to the filesystem and treat them like any other repository
+  # If set to "hide", it will add them to the filesystem, but prefix the symlink with a "."
+  # If set to "ignore", it will make them absent from the filesystem
+  # Default to "hide"
+  archived_repo_handling: hide
+
+  # If set to true, the personal repositories and the repositories of the organizations the user the api token belongs to
+  # will be automatically be added to the list of users exposed by the filesystem.
+  include_current_user: true
+
+git:
+  # Path to the local repository cache. Repositories in the filesystem will symlink to a folder in this path.
+  # Default to $XDG_DATA_HOME/gitlabfs, or $HOME/.local/share/gitlabfs if the environment variable $XDG_DATA_HOME is unset.
+  #clone_location:
+
+  # The name of the remote in the local clone.
+  remote: origin
+
+  # Must be set to either "init", or "clone".
+  # If set to "init", the local copy will be initialized with `git init` and the remote is configured manually. The git server is nerver queried. (fast)
+  # If set to "clone", the local copy will be initialized with `git clone`. (slow)
+  # NOTE: If set to "init", the local clone will appear empty. Running `git pull master` will download the files from the git server.
+  on_clone: clone
+
+  # If set to true, the local clone will automatically run `git pull` in the local clone if it's on the default branch and the worktree is clean.
+  # Pulls are asynchronous so it can take a few minutes for all repositories to sync up.
+  # It's highly recommended to leave this setting turned off.
+  auto_pull: true
+
+  # The depth of the git history to pull. Set to 0 to pull the full history.
+  depth: 1
+
+  # The number of git operations that can be queued up
+  queue_size: 200
+
+  # The number of parallel git operations that is allowed to run at once
+  worker_count: 5

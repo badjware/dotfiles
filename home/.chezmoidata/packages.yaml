@@ -50,6 +50,7 @@ packages:
       - pyenv
       - python-pip
       - python-virtualenv
+      - yarn
 
       # scripting utils
       - dialog
@@ -110,11 +111,13 @@ packages:
     base:
       # tools
       - bind-utils
+      - bsdtar
       - curl
       - dos2unix
       - fzf
       - glances
       - gnupg2
+      - hostname
       - keychain
       - less
       - lm_sensors
@@ -149,6 +152,7 @@ packages:
       - golang
       - python3-pip
       - python3-virtualenv
+      - yarnpkg
 
       # scripting utils
       - dialog

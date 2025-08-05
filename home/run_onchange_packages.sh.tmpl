@@ -3,6 +3,7 @@
 {{- if eq .chezmoi.osRelease.id "arch" }}
 sudo pacman -Sy
 
+# setup aur helper
 if ! which pikaur >/dev/null; then
     git clone --depth 1 https://aur.archlinux.org/pikaur.git /tmp/pikaur
     cd /tmp/pikaur
@@ -13,25 +14,34 @@ fi
 pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
 
 {{- if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+# we don't want to install the desktop packages on WSL
 pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{- end }}
 
 {{- else if eq .chezmoi.osRelease.id "fedora" }}
+# setup extra repos
 sudo dnf install dnf5-plugins
 {{ range $r := .packages.fedora.repo }}
 sudo dnf -y config-manager addrepo --overwrite --from-repofile {{ $r }}
 {{- end }}
+sudo dnf update -y
 
 sudo dnf -y install {{ .packages.fedora.base | join " " }}
+
+{{- if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+# we don't want to install the desktop packages on WSL
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
+{{- end }}
 
 # scripts for tools unavailable in package repo
 if [[ ! -d "$HOME/.pyenv" ]] then
     curl -fsSL https://pyenv.run | bash
 fi
-
 pip install --user autotiling
 
+{{- end }}
+
+# other loose packages
 if [[ ! -d "$HOME/.themes/Orchis" ]]; then
     git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
     pushd /tmp/orchis
@@ -47,7 +57,5 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     popd
     rm -rf /tmp/tela-circle
 fi
-
-{{- end }}
 
 go install github.com/badjware/gitforgefs@latest

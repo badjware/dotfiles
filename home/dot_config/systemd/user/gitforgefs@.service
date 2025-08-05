@@ -1,0 +1,10 @@
+[Unit]
+Description=A FUSE filesystem to automatically organize git reposistories from a git forge (%i)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=%h/go/bin/gitforgefs -config %E/gitforgefs/%i.yaml
+
+[Install]
+WantedBy=default.target

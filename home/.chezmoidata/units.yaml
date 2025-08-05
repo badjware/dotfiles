@@ -6,4 +6,6 @@ units:
     - swayidle.service
     - wob.service
     - mako.service
-    - gammastep
+    - gammastep.service
+
+    - gitforgefs@code.badjware.dev.service

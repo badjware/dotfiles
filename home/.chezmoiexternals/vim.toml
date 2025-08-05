@@ -1,0 +1,5 @@
+[".vim/bundle/repos/github.com/Shougo/dein.vim"]
+    type = "git-repo"
+    url = "https://github.com/Shougo/dein.vim.git"
+    exact = true
+    refreshPeriod = "672h"

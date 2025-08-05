@@ -1,0 +1,17 @@
+[".config/zsh/oh-my-zsh"]
+    type = "git-repo"
+    url = "https://github.com/ohmyzsh/ohmyzsh.git"
+    exact = true
+    refreshPeriod = "672h"
+
+[".config/zsh/custom/plugins/fast-syntax-highlighting"]
+    type = "git-repo"
+    url = "https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
+    exact = true
+    refreshPeriod = "672h"
+
+[".config/zsh/custom/plugins/zsh-autosuggestions"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-autosuggestions.git"
+    exact = true
+    refreshPeriod = "672h"

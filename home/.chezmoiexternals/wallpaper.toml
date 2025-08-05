@@ -1,0 +1,4 @@
+[".local/share/wallpaper"]
+    type = "file"
+    url = "https://badjware.dev/public/wallpaper"
+    exact = false

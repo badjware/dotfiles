@@ -54,7 +54,7 @@ zstyle ':omz:alpha:lib:git' async-prompt no
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git archlinux tmux thefuck fzf fast-syntax-highlighting zsh-autosuggestions)
+plugins=(git tmux thefuck fzf colored-man-pages fast-syntax-highlighting zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 

@@ -25,6 +25,7 @@ packages:
       - neovim
       - openssh
       - pass
+      - ripgrep
       - rsync
       - sudo
       - thefuck
@@ -125,6 +126,7 @@ packages:
       - neovim
       - openssh
       - pass
+      - ripgrep
       - rsync
       - sudo
       - thefuck

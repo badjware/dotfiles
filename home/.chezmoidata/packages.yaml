@@ -28,6 +28,7 @@ packages:
       - rsync
       - sudo
       - thefuck
+      - tmux
       - tree
       - vim
       - zsh
@@ -124,6 +125,7 @@ packages:
       - rsync
       - sudo
       - thefuck
+      - tmux
       - tree
       - vim
       - zsh

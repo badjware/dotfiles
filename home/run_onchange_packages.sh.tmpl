@@ -32,16 +32,20 @@ fi
 
 pip install --user autotiling
 
-git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
-pushd /tmp/orchis
-./install.sh
-popd
-rm -rf /tmp/orchis
+if [[ ! -d "$HOME/.themes/Orchis" ]]; then
+    git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
+    pushd /tmp/orchis
+    ./install.sh
+    popd
+    rm -rf /tmp/orchis
+fi
 
-git clone --depth 1 https://github.com/vinceliuice/Tela-circle-icon-theme.git /tmp/tela-circle
-pushd /tmp/tela-circle
-./install.sh
-popd
-rm -rf /tmp/tela-circle
+if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
+    git clone --depth 1 https://github.com/vinceliuice/Tela-circle-icon-theme.git /tmp/tela-circle
+    pushd /tmp/tela-circle
+    ./install.sh -n Tela-circle
+    popd
+    rm -rf /tmp/tela-circle
+fi
 
 {{- end }}

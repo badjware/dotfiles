@@ -1,6 +1,6 @@
 units:
   system:
-    - docker.socket
+    - docker.service
     - sshd.service
   user:
     - swayidle.service

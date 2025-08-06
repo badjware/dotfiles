@@ -1,9 +1,6 @@
 # PATH
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
-# motd
-export MOTD_SERVICES="$MOTD_SERVICES docker.service sshd.service"
-
 local_profile=$HOME/.local/profile.d
 if [ -d $local_profile  ]; then
     for i in $local_profile/*.sh; do

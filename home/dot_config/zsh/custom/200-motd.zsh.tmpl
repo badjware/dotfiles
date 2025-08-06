@@ -16,6 +16,7 @@ function get_hostname_color () {
     done
     printf "$col"
 }
+
 case "$HOST" in
     "devbox")
         ZSH_THEME_HOSTNAME_COLOR="002"
@@ -31,6 +32,8 @@ case "$HOST" in
         ;;
 esac
 unset -f get_hostname_color
+
+export MOTD_SERVICES="$MOTD_SERVICES {{ join " " .units.system }}"
 
 # print motd
 if [[ ! "$TERM" =~ '^screen|tmux' ]]; then

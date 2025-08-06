@@ -96,8 +96,9 @@ packages:
       # - ttf-ms-win10-auto
 
       # theming
-      - orchis-theme-git
-      - tela-circle-icon-theme-standard
+      - gnome-themes-extra
+      - gtk-engine-murrine
+      - sassc
       - xcursor-breeze
 
       # xorg

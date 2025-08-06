@@ -25,10 +25,10 @@ packages:
       - neovim
       - openssh
       - pass
+      - pay-respects
       - ripgrep
       - rsync
       - sudo
-      - thefuck
       - tmux
       - tree
       - vim
@@ -130,7 +130,6 @@ packages:
       - ripgrep
       - rsync
       - sudo
-      - thefuck
       - tmux
       - tree
       - vim

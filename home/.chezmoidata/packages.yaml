@@ -28,6 +28,7 @@ packages:
       - pay-respects
       - ripgrep
       - rsync
+      - starship
       - sudo
       - tmux
       - tree

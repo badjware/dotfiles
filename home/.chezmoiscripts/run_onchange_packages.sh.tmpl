@@ -40,6 +40,9 @@ fi
 if ! which pay-respects &>/dev/null; then
     curl -sSfL https://raw.githubusercontent.com/iffse/pay-respects/main/install.sh | sh
 fi
+if ! starship &>/dev/null; then
+    curl -sS https://starship.rs/install.sh | sh
+fi
 pip install --user autotiling
 
 

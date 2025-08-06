@@ -1,0 +1,69 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+format = """
+$status [$username$hostname](blue) $directory $kubernetes
+$character
+"""
+right_format = "$git_branch$git_commit$git_status$git_state"
+
+[status]
+success_symbol = '0'
+success_style = 'dimmed white'
+failure_style = 'red'
+disabled = false
+format = '[\($hex_status\)]($style)'
+
+[username]
+show_always = true
+format = '$user'
+
+[hostname]
+ssh_only = false
+format = '@$hostname'
+
+[directory]
+style = 'yellow'
+truncation_length = 4
+fish_style_pwd_dir_length = 2
+format = '[$path]($style)'
+
+[kubernetes]
+style = 'dimmed white'
+disabled = false
+format = '[\[$context|$namespace\]]($style)'
+
+[git_branch]
+style = 'cyan'
+only_attached = true
+format = '[on](dimmed white) [$branch(:$remote_branch)]($style)'
+
+[git_commit]
+style = 'cyan'
+only_detached = true
+tag_disabled = false
+format = '[on](dimmed white) [$hash$tag]($style)'
+
+[git_status]
+style = '"'
+conflicted = '[#](bold yellow)'
+ahead = '[↑](bold white)'
+behind = '[↓](bold white)'
+diverged = '[↑↓](bold white)'
+up_to_date = ''
+untracked = '[?](bold cyan)'
+stashed = ''
+modified = '[!](bold blue)'
+staged = '[+](bold green)'
+renamed = '[>](bold magenta)'
+deleted = '[-](bold red)'
+typechanged = '[=](dimmed blue)'
+format = '( [\[$all_status$ahead_behind\]](dimmed white))'
+
+[git_state]
+style = 'bold red'
+format = ' [$state( \($progress_current/$progress_total\))]($style)'
+
+[character]
+success_symbol = '[\$](dimmed white)'
+error_symbol = '[\$](dimmed white)'

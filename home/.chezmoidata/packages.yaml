@@ -19,6 +19,7 @@ packages:
       - fzf
       - glances
       - gnupg
+      - highlight
       - jq
       - keychain
       - less
@@ -109,6 +110,14 @@ packages:
     repo:
       - https://kubecolor.github.io/packages/rpm/kubecolor.repo
 
+      # archive
+      - 7zip
+      - atool
+      - unrar
+      - unzip
+      - zip
+      - zstd # for pay-respects.
+
     base:
       # tools
       - bind-utils
@@ -119,6 +128,7 @@ packages:
       - fzf
       - glances
       - gnupg2
+      - highlight
       - hostname
       - jq
       - keychain
@@ -136,7 +146,6 @@ packages:
       - tree
       - vim
       - zsh
-      - zstd # for pay-respects
 
       # devops
       # TODO: add kustomize

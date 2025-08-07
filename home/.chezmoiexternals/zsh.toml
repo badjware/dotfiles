@@ -10,8 +10,20 @@
     exact = true
     refreshPeriod = "672h"
 
-[".config/zsh/custom/plugins/zsh-autocomplete"]
+[".config/zsh/custom/plugins/zsh-autosuggestions"]
     type = "git-repo"
-    url = "https://github.com/marlonrichert/zsh-autocomplete.git"
+    url = "https://github.com/zsh-users/zsh-autosuggestions"
+    exact = true
+    refreshPeriod = "672h"
+
+[".config/zsh/custom/plugins/zsh-completion"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-completions.git"
+    exact = true
+    refreshPeriod = "672h"
+
+[".config/zsh/custom/plugins/fzf-tab"]
+    type = "git-repo"
+    url = "https://github.com/Aloxaf/fzf-tab.git"
     exact = true
     refreshPeriod = "672h"

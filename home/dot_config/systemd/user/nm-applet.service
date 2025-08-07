@@ -1,0 +1,10 @@
+[Unit]
+Description=The NetworkManager applet.
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nm-applet
+
+[Install]
+WantedBy=sway-session.target

@@ -61,7 +61,6 @@ packages:
 
     base_desktop:
       - alacritty
-      - autotiling
       - dex
       - feh
       - gammastep
@@ -74,6 +73,7 @@ packages:
       - sway
       - swayidle
       - swaylock
+      - thunar
       - waybar
       - wl-clipboard
       - wob
@@ -181,6 +181,7 @@ packages:
       - sway
       - swayidle
       - swaylock
+      - thunar
       - waybar
       - wl-clipboard
       - wob

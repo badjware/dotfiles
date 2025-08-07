@@ -81,6 +81,7 @@ packages:
       - ydotool
 
       # pipewire
+      - pavucontrol
       - pipewire-jack
       - pipewire-pulse
       - wireplumber
@@ -187,6 +188,7 @@ packages:
       - ydotool
 
       # pipewire
+      - pavucontrol
       - pipewire
       - pipewire-plugin-jack
       - pipewire-pulseaudio

@@ -1,4 +1,6 @@
+{{ if not (stat (joinPath .chezmoi.homeDir ".local" "share" "wallpaper")) }}
 [".local/share/wallpaper"]
     type = "file"
     url = "https://badjware.dev/public/wallpaper"
     exact = false
+{{ end }}

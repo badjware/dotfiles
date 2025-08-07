@@ -361,6 +361,7 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 
 # autorun .desktop
 exec /bin/dex -a
+exec /bin/dex-autostart -a # it's called dex-autostart on fedora
 
 # start autotiling
 exec autotiling -sr 1.61 -w 3 4 5 6 7 8 9

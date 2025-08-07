@@ -14,10 +14,12 @@ packages:
       # tools
       - bind # for `dig`, `nslookup`
       - curl
+      - dialog
       - dos2unix
       - fzf
       - glances
       - gnupg
+      - jq
       - keychain
       - less
       - lm_sensors
@@ -26,6 +28,7 @@ packages:
       - openssh
       - pass
       - pay-respects
+      - pv
       - ripgrep
       - rsync
       - starship
@@ -51,14 +54,9 @@ packages:
       - go
       - pyenv
       - python-pip
+      - python-pyfiglet
       - python-virtualenv
       - yarn
-
-      # scripting utils
-      - dialog
-      - jq
-      - pv
-      - python-pyfiglet
 
     base_desktop:
       - alacritty
@@ -116,11 +114,13 @@ packages:
       - bind-utils
       - bsdtar
       - curl
+      - dialog
       - dos2unix
       - fzf
       - glances
       - gnupg2
       - hostname
+      - jq
       - keychain
       - less
       - lm_sensors
@@ -128,6 +128,7 @@ packages:
       - neovim
       - openssh
       - pass
+      - pv
       - ripgrep
       - rsync
       - sudo
@@ -135,6 +136,7 @@ packages:
       - tree
       - vim
       - zsh
+      - zstd # for pay-respects
 
       # devops
       # TODO: add kustomize
@@ -154,14 +156,9 @@ packages:
       # languages / runtimes
       - golang
       - python3-pip
+      - python3-pyfiglet
       - python3-virtualenv
       - yarnpkg
-
-      # scripting utils
-      - dialog
-      - jq
-      - pv
-      - python3-pyfiglet
 
     base_desktop:
       - alacritty

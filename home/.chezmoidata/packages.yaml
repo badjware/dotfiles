@@ -81,6 +81,8 @@ packages:
       - wob
       - xdg-desktop-portal-wlr
       - ydotool
+      - xarchiver
+      - firefox
 
       # pipewire
       - pavucontrol
@@ -113,15 +115,15 @@ packages:
     repo:
       - https://kubecolor.github.io/packages/rpm/kubecolor.repo
 
+    base:
       # archive
-      - 7zip
+      - p7zip
       - atool
       - unrar
       - unzip
       - zip
       - zstd # for pay-respects.
 
-    base:
       # tools
       - bind-utils
       - bsdtar
@@ -190,6 +192,8 @@ packages:
       - wob
       - xdg-desktop-portal-wlr
       - ydotool
+      - xarchiver
+      - firefox
 
       # pipewire
       - pavucontrol

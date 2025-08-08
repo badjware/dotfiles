@@ -73,7 +73,7 @@ def to_gb(bytes_count):
 def print_hostname():
     print(
           Termutils.HOSTNAME_COLOR
-        + figlet_format(socket.gethostname(), 'slant')
+        + figlet_format(socket.gethostname().split('.')[0], 'slant')
         + Termutils.DISABLE
         + '\n'
         + os.popen('uptime').read().strip()

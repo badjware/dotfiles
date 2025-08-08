@@ -2,9 +2,8 @@
 
 import math
 import shutil
-import sys
 import os
-import re
+import socket
 
 from subprocess import check_call, DEVNULL, CalledProcessError
 
@@ -74,7 +73,7 @@ def to_gb(bytes_count):
 def print_hostname():
     print(
           Termutils.HOSTNAME_COLOR
-        + figlet_format(os.uname()[1], 'slant')
+        + figlet_format(socket.gethostname(), 'slant')
         + Termutils.DISABLE
         + '\n'
         + os.popen('uptime').read().strip()

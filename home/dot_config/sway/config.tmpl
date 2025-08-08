@@ -101,7 +101,11 @@ output "*" {
 #set $output1 "LG Electronics LG QHD 0x00051E95"
 set $output1 "Philips Consumer Electronics Company PHL 34M2C8600 AU42410000051"
 output $output1 {
+    {{- if eq .chassisType "desktop" }}
     position 0 0
+    {{- else }}
+    position 1536 0
+    {{- end }}
     allow_tearing yes
 }
 

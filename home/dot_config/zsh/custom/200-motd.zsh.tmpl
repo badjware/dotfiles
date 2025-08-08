@@ -2,7 +2,7 @@
 function get_hostname_color () {
     local col
     for hash_func in md5sum sha1sum sha256sum; do
-        col="$(printf "%03d" "$((16#$(hostname | $hash_func | head -c2)))")"
+        col="$(printf "%03d" "$((16#$(hostnamectl hostname | $hash_func | head -c2)))")"
         if [[ $col -ne 0 ]] \
         && [[ $col -lt 16 || $col -gt 21 ]] \
         && [[ $col -lt 232 || $col -gt 243 ]]; then

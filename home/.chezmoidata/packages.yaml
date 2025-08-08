@@ -133,7 +133,6 @@ packages:
       - glances
       - gnupg2
       - highlight
-      - hostname
       - jq
       - keychain
       - less

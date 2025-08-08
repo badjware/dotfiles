@@ -61,6 +61,7 @@ packages:
 
     base_desktop:
       - alacritty
+      - brightnessctl
       - dex
       - feh
       - gammastep
@@ -172,6 +173,7 @@ packages:
 
     base_desktop:
       - alacritty
+      - brightnessctl
       - dex-autostart
       - feh
       - gammastep

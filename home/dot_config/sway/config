@@ -192,9 +192,9 @@ bindsym $mod+Mod1+Return exec thunar
 bindsym $mod+Shift+q kill
 
 # start rofi (a program launcher)
-bindsym $mod+Control+Return exec rofi -combi drun -show drun -modi drun,window
+bindsym $mod+Control+Return exec rofi -modes combi -show combi -combi-modes 'window,drun' -show-icons
 # start rofi-pass for password autotype
-bindsym $mod+Shift+Return exec rofi-pass
+bindsym $mod+p exec rofi-pass
 
 # change focus
 bindsym $mod+h focus left

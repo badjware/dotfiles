@@ -1,6 +1,6 @@
 configuration {
 	width: 40;
-	font: "monospace 12";
+	font: "sans 16";
 	bw: 0;
 	location: 0;
 	separator-style: "none";

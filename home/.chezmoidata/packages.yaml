@@ -16,6 +16,7 @@ packages:
       - curl
       - dialog
       - dos2unix
+      - fd
       - fzf
       - glances
       - gnupg
@@ -127,6 +128,7 @@ packages:
       - curl
       - dialog
       - dos2unix
+      - fd-find
       - fzf
       - glances
       - gnupg2

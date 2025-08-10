@@ -1,3 +1,6 @@
+export FZF_DEFAULT_COMMAND='fd --type f --type l --strip-cwd-prefix --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
 # show file preview on CTRL+T
 export FZF_DEFAULT_OPTS="--height 90%"
 export FZF_CTRL_T_OPTS="--preview '([[ -d {} ]] && lsd --color always --icon always --tree --depth 3 {} || highlight -O ansi -l {} || (file {} | grep -q text && cat {} || od -A x -t xz -v {})) 2>/dev/null | head -200'"

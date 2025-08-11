@@ -43,6 +43,7 @@ fi
 if ! which starship &>/dev/null; then
     curl -sS https://starship.rs/install.sh | sh
 fi
+pip install --user autotiling
 
 {{- end }}
 
@@ -62,7 +63,5 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     popd
     rm -rf /tmp/tela-circle
 fi
-
-pip install --user autotiling
 
 go install github.com/badjware/gitforgefs@latest

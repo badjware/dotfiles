@@ -10,7 +10,7 @@
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["custom/spotify", "clock", "network", "cpu", "memory", "battery", "backlight", "pulseaudio", "custom/vpn", "idle_inhibitor", "tray"],
+    "modules-right": ["clock", "network", "cpu", "memory", "battery", "backlight", "wireplumber", "custom/vpn", "idle_inhibitor", "tray"],
 
     // Modules configuration
     "sway/workspaces": {
@@ -24,8 +24,8 @@
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
-            "activated": "",
-            "deactivated": ""
+            "activated": "",
+            "deactivated": ""
         }
     },
     "tray": {
@@ -37,46 +37,52 @@
         "tooltip-format": "<tt><big>{calendar}</big></tt>",
     },
     "cpu": {
-        "format": " {usage:2}%"
+        "format": "{icon} {usage:3}%",
+        "format-icons": ["", "", "", "", ""],
+
     },
     "memory": {
-        "format": " {percentage:2}%",
-        "tooltip-format": "{used:0.1f}/{total:0.1f}GiB"
+        "format": " {percentage:3}%",
+        "tooltip-format": "RAM:  {used:0.1f}/{total:0.1f}GiB\nSwap: {swapUsed:0.1f}/{swapTotal:0.1f}GiB"
     },
     "backlight": {
-        "format": "{icon} {percent:2}%",
+        "format": "{icon} {percent:3}%",
         "format-icons": ["", "", ""]
     },
     "battery": {
         "states": {
-            // "good": 95,
+            "full": 100,
+            "good": 97,
             "warning": 30,
             "critical": 15
         },
         "bat": "BAT0",
-        "format": " {icon} {capacity}%",
-        // "format-good": "", // An empty format will hide the module
-        // "format-full": "",
-        "format-icons": ["", "", "", "", ""]
+        "full-at": 97,
+        "format": " {icon} {capacity:3}%",
+        "format-plugged": " {capacity:3}%",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip-format": "{time} ({timeTo})",
+        "tooltip-format-full": "Full",
     },
     "network": {
-        "format-wifi": " {ipaddr}/{cidr}",
-        "format-ethernet": " {ipaddr}/{cidr}",
-        "format-disconnected": "⚠ Disconnected",
-        "tooltip-format": "up: {bandwidthUpBits}b/s, down: {bandwidthDownBits}b/s",
-        "tooltip-format-wifi": "{essid} -  {bandwidthUpBits}  {bandwidthDownBits}"
+        "format-wifi": "{icon} {ipaddr}/{cidr}",
+        "format-ethernet": " {ipaddr}/{cidr}",
+        "format-disconnected": " Disconnected",
+        "tooltip-format": " {bandwidthUpBits}\n {bandwidthDownBits}",
+        "tooltip-format-wifi": " {essid}\n {bandwidthUpBits}\n {bandwidthDownBits}",
+        "format-icons": ["", "", ""],
     },
-    "pulseaudio": {
+    "wireplumber": {
         //"scroll-step": 1,
-        "format": "{icon} {volume:2}%",
-        "format-bluetooth": " {volume:2}%",
-        "format-muted": " --%",
+        "format": "{icon} {volume:3}%",
+        "format-muted": " ---%",
         "format-icons": {
             "headphones": "",
             "headset": "",
+            "bluetooth": "",
             "default": ["", "", ""]
         },
-        "on-click-right": "pavucontrol"
+        "on-click": "pavucontrol"
     },
     "custom/vpn": {
         "format": "{}",

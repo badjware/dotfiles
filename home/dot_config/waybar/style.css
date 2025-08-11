@@ -27,7 +27,7 @@ label, button {
     border-radius: 6px;
 }
 
-#custom-spotify, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #pulseaudio, #custom-vpn {
+#clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-vpn {
     padding: 0 10px;
 /*
     margin-left: 15px
@@ -67,7 +67,7 @@ label, button {
     border-bottom: 2px solid #8d6494;
 }
 
-#pulseaudio {
+#wireplumber {
     color: #b04c50;
     border-bottom: 2px solid #b04c50;
 }

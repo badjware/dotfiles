@@ -62,6 +62,7 @@ packages:
 
     base_desktop:
       - alacritty
+      - autotiling
       - brightnessctl
       - dex
       - feh
@@ -70,10 +71,9 @@ packages:
       - grim
       - libappindicator-gtk3
       - mako
-      - python-autotiling
       - qt5-wayland
       - qt6-wayland
-      - rofi-lbonn-wayland-git
+      - rofi-wayland
       - sway
       - swayidle
       - swaylock

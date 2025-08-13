@@ -10,7 +10,7 @@
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["clock", "network", "cpu", "memory", "battery", "backlight", "wireplumber", "custom/vpn", "idle_inhibitor", "tray"],
+    "modules-right": ["clock", "network", "cpu", "custom/gpu", "memory", "battery", "backlight", "wireplumber", "custom/vpn", "idle_inhibitor", "tray"],
 
     // Modules configuration
     "sway/workspaces": {
@@ -90,11 +90,17 @@
         "on-scroll-up": "{{ .chezmoi.destDir }}/.local/bin/volume-control up",
         "on-scroll-down": "{{ .chezmoi.destDir }}/.local/bin/volume-control down"
     },
+    "custom/gpu": {
+        "interval": 1,
+        "format": " {percentage:3}%",
+        "return-type": "json",
+        "exec": "{{ .chezmoi.destDir }}/.local/bin/waybar-gpu-status",
+        "tooltip": true,
+    },
     "custom/vpn": {
-        "format": "{}",
         "interval": 5,
         "return-type": "json",
-        "exec": "{{ .chezmoi.destDir }}/.local/bin/vpn-status",
+        "exec": "{{ .chezmoi.destDir }}/.local/bin/waybar-vpn-status",
         "tooltip": true,
     }
 }

@@ -27,7 +27,7 @@ label, button {
     border-radius: 6px;
 }
 
-#clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-vpn {
+#clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {
     padding: 0 10px;
 /*
     margin-left: 15px

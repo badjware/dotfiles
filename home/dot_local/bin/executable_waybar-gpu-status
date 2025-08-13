@@ -3,15 +3,15 @@
 device="$(dirname "$(find /sys/devices -name gpu_busy_percent)" | head -n 1)"
 
 usage=$(cat "$device/gpu_busy_percent")
-vram_used_bytes=$(cat "$device/mem_info_vram_used" | numfmt --to=iec-i)
-vram_total_bytes=$(cat "$device/mem_info_vram_total" | numfmt --to=iec-i)
+vram_used_bytes=$(cat "$device/mem_info_vram_used" | numfmt --format="%0.1f" --to=iec-i)B
+vram_total_bytes=$(cat "$device/mem_info_vram_total" | numfmt --format="%0.1f" --to=iec-i)B
 
 if [[ -d "$device" ]]; then
     percentage="$usage"
     tooltip="VRAM: $vram_used_bytes/$vram_total_bytes"
     class="gpu"
 
-    jq -c -n --arg text "$(printf "%3d%%" "$percentage")" --arg tooltip "$tooltip" --arg class "$class" \
+    jq -c -n --arg text "$percentage%" --arg tooltip "$tooltip" --arg class "$class" \
         --argjson percentage "$percentage" \
         '{text: $text, percentage: $percentage, tooltip: $tooltip, class: $class}'
 fi

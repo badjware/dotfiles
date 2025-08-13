@@ -46,7 +46,9 @@
     },
     "backlight": {
         "format": "{icon} {percent:3}%",
-        "format-icons": ["", "", ""]
+        "format-icons": ["", "", ""],
+        "on-scroll-up": "{{ .chezmoi.destDir }}/.local/bin/brightness-control up",
+        "on-scroll-down": "{{ .chezmoi.destDir }}/.local/bin/brightness-control down"
     },
     "battery": {
         "states": {

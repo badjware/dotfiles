@@ -1,7 +1,7 @@
 {
     "layer": "top", // Waybar at top layer
     "position": "bottom", // Waybar position (top|bottom|left|right)
-    "height": 23, // Waybar height (to be removed for auto height)
+    "height": 24, // Waybar height (to be removed for auto height)
 {{- if eq .chezmoi.hostname "pallet" }}
     "output": ["DP-3", "HDMI-A-6", "HEADLESS-1"],
 {{- else if eq .chassisType "laptop" }}
@@ -38,8 +38,7 @@
     },
     "cpu": {
         "format": "{icon} {usage:3}%",
-        "format-icons": ["", "", "", "", ""],
-
+        "format-icons": ["", "", "", "", ""]
     },
     "memory": {
         "format": " {percentage:3}%",
@@ -61,15 +60,15 @@
         "format": " {icon} {capacity:3}%",
         "format-plugged": " {capacity:3}%",
         "format-icons": ["", "", "", "", ""],
-        "tooltip-format": "{time} ({timeTo})",
+        "tooltip-format": "{time}",
         "tooltip-format-full": "Full",
     },
     "network": {
         "format-wifi": "{icon} {ipaddr}/{cidr}",
         "format-ethernet": " {ipaddr}/{cidr}",
         "format-disconnected": " Disconnected",
-        "tooltip-format": " {bandwidthUpBits}\n {bandwidthDownBits}",
-        "tooltip-format-wifi": " {essid}\n {bandwidthUpBits}\n {bandwidthDownBits}",
+        "tooltip-format": " {bandwidthDownBits}\n {bandwidthUpBits}",
+        "tooltip-format-wifi": " {essid}\n {bandwidthDownBits}\n {bandwidthUpBits}",
         "format-icons": ["", "", ""],
     },
     "wireplumber": {
@@ -80,15 +79,18 @@
             "headphones": "",
             "headset": "",
             "bluetooth": "",
-            "default": ["", "", ""]
+            "default": ["", "", ""],
         },
-        "on-click": "pavucontrol"
+        "on-click": "{{ .chezmoi.destDir }}/.local/bin/volume-control toggle-mute",
+        "on-click-right": "pavucontrol",
+        "on-scroll-up": "{{ .chezmoi.destDir }}/.local/bin/volume-control up",
+        "on-scroll-down": "{{ .chezmoi.destDir }}/.local/bin/volume-control down"
     },
     "custom/vpn": {
         "format": "{}",
         "interval": 5,
-        "exec": "test -e /proc/sys/net/ipv4/conf/tun0 && echo  || echo ",
-        "tooltip": false,
+        "return-type": "json",
+        "exec": "{{ .chezmoi.destDir }}/.local/bin/vpn-status",
+        "tooltip": true,
     }
 }
-

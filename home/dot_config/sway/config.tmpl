@@ -153,7 +153,7 @@ workspace $ws6 output $output1 $output5
 workspace $ws7 output $output1 $output5
 workspace $ws8 output $output1 $output5
 workspace $ws9 output $output1 $output5
-workspace $ws10 output $output3 $output5
+workspace $ws10 output $output3 $output5 HDMI-A-1
 workspace sunshine output $output1
 
 ### Input configuration
@@ -318,7 +318,7 @@ bindsym $mod+Shift+Pause exec systemctl suspend
 # function keys
 bindsym XF86MonBrightnessUp exec brightness-control up
 bindsym XF86MonBrightnessDown exec brightness-control down
-bindsym XF86AudioMute exec volume-control mute
+bindsym XF86AudioMute exec volume-control toggle-mute
 bindsym XF86AudioRaiseVolume exec volume-control up
 bindsym XF86AudioLowerVolume exec volume-control down
 

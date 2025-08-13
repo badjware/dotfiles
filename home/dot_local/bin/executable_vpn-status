@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+vpn_cidr="$(ip addr show dev tun0 | grep -Eo '([0-2]*[0-9]*[0-9]\.){3}([0-2]*[0-9]*[0-9])/[0-9]+')"
+
+if [[ -n "$vpn_cidr" ]]; then
+  text=""
+  tooltip="$vpn_cidr"
+  class="vpn"
+else
+  text=""
+  tooltip="No VPN"
+  class="vpn"
+fi
+
+jq -c -n --arg text "$text" --arg tooltip "$tooltip" --arg class "$class" \
+    '{text: $text, tooltip: $tooltip, class: $class}'

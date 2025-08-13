@@ -9,17 +9,19 @@
 # https://github.com/dastorm/volume-notification-dunst/blob/master/volume.sh
 # https://gist.github.com/sebastiencs/5d7227f388d93374cebdf72e783fbd6a
 
+set -x
+
+step=5
+
 function get_volume {
-  amixer get Master | grep '%' | head -n 1 | cut -d '[' -f 2 | cut -d '%' -f 1
+  pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1 | tr -d '%'
 }
 
 function is_mute {
-  amixer get Master | grep '%' | grep -oE '[^ ]+$' | grep off > /dev/null
+  pactl get-sink-mute @DEFAULT_SINK@ | grep -q 'yes'
 }
 
 function send_notification {
-  iconSound="notification-audio-volume-high"
-  iconMuted="notification-audio-volume-muted"
   if is_mute ; then
       echo 0 >"$XDG_RUNTIME_DIR/wobpipe"
   else
@@ -29,20 +31,30 @@ function send_notification {
 
 case $1 in
   up)
-    # set the volume on (if it was muted)
-    amixer -D pulse set Master on > /dev/null
-    # up the volume (+ 5%)
-    amixer -D pulse sset Master 5%+ > /dev/null
+    pactl set-sink-mute @DEFAULT_SINK@ off
+    if (( $(get_volume) >= 100-$step )) && (( $(get_volume) < 100 )); then
+      # snap to 100%
+      pactl set-sink-volume @DEFAULT_SINK@ 100%
+    elif (( $(get_volume) >= 150-$step )) && (( $(get_volume) < 150 )); then
+      # snap to 150%
+      pactl set-sink-volume @DEFAULT_SINK@ 150%
+    elif (( $(get_volume) < 150 )); then
+      pactl set-sink-volume @DEFAULT_SINK@ +$step%
+    fi
     send_notification
     ;;
   down)
-    amixer -D pulse set Master on > /dev/null
-    amixer -D pulse sset Master 5%- > /dev/null
+    pactl set-sink-mute @DEFAULT_SINK@ off
+    if (( $(get_volume) <= 100+$step )) && (( $(get_volume) > 100 )); then
+      # snap to 100%
+      pactl set-sink-volume @DEFAULT_SINK@ 100%
+    else
+      pactl set-sink-volume @DEFAULT_SINK@ -$step%
+    fi
     send_notification
     ;;
-  mute)
-    # toggle mute
-    amixer -D pulse set Master 1+ toggle > /dev/null
+  toggle-mute)
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
     send_notification
     ;;
 esac

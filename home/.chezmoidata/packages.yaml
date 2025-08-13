@@ -87,7 +87,6 @@ packages:
 
       # pipewire
       - pavucontrol
-      - pipewire-alsa
       - pipewire-jack
       - pipewire-pulse
       - wireplumber
@@ -200,7 +199,6 @@ packages:
       # pipewire
       - pavucontrol
       - pipewire
-      - pipewire-alsa
       - pipewire-plugin-jack
       - pipewire-pulseaudio
       - wireplumber

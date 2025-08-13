@@ -7,5 +7,6 @@ units:
     - wob.service
     - mako.service
     - gammastep.service
+    - dex.service
 
     - gitforgefs@code.badjware.dev.service

@@ -1,0 +1,10 @@
+[Unit]
+Description=DesktopEntry execution
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/bin/dex{{ if eq .chezmoi.osRelease.id "fedora" }}-autostart{{ end }} --autostart
+
+[Install]
+WantedBy=sway-session.target

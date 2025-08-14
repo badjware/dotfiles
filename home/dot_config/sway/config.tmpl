@@ -311,21 +311,21 @@ bindsym $mod+Shift+r reload
 # exit 
 bindsym $mod+Shift+e exec "swaynag -t warning -m 'Do you really want to exit sway?' -b 'Yes, exit sway' 'swaymsg exit'"
 # lock the screen
-bindsym $mod+Pause exec lock
+bindsym $mod+Pause exec ~/.local/bin/lock
 # suspend
 bindsym $mod+Shift+Pause exec systemctl suspend
 
 # function keys
-bindsym XF86MonBrightnessUp exec brightness-control up
-bindsym XF86MonBrightnessDown exec brightness-control down
-bindsym XF86AudioMute exec volume-control toggle-mute
-bindsym XF86AudioRaiseVolume exec volume-control up
-bindsym XF86AudioLowerVolume exec volume-control down
+bindsym XF86MonBrightnessUp exec ~/.local/bin/brightness-control up
+bindsym XF86MonBrightnessDown exec ~/.local/bin/brightness-control down
+bindsym XF86AudioMute exec ~/.local/bin/volume-control toggle-mute
+bindsym XF86AudioRaiseVolume exec ~/.local/bin/volume-control up
+bindsym XF86AudioLowerVolume exec ~/.local/bin/volume-control down
 
-bindsym Shift+print exec sshot --pin
-bindsym Control+print exec sshot --partial
-bindsym Alt+print exec sshot --window
-bindsym print exec sshot
+bindsym Shift+print exec ~/.local/bin/sshot --pin
+bindsym Control+print exec ~/.local/bin/sshot --partial
+bindsym Alt+print exec ~/.local/bin/sshot --window
+bindsym print exec ~/.local/bin/sshot
 
 # resize window (you can also use the mouse for that)
 mode "resize" {

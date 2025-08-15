@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+base_directory="$HOME/develop"
+
+if [ -z "$1" ]; then
+    fd --hidden --follow --glob '.git' "$base_directory" | xargs dirname | sed "s|^$base_directory/||" | sort | uniq
+else
+    code "$base_directory/$1"
+fi

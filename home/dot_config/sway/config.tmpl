@@ -195,10 +195,12 @@ bindsym $mod+Mod1+Return exec thunar
 # kill focused window
 bindsym $mod+Shift+q kill
 
-# start rofi (a program launcher)
+# start rofi
 bindsym $mod+Control+Return exec rofi -modes combi -show combi -combi-modes 'window,drun' -show-icons
-# start rofi-pass for password autotype
-bindsym $mod+p exec rofi-pass
+# rofi-pass
+#bindsym $mod+Control+p exec rofi-pass
+# rofi-aws-console
+bindsym $mod+Control+a exec rofi -show aws-console -modes 'aws-console:~/.local/bin/rofi-aws-console'
 
 # change focus
 bindsym $mod+h focus left

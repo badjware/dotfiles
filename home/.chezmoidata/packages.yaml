@@ -93,7 +93,6 @@ packages:
 
       # fonts
       # - nerd-fonts-git
-      # - otf-font-awesome-5
       - ttf-droid
       # - ttf-google-fonts-git
       - ttf-hack

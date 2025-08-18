@@ -99,7 +99,7 @@ packages:
       - ttf-hack
       - ttf-liberation
       - ttf-material-design-icons-git
-      # - ttf-ms-win10-auto
+      - ttf-ms-win10-auto
 
       # theming
       - gnome-themes-extra
@@ -140,6 +140,7 @@ packages:
       - keychain
       - less
       - lm_sensors
+      - lpf
       - lsd
       - neovim
       - openssh
@@ -206,6 +207,10 @@ packages:
       # fonts
       # TODO: missing many
       - fontawesome-fonts-all
+      - liberation-fonts
+      - lpf-cleartype-fonts
+      - lpf-mscore-fonts
+      - lpf-mscore-tahoma-fonts
       - source-foundry-hack-fonts
 
       # theming

@@ -361,6 +361,11 @@ bindsym $mod+r mode "resize"
 # setup theme
 exec_always ~/.local/bin/import-gsettings
 
+# waybar
+bar {
+    swaybar_command waybar
+}
+
 # reach systemd target
 exec /bin/systemctl --user import-environment
 exec /bin/systemctl --user start sway-session.target
@@ -370,12 +375,8 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 # start autotiling
 exec ~/.local/bin/autotiling -sr 1.61 -w 3 4 5 6 7 8 9
 
-# run a terminal
-exec $terminal
+# autostart
+exec /usr/bin/dex{{ if eq .chezmoi.osRelease.id "fedora" }}-autostart{{ end }} --autostart
 
 # setup outputs
 exec_always ~/.local/bin/setup-outputs
-
-bar {
-    swaybar_command waybar
-}

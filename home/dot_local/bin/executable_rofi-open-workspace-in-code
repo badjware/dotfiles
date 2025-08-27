@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+base_directory="$HOME/develop"
+
+if [ -z "$1" ]; then
+    fd --exact-depth 1 --glob '*.code-workspace' "$base_directory" | sed "s|^$base_directory/||" | sort | uniq
+else
+    code "$base_directory/$1"
+fi

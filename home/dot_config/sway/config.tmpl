@@ -201,8 +201,10 @@ bindsym $mod+Control+Return exec rofi -modes combi -show combi -combi-modes 'win
 #bindsym $mod+Control+p exec rofi-pass
 # rofi-aws-console
 bindsym $mod+Control+a exec rofi -show aws-console -modes 'aws-console:~/.local/bin/rofi-aws-console'
-# rofi-gitforgefs-develop
+# rofi-open-git-repo-in-code
 bindsym $mod+Control+r exec rofi -show git-repo -modes 'git-repo:~/.local/bin/rofi-open-git-repo-in-code'
+# rofi-open-workspace-in-code
+bindsym $mod+Control+w exec rofi -show workspace -modes 'workspace:~/.local/bin/rofi-open-workspace-in-code'
 
 # change focus
 bindsym $mod+h focus left

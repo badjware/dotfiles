@@ -381,6 +381,5 @@ exec ~/.local/bin/autotiling -sr 1.61 -w 3 4 5 6 7 8 9
 
 # autostart
 exec /usr/bin/dex{{ if eq .chezmoi.osRelease.id "fedora" }}-autostart{{ end }} --autostart
+exec ~/applications/Logseq.AppImage
 
-# setup outputs
-exec_always ~/.local/bin/setup-outputs

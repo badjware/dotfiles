@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Logseq
+Exec=applications/Logseq.AppImage %u
+Terminal=false
+Type=Application
+Icon=Logseq
+StartupWMClass=Logseq
+X-AppImage-Version=0.10.13
+Comment=A privacy-first, open-source platform for knowledge management and collaboration.
+Categories=Utility
+MimeType=x-scheme-handler/logseq;x-scheme-handler/logseq

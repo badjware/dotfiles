@@ -34,7 +34,6 @@ workspace $ws2
 # window title
 #for_window [class="^.*"] border pixel 2 title_format " %title"
 default_border pixel 2
-for_window [floating] default_border pixel 1
 smart_borders on
 
 # Gaps
@@ -43,7 +42,7 @@ gaps outer -4
 smart_gaps on
 
 # Floating mod
-for_window [floating] shadows enable
+for_window [floating] default_border pixel 1
 for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="org.remmina.Remmina" title="Remmina Remote Desktop Client"] floating enable
 for_window [app_id="desktopclient.nextcloud.com.nextcloud"] floating enable

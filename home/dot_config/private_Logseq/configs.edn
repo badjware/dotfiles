@@ -1,1 +1,1 @@
-{:git/disable-auto-commit? false, :git/commit-on-close? true, :git/auto-commit-seconds 600, :window/native-titlebar? true}
+{:git/disable-auto-commit? false, :git/commit-on-close? true, :git/auto-commit-seconds 600, :window/native-titlebar? true, :spell-check true, :settings/agent {:type "system", :test ""}}

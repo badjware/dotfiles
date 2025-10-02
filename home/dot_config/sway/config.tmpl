@@ -125,7 +125,9 @@ output $output3 {
 set $output4 eDP-1
 output $output4 {
     position 0 0
+{{- if ne .chezmoi.hostname "pewter" }}
     scale 1.25
+{{- end }}
 }
 
 set $output5 "HP Inc. HP 727pq CN443323W3"

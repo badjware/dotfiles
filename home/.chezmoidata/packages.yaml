@@ -1,5 +1,6 @@
 versions:
   logseq: 0.10.14
+  obsidian: 1.9.14
 
 packages:
   arch:

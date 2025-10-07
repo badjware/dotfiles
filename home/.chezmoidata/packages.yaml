@@ -1,3 +1,6 @@
+versions:
+  logseq: 0.10.14
+
 packages:
   arch:
     base:
@@ -78,6 +81,7 @@ packages:
       - swayidle
       - swaylock
       - thunar
+      - thunar-archive-plugin
       - waybar
       - wl-clipboard
       - wob
@@ -189,6 +193,7 @@ packages:
       - swayidle
       - swaylock
       - thunar
+      - thunar-archive-plugin
       - waybar
       - wl-clipboard
       - wob

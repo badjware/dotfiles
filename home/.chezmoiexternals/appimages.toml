@@ -1,5 +1,0 @@
-["applications/Logseq.AppImage"]
-    type = "file"
-    url = "https://github.com/logseq/logseq/releases/download/0.10.13/Logseq-linux-x64-0.10.13.AppImage"
-    exact = true
-    executable = true

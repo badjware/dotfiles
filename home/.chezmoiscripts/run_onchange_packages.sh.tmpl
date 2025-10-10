@@ -1,6 +1,6 @@
 #!/bin/bash
 
-{{- if eq .chezmoi.osRelease.id "arch" }}
+{{ if eq .chezmoi.osRelease.id "arch" }}
 sudo pacman -Sy
 
 # setup aur helper
@@ -13,17 +13,16 @@ fi
 
 pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
 
-{{- if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-# we don't want to install the desktop packages on WSL
+{{ if ne .chassisType "container" }}
 pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
-{{- end }}
+{{ end }}
 
-{{- else if eq .chezmoi.osRelease.id "fedora" }}
+{{ else if eq .chezmoi.osRelease.id "fedora" }}
 # setup extra repos
 sudo dnf install dnf5-plugins
 {{ range $r := .packages.fedora.repo }}
 sudo dnf -y config-manager addrepo --overwrite --from-repofile {{ $r }}
-{{- end }}
+{{ end }}
 # RPMFusion
 sudo dnf -y install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf -y config-manager setopt fedora-cisco-openh264.enabled=1
@@ -31,10 +30,9 @@ sudo dnf -y update
 
 sudo dnf -y install {{ .packages.fedora.base | join " " }}
 
-{{- if not (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-# we don't want to install the desktop packages on WSL
+{{ if ne .chassisType "container" }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
-{{- end }}
+{{ end }}
 
 # scripts for tools unavailable in package repo
 if [[ ! -d "$HOME/.pyenv" ]] then
@@ -55,12 +53,15 @@ if lpf state 2>/dev/null | grep -q approve-wait; then
     lpf update
 fi
 
-{{- else if eq .chezmoi.osRelease.id "ubuntu" }}
+{{ else if eq .chezmoi.osRelease.id "ubuntu" }}
 pip install --user autotiling
 
-{{- end }}
+{{ end }}
 
 # other loose packages
+go install github.com/badjware/gitforgefs@latest
+
+{{ if ne .chassisType "container" }}
 if [[ ! -d "$HOME/.themes/Orchis" ]]; then
     git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
     pushd /tmp/orchis
@@ -76,5 +77,4 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     popd
     rm -rf /tmp/tela-circle
 fi
-
-go install github.com/badjware/gitforgefs@latest
+{{ end }}

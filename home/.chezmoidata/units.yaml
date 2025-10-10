@@ -2,10 +2,10 @@ units:
   system:
     - docker.service
     - sshd.service
-  user:
+  user_base:
+    - gitforgefs@code.badjware.dev.service
+  user_desktop:
     - swayidle.service
     - wob.service
     - mako.service
     - gammastep.service
-
-    - gitforgefs@code.badjware.dev.service

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [[ $# -lt 4 ]]; then
+    echo "$0: size input_file_name output_file_name input_uri"
+    exit 1
+elif [[ "$(dirname "$2")" == "$HOME" ]]; then
+    echo "Refusing to process files in the home directory"
+    exit 1
+fi
+
+ICON_THEME="$(gsettings get org.gnome.desktop.interface icon-theme | tr -d \')"
+if [[ -z "$ICON_THEME" ]]; then
+    ICON_THEME="Adwaita"
+fi
+
+ICON_THEME_PATH="$HOME/.local/share/icons/$ICON_THEME"
+if [[ ! -d "$ICON_THEME_PATH" ]]; then
+    ICON_THEME_PATH="/usr/share/icons/$ICON_THEME"
+fi
+
+FOLDER_ICON="$(find "$ICON_THEME_PATH/scalable" -name 'folder.svg' -o -name 'folder.png' | head -n 1)"
+
+SIZE="$1"
+INPUT_FILE_NAME="$2"
+OUTPUT_FILE_NAME="$3"
+INPUT_URI="$4"
+
+covers=("$INPUT_FILE_NAME"/{.,}*.{jpg,png,svg})
+for file in "${covers[@]}"; do
+    if [[ -f "$file" ]]; then
+        cover+=("$file")
+        if [[ ${#cover[@]} -eq 4 ]]; then
+            break
+        fi
+    fi
+done
+
+generate_thumbnail() {
+    tmpfile=$(mktemp --dry-run --suffix=.png)
+    magick montage -background transparent "${cover[@]}" "$tmpfile"
+    magick composite -gravity south -thumbnail "$SIZE" "$tmpfile" "$FOLDER_ICON" "$OUTPUT_FILE_NAME"
+    rm "$tmpfile"
+}
+
+if [[ -z "$cover" ]] || ! generate_thumbnail; then
+    gdbus call \
+        --session \
+        --dest org.freedesktop.thumbnails.Cache1 \
+        --object-path /org/freedesktop/thumbnails/Cache1 \
+        --method org.freedesktop.thumbnails.Cache1.Delete "['$INPUT_URI']" >/dev/null
+fi
+
+# vim: set ts=4 sw=4 et:

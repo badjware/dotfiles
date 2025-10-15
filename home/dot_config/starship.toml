@@ -2,7 +2,7 @@
 
 add_newline = false
 format = """
-$status [$username$hostname](blue) $directory $kubernetes
+$status [$username${custom.hostname}](blue) $directory $kubernetes
 $character
 """
 right_format = "$git_branch$git_commit$git_status$git_state"
@@ -18,9 +18,9 @@ format = '[\($hex_status\)]($style)'
 show_always = true
 format = '$user'
 
-[hostname]
-ssh_only = false
-format = '@$hostname'
+# [hostname]
+# ssh_only = false
+# format = '@$hostname'
 
 [directory]
 style = 'yellow'
@@ -67,3 +67,8 @@ format = ' [$state( \($progress_current/$progress_total\))]($style)'
 [character]
 success_symbol = '[\$](dimmed white)'
 error_symbol = '[\$](dimmed white)'
+
+[custom.hostname]
+command = "cat /etc/hostname"
+when = true
+format = "@$output"

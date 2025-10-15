@@ -27,6 +27,7 @@ alias browsh="docker run --rm -it browsh/browsh"
 
 # kube
 alias netshoot="kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash"
+alias mirrord-zsh="mirrord exec -f ~/.config/mirrord.json -- zsh"
 alias kubectl="kubecolor"
 alias k="kubecolor"
 alias kctx="kubectl config use-context"

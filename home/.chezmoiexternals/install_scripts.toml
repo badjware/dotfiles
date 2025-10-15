@@ -1,0 +1,6 @@
+[".cache/install/mirrord.sh"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/main/scripts/install.sh"
+    checksum.sha256 = "927fad5a001db01b4f1c000006a42111f7a73151d159cb817e8738ce569d5075"
+    exact = true
+    executable = true

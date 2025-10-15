@@ -52,14 +52,20 @@ fi
 if lpf state 2>/dev/null | grep -q approve-wait; then
     lpf update
 fi
+{{ end }}
 
-{{ else if eq .chezmoi.osRelease.id "ubuntu" }}
+# on arch, we install autotiling via pacman
+# on other distros, we install via pip
+{{ if eq .chezmoi.osRelease.id "arch" }}
 pip install --user autotiling
-
 {{ end }}
 
 # other loose packages
 go install github.com/badjware/gitforgefs@latest
+
+if ! which mirrord &>/dev/null; then
+    bash ~/.cache/install/mirrord.sh
+fi
 
 {{ if ne .chassisType "container" }}
 if [[ ! -d "$HOME/.themes/Orchis" ]]; then

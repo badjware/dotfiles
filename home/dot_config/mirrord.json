@@ -1,0 +1,26 @@
+{
+    "feature": {
+        "network": {
+            "incoming": {
+                "mode": "mirror"
+            },
+            "outgoing": {
+                "tcp": true,
+                "udp": true
+            },
+            "dns": {
+                "enabled": true
+            }
+        },
+        "env": {
+            "override": {
+                "HTTP_PROXY": "",
+                "http_proxy": "",
+                "HTTPS_PROXY": "",
+                "https_proxy": "",
+                "NO_PROXY": "",
+                "no_proxy": ""
+            }
+        }
+    }
+}

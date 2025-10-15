@@ -56,7 +56,7 @@ fi
 
 # on arch, we install autotiling via pacman
 # on other distros, we install via pip
-{{ if eq .chezmoi.osRelease.id "arch" }}
+{{ if ne .chezmoi.osRelease.id "arch" }}
 pip install --user autotiling
 {{ end }}
 

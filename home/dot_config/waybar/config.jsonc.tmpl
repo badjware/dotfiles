@@ -1,6 +1,10 @@
 {
     "layer": "top", // Waybar at top layer
+{{- if eq .chassisType "laptop" }}
+    "position": "top", // Waybar position (top|bottom|left|right)
+{{- else if eq .chassisType "laptop" }}
     "position": "bottom", // Waybar position (top|bottom|left|right)
+{{- end }}
     "height": 24, // Waybar height (to be removed for auto height)
 {{- if eq .chezmoi.hostname "pallet" }}
     "output": ["DP-3", "HDMI-A-6", "HEADLESS-1"],

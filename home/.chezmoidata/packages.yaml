@@ -84,6 +84,7 @@ packages:
       - thunar
       - thunar-archive-plugin
       - waybar
+      - wayvnc
       - wl-clipboard
       - wob
       - xarchiver
@@ -196,6 +197,7 @@ packages:
       - thunar
       - thunar-archive-plugin
       - waybar
+      - wayvnc
       - wl-clipboard
       - wob
       - xarchiver

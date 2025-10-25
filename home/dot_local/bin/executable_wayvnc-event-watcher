@@ -1,0 +1,29 @@
+#!/bin/bash
+
+WAYVNCCTL=${WAYVNCCTL:-wayvncctl}
+
+connection_count_now() {
+    echo "Total clients: $1"
+}
+
+while IFS= read -r EVT; do
+    case "$(jq -r '.method' <<<"$EVT")" in
+        client-*onnected)
+            count=$(jq -r '.params.connection_count' <<<"$EVT")
+            connection_count_now "$count"
+            ;;
+        wayvnc-shutdown)
+            echo "wayvncctl is no longer running"
+            connection_count_now 0
+            ;;
+        wayvnc-startup)
+            echo "Ready to receive wayvnc events"
+            ;;
+    esac
+    if [[ "$count" -gt 0 ]]; then
+        on-remote-client-connect
+        $WAYVNCCTL output-set HEADLESS-1
+    else
+        on-remote-client-disconnect
+    fi
+done < <("$WAYVNCCTL" --wait --reconnect --json event-receive)

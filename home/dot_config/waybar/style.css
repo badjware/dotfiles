@@ -1,6 +1,6 @@
 * {
     border: none;
-    font-family: monospace, "Font Awesome 5 Pro";
+    font-family: monospace, "Font Awesome 5 Pro", "Hack Nerd Font";
     font-size: 13px;
 }
 
@@ -18,13 +18,17 @@ label, button {
     padding: 0 5px;
     background: transparent;
     color: inherit;
+    border-radius: 6px;
+}
+
+#workspace button.visible {
+    font-weight: 900;
+    border: 1px dotted #ebdbb2;
 }
 
 #workspaces button.focused {
-    background: rgba(235, 219, 178, 1);
+    background: #ebdbb2;
     color: rgba(60, 56, 54, 0.9);
-    font-weight: 900;
-    border-radius: 6px;
 }
 
 #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {
@@ -36,14 +40,15 @@ label, button {
     border-radius: 6px;
 }
 
-#custom-vpn {
-    padding-left: 7px;
-}
-
 #idle_inhibitor, #tray, #custom-vpn {
-    padding-right: 3px;
+    padding: 0;
+    margin: 0;
     min-width: 23px;
     color: white;
+}
+
+#tray {
+    padding-left: 3px;
 }
 
 /*

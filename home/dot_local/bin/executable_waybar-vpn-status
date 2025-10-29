@@ -17,7 +17,7 @@ else
 fi
 
 if [[ "$vpn_state" != "$state" ]]; then
-  notify-send -t 5000 "VPN Status Changed" "VPN $state"
+  notify-send -t 3000 "VPN Status Changed" "VPN $state"
   echo "$state" > "$vpn_state_file"
 fi
 

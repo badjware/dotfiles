@@ -4,6 +4,7 @@ alias vihosts="sudo -e /etc/hosts"
 
 alias vim="nvim"
 alias top="htop"
+alias cat="bat"
 alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"

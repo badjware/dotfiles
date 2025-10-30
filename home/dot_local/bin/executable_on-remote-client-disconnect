@@ -1,4 +1,18 @@
 #!/bin/bash
- 
-swaymsg reload
 
+selected_output="HEADLESS-1"
+output_restore_cache="$XDG_RUNTIME_DIR/output_restore_cache"
+
+if [[ -f "$output_restore_cache" ]]; then
+    for output in $(cat "$output_restore_cache" | sort | uniq); do
+        if [[ "$output" != "$selected_output" ]]; then
+            echo "Enabling output $output"
+            swaymsg output "$output" enable >/dev/null
+        fi
+    done
+    echo "Disabling output $selected_output"
+    swaymsg output "$selected_output" disable >/dev/null
+
+    rm "$output_restore_cache"
+    systemctl --user start gammastep
+fi

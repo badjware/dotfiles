@@ -9,5 +9,4 @@ units:
     - wob.service
     - mako.service
     - gammastep.service
-    - wayvnc.service
     - wayvnc-event-watcher.service

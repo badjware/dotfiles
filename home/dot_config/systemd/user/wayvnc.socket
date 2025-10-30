@@ -1,0 +1,9 @@
+[Unit]
+Description=Socket for wayvnc VNC server
+
+[Socket]
+ListenStream=0.0.0.0:5900
+Accept=no
+
+[Install]
+WantedBy=sockets.target

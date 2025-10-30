@@ -1,11 +1,28 @@
 #!/bin/bash
 
+selected_output="HEADLESS-1"
+output_restore_cache="$XDG_RUNTIME_DIR/output_restore_cache"
+
+# steam deck is 16:10
 width="${SUNSHINE_CLIENT_WIDTH:-1920}"
 height="${SUNSHINE_CLIENT_HEIGHT:-1080}"
 fps="${SUNSHINE_CLIENT_FPS:-60}"
 
-pkill --signal SIGUSR1 swaylock
-swaymsg output '*' disable
-# steam deck is 16:10
-swaymsg output HEADLESS-1 mode "$width"x"$height"@"$fps"Hz position 0 0 transform 0 enable
-swaymsg workspace 4
+if [[ ! -f "$output_restore_cache" ]]; then
+    pkill --signal SIGUSR1 swaylock
+    systemctl --user stop gammastep
+    echo "Enabling output $selected_output"
+    swaymsg output "$selected_output" mode "$width"x"$height"@"$fps"Hz position 0 0 transform 0 enable >/dev/null
+    while [[ "$(swaymsg -t get_outputs | jq -r '.[] | select(.name == "HEADLESS-1") | .active')" != "true" ]]; do
+        echo "Waiting for output $selected_output to become active"
+        sleep 0.5
+    done
+    for output in $(swaymsg -t get_outputs | jq -r '.[] | select(.active) | .name'); do
+        if [[ "$output" != "$selected_output" ]]; then
+            echo "$output" >>"$output_restore_cache"
+            echo "Disabling output $output"
+            swaymsg output "$output" disable >/dev/null
+        fi
+    done
+    swaymsg workspace 4 >/dev/null
+fi

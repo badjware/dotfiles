@@ -1,11 +1,12 @@
 [Unit]
 Description=A script that listen for wayvnc events
-PartOf=graphical-session.target
+BindsTo=wayvnc.service
+After=wayvnc.service
 
 [Service]
 Type=simple
 ExecStart=%h/.local/bin/wayvnc-event-watcher
+Restart=on-failure
 
 [Install]
-WantedBy=sway-session.target
-After=wayvnc.service
+WantedBy=wayvnc.service

@@ -5,8 +5,12 @@ After=network.target
 After=sway-session.target
 
 [Service]
-ExecStart=/usr/bin/wayvnc
-Restart=always
+# prepare the output _before_ the client connects
+ExecStartPre=%h/.local/bin/on-remote-client-connect
+# ExecStartPost=%h/.local/bin/wayvnc-event-watcher
+ExecStart=/usr/bin/wayvnc -x 3 -o HEADLESS-1
+# ExecStopPost=%h/.local/bin/on-remote-client-disconnect
+Restart=no
 
 [Install]
 WantedBy=sway-session.target

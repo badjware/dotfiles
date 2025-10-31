@@ -263,6 +263,12 @@ bindsym $mod+a focus parent
 # focus the child container
 bindsym $mod+d focus child
 
+# passthrough
+mode passthrough {
+    bindsym $mod+delete mode default; floating_modifier $mod normal
+}
+bindsym $mod+delete mode passthrough; floating_modifier none
+
 # switch to workspace
 bindsym $mod+grave scratchpad show
 bindsym $mod+q workspace back_and_forth 

@@ -1,6 +1,7 @@
 versions:
   logseq: 0.10.14
   obsidian: 1.9.14
+  moonlight: 6.1.0
 
 packages:
   arch:
@@ -68,6 +69,7 @@ packages:
     base_desktop:
       - alacritty
       - autotiling
+      - blueman
       - brightnessctl
       - dex
       - feh
@@ -185,6 +187,7 @@ packages:
 
     base_desktop:
       - alacritty
+      - blueman
       - brightnessctl
       - dex-autostart
       - feh

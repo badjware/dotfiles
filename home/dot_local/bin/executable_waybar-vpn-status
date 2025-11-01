@@ -3,6 +3,7 @@
 vpn_state_file="$XDG_RUNTIME_DIR/vpn_state"
 vpn_state="$(cat "$vpn_state_file")"
 vpn_cidr="$(ip addr show dev tun0 2>/dev/null | grep -Eo '([0-2]*[0-9]*[0-9]\.){3}([0-2]*[0-9]*[0-9])/[0-9]+')"
+[ -z "$vpn_cidr" ] && vpn_cidr="$(ip addr show dev wg0 2>/dev/null | grep -Eo '([0-2]*[0-9]*[0-9]\.){3}([0-2]*[0-9]*[0-9])/[0-9]+')"
 
 if [[ -n "$vpn_cidr" ]]; then
   text="󰴴"

@@ -78,7 +78,6 @@ fi
 mountpoint="$(mktemp -d)"
 
 tomb open -k "$tomb_key" "$tomb_file" "$mountpoint"
-tomb index -q "$tomb_file"
-tomb search -q "$wg_config" | head -n 1 | xargs wg-quick "$op"
-tomb close "$tomb_file"
+find "$mountpoint" -name "$wg_config" | head -n 1 | xargs wg-quick "$op"
+tomb close "$(basename "$tomb_file")"
 rmdir "$mountpoint"

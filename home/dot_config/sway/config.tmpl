@@ -266,8 +266,10 @@ bindsym $mod+d focus child
 # passthrough
 mode passthrough {
     bindsym $mod+delete mode default; floating_modifier $mod normal
+    bindsym Escape mode default; floating_modifier $mod normal
 }
-bindsym $mod+delete mode passthrough; floating_modifier none
+bindsym $mod+delete mode passthrough
+floating_modifier none
 
 # switch to workspace
 bindsym $mod+grave scratchpad show

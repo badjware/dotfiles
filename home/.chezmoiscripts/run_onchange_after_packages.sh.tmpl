@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 {{ if eq .chezmoi.osRelease.id "arch" }}
 sudo pacman -Sy
@@ -32,9 +32,32 @@ sudo dnf -y install {{ .packages.fedora.base | join " " }}
 
 {{ if ne .chassisType "container" }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
+
+# swaylock-plugins
+if ! which swaylock-plugin &>/dev/null; then
+    sudo dnf -y install meson wayland-devel wayland-protocols-devel libxkbcommon-devel cairo-devel gdk-pixbuf2-devel pam-devel scdoc
+    git clone --depth 1 https://github.com/mstoeckl/swaylock-plugin.git /tmp/swaylock-plugin
+    pushd /tmp/swaylock-plugin
+    meson build
+    ninja -C build
+    sudo ninja -C build install
+    sudo cp pam/swaylock-plugin /etc/pam.d/swaylock-plugin
+    popd
+fi
+
+# linux-wallpaperengine
+if ! which linux-wallpaperengine &>/dev/null; then
+    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
+    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
+    pushd /tmp/linux-wallpaperengine
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE='Release' ..
+    make
+    sudo mv output/ /opt/linux-wallpaperengine
+    popd
+fi
 {{ end }}
 
-# scripts for tools unavailable in package repo
 if [[ ! -d "$HOME/.pyenv" ]] then
     curl -fsSL https://pyenv.run | bash
 fi

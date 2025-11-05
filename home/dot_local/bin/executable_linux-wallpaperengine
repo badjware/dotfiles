@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /opt/linux-wallpaperengine
+exec ./linux-wallpaperengine $@

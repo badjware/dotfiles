@@ -8,7 +8,6 @@ alias cat="bat"
 alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
-alias lock="swaylock"
 alias etckeeper="sudo etckeeper"
 
 # ls

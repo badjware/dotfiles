@@ -1,0 +1,23 @@
+#!/bin/bash -x
+
+swaylock=swaylock
+swaylock_args=
+
+# check if battery is discharging
+battery_status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | grep -vq "Discharging")
+
+# check if wallpaper engine is installed
+wallpaper_dir="$(find ~/.steam/steam/steamapps/workshop/content/431960 ~/.local/share/Steam/steamapps/workshop/content/431960 ~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/workshop/content/431960 ~/snap/steam/common/.local/share/Steam/steamapps/workshop/content/431960 -mindepth 1 -maxdepth 1 -name "$WALLPAPER_STEAM_WORKSHOP_ID" | head -n 1)"
+
+# select screen
+screen="$(swaymsg -t get_outputs | jq -r '.[] | select(.transform=="normal") | .name' | sort | head -n 1)"
+
+if which swaylock-plugin &>/dev/null; then
+    if which linux-wallpaperengine &>/dev/null && [ -z "$battery_status" ] && [ -n "$wallpaper_dir" ]; then
+        swaylock=swaylock-plugin
+        swaylock_command="linux-wallpaperengine --screen-root $screen --silent --no-fullscreen-pause --disable-mouse $WALLPAPER_EXTRA_ARGS $WALLPAPER_STEAM_WORKSHOP_ID"
+        swaylock_args=(--grace 5sec --command "$swaylock_command")
+    fi
+fi
+
+exec "$swaylock" "${swaylock_args[@]}" "$@"

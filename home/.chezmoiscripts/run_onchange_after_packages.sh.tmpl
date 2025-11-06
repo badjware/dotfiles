@@ -45,17 +45,27 @@ if ! which swaylock-plugin &>/dev/null; then
     popd
 fi
 
-# linux-wallpaperengine
-if ! which linux-wallpaperengine &>/dev/null; then
-    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
-    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
-    pushd /tmp/linux-wallpaperengine
-    mkdir build && cd build
-    cmake -DCMAKE_BUILD_TYPE='Release' ..
-    make
-    sudo mv output/ /opt/linux-wallpaperengine
+if ! which mpvpaper &>/dev/null; then
+    sudo dnf -y install ninja meson mpv-devel
+    git clone --depth 1 https://github.com/GhostNaN/mpvpaper.git /tmp/mpvpaper
+    pushd /tmp/mpvpaper
+    meson setup build --prefix=/usr/local
+    ninja -C build
+    sudo ninja -C build install
     popd
 fi
+
+# linux-wallpaperengine
+#if ! which linux-wallpaperengine &>/dev/null; then
+#    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
+#    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
+#    pushd /tmp/linux-wallpaperengine
+#    mkdir build && cd build
+#    cmake -DCMAKE_BUILD_TYPE='Release' ..
+#    make
+#    sudo mv output/ /opt/linux-wallpaperengine
+#    popd
+#fi
 {{ end }}
 
 if [[ ! -d "$HOME/.pyenv" ]] then
@@ -77,11 +87,9 @@ if lpf state 2>/dev/null | grep -q approve-wait; then
 fi
 {{ end }}
 
-# on arch, we install autotiling via pacman
-# on other distros, we install via pip
-{{ if ne .chezmoi.osRelease.id "arch" }}
-pip install --user autotiling
-{{ end }}
+if ! which autotiling &>/dev/null; then
+    pip install --user autotiling
+fi
 
 # other loose packages
 go install github.com/badjware/gitforgefs@latest

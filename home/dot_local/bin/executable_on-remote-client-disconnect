@@ -15,7 +15,6 @@ if [[ -f "$output_restore_cache" ]]; then
 
     rm "$output_restore_cache"
     systemctl --user start gammastep
-    
-    # https://github.com/swaywm/swayidle/issues/54#issuecomment-1146352360
-    pkill -USR1 swayidle && pkill -USR1 swayidle
+
+    idle
 fi

@@ -77,8 +77,9 @@ packages:
       - gammastep
       - grim
       - libappindicator-gtk3
-      - linux-wallpaperengine-git
+      # - linux-wallpaperengine-git
       - mako
+      - mpvpaper
       - qt5-wayland
       - qt6-wayland
       - rofi-wayland

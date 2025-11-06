@@ -6,10 +6,10 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/swayidle -w \
-    timeout 1800  'echo RELOADAGENT | gpg-connect-agent; lock -f' \
+    timeout 1800  '%h/.local/bin/lock -f' \
     timeout 600   'swaymsg "output * dpms off"' \
     resume       'swaymsg "output * dpms on"' \
-    before-sleep 'echo RELOADAGENT | gpg-connect-agent; lock -f'
+    before-sleep 'echo RELOADAGENT | gpg-connect-agent; %h/.local/bin/lock -f'
 
 [Install]
 WantedBy=sway-session.target

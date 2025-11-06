@@ -328,9 +328,10 @@ bindsym $mod+Shift+r reload
 # exit 
 bindsym $mod+Shift+e exec "swaynag -t warning -m 'Do you really want to exit sway?' -b 'Yes, exit sway' 'swaymsg exit'"
 # lock the screen
-bindsym $mod+Pause exec ~/.local/bin/idle
+bindsym $mod+Pause exec ~/.local/bin/lock
+bindsym $mod+End exec ~/.local/bin/idle
 # suspend
-bindsym $mod+Shift+Pause exec systemctl suspend
+bindsym $mod+Shift+End exec systemctl suspend
 
 # function keys
 bindsym XF86MonBrightnessUp exec ~/.local/bin/brightness-control up

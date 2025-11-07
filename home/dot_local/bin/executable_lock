@@ -26,7 +26,7 @@ if [[ -z "$battery_status" || -z "$screens" ]] then
 fi
 
 if [[ -n "$swaylock_args" ]]; then
-    exec $swaylock $@ "${swaylock_args[@]}"
+    $swaylock $@ "${swaylock_args[@]}"
 else
-    exec $swaylock $@
+    $swaylock $@
 fi

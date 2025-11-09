@@ -33,13 +33,17 @@ label, button {
     color: rgba(60, 56, 54, 0.9);
 }
 
-#clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {
+#mode, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {
     padding: 0 10px;
 /*
     margin-left: 15px
 */
     border-left: 1px dotted #ebdbb2;
     border-radius: 6px;
+}
+
+#mode {
+    border-right: 1px dotted #ebdbb2;
 }
 
 #idle_inhibitor, #tray, #custom-vpn {

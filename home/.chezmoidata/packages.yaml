@@ -86,7 +86,7 @@ packages:
       - sway
       - swayidle
       - swaylock
-      - swaylock-plugin-git
+      - swaylock-plugin
       - thunar
       - thunar-archive-plugin
       - waybar

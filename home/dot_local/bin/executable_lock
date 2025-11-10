@@ -11,8 +11,8 @@ if [[ -z "$battery_status" || -z "$screens" ]] then
         # check if wallpaper engine is installed
         wallpaper_dir="$(find ~/.steam/steam/steamapps/workshop/content/431960 ~/.local/share/Steam/steamapps/workshop/content/431960 ~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/workshop/content/431960 ~/snap/steam/common/.local/share/Steam/steamapps/workshop/content/431960 -mindepth 1 -maxdepth 1 -name "$WALLPAPERENGINE_STEAM_WORKSHOP_ID" | head -n 1)"
         
-        if which mpvpaper &>/dev/null && [ -e "$MPVPAPER_VIDEO_PATH" ]; then
-            swaylock_command="mpvpaper --mpv-option 'no-audio loop $MPVPAPER_OPTION --quiet --panscan=1' $screens -- $MPVPAPER_VIDEO_PATH"
+        if which mpvpaper &>/dev/null && [[ "$MPVPAPER_VIDEO_PATH" =~ ^https?:// || -e "$MPVPAPER_VIDEO_PATH" ]]; then
+            swaylock_command="mpvpaper --mpv-option 'no-audio loop $MPVPAPER_OPTION --quiet --panscan=1' '$screens' -- '$MPVPAPER_VIDEO_PATH'"
         elif which linux-wallpaperengine &>/dev/null && [ -n "$wallpaper_dir" ]; then
             swaylock_command="linux-wallpaperengine"
             for s in $screens; do
@@ -24,7 +24,7 @@ if [[ -z "$battery_status" || -z "$screens" ]] then
 fi
 
 if [[ -n "$swaylock_command" ]]; then
-    exec swaylock-plugin $@ --command "$swaylock_command" -d
+    swaylock-plugin $@ --command "$swaylock_command" -d
 else
-    exec swaylock $@
+    swaylock $@
 fi

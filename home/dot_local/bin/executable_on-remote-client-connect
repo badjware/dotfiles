@@ -10,7 +10,7 @@ fps="${SUNSHINE_CLIENT_FPS:-60}"
 
 if [[ ! -f "$output_restore_cache" ]]; then
     pkill --signal SIGUSR1 swaylock
-    systemctl --user stop gammastep
+    systemctl --user stop gammastep swayidle
     echo "Enabling output $selected_output"
     swaymsg output "$selected_output" mode "$width"x"$height"@"$fps"Hz position 0 0 transform 0 enable >/dev/null
     while [[ "$(swaymsg -t get_outputs | jq -r '.[] | select(.name == "HEADLESS-1") | .active')" != "true" ]]; do

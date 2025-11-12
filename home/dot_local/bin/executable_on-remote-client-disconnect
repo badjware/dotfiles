@@ -14,7 +14,7 @@ if [[ -f "$output_restore_cache" ]]; then
     swaymsg output "$selected_output" disable >/dev/null
 
     rm "$output_restore_cache"
-    systemctl --user start gammastep
+    systemctl --user start gammastep swayidle
 
     idle
 fi

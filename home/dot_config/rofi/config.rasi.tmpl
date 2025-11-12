@@ -1,0 +1,199 @@
+* {
+	font: "sans 16";
+
+    primary: {{ template "color-hex" "primary" }};
+    primary-fixed: {{ template "color-hex" "primary_fixed" }};
+    primary-fixed-dim: {{ template "color-hex" "primary_fixed_dim" }};
+    on-primary: {{ template "color-hex" "on_primary" }};
+    on-primary-fixed: {{ template "color-hex" "on_primary_fixed" }};
+    on-primary-fixed-variant: {{ template "color-hex" "on_primary_fixed_variant" }};
+    primary-container: {{ template "color-hex" "primary_container" }};
+    on-primary-container: {{ template "color-hex" "on_primary_container" }};
+    secondary: {{ template "color-hex" "secondary" }};
+    secondary-fixed: {{ template "color-hex" "secondary_fixed" }};
+    secondary-fixed-dim: {{ template "color-hex" "secondary_fixed_dim" }};
+    on-secondary: {{ template "color-hex" "on_secondary" }};
+    on-secondary-fixed: {{ template "color-hex" "on_secondary_fixed" }};
+    on-secondary-fixed-variant: {{ template "color-hex" "on_secondary_fixed_variant" }};
+    secondary-container: {{ template "color-hex" "secondary_container" }};
+    on-secondary-container: {{ template "color-hex" "on_secondary_container" }};
+    tertiary: {{ template "color-hex" "tertiary" }};
+    tertiary-fixed: {{ template "color-hex" "tertiary_fixed" }};
+    tertiary-fixed-dim: {{ template "color-hex" "tertiary_fixed_dim" }};
+    on-tertiary: {{ template "color-hex" "on_tertiary" }};
+    on-tertiary-fixed: {{ template "color-hex" "on_tertiary_fixed" }};
+    on-tertiary-fixed-variant: {{ template "color-hex" "on_tertiary_fixed_variant" }};
+    tertiary-container: {{ template "color-hex" "tertiary_container" }};
+    on-tertiary-container: {{ template "color-hex" "on_tertiary_container" }};
+    error: {{ template "color-hex" "error" }};
+    on-error: {{ template "color-hex" "on_error" }};
+    error-container: {{ template "color-hex" "error_container" }};
+    on-error-container: {{ template "color-hex" "on_error_container" }};
+    surface: {{ template "color-hex" "surface" }};
+    on-surface: {{ template "color-hex" "on_surface" }};
+    on-surface-variant: {{ template "color-hex" "on_surface_variant" }};
+    outline: {{ template "color-hex" "outline" }};
+    outline-variant: {{ template "color-hex" "outline_variant" }};
+    shadow: {{ template "color-hex" "shadow" }};
+    scrim: {{ template "color-hex" "scrim" }};
+    inverse-surface: {{ template "color-hex" "inverse_surface" }};
+    inverse-on-surface: {{ template "color-hex" "inverse_on_surface" }};
+    inverse-primary: {{ template "color-hex" "inverse_primary" }};
+    surface-dim: {{ template "color-hex" "surface_dim" }};
+    surface-bright: {{ template "color-hex" "surface_bright" }};
+    surface-container-lowest: {{ template "color-hex" "surface_container_lowest" }};
+    surface-container-low: {{ template "color-hex" "surface_container_low" }};
+    surface-container: {{ template "color-hex" "surface_container" }};
+    surface-container-high: {{ template "color-hex" "surface_container_high" }};
+    surface-container-high: {{ template "color-hex" "surface_container_high" }};
+    surface-container-highest: {{ template "color-hex" "surface_container_highest" }};
+    background: {{ template "color-hex" "background" }};
+    on-background: {{ template "color-hex" "on_background" }};
+}
+element {
+    padding: 1px ;
+    cursor:  pointer;
+    spacing: 5px ;
+    border:  0;
+}
+element normal.normal {
+    background-color: var(surface-container);
+    text-color:       var(on-surface);
+}
+element normal.urgent {
+    background-color: var(surface-container);
+    text-color:       var(error);
+}
+element normal.active {
+    background-color: var(surface-container);
+    text-color:       var(on-surface);
+}
+element selected.normal {
+    background-color: var(primary);
+    text-color:       var(on-primary);
+}
+element selected.urgent {
+    background-color: var(error);
+    text-color:       var(on-error);
+}
+element selected.active {
+    background-color: var(primary);
+    text-color:       var(on-primary);
+}
+element alternate.normal {
+    background-color: var(surface-container-high);
+    text-color:       var(on-surface);
+}
+element alternate.urgent {
+    background-color: var(surface-container-high);
+    text-color:       var(error);
+}
+element alternate.active {
+    background-color: var(surface-container-high);
+    text-color:       var(on-surface);
+}
+element-text {
+    background-color: transparent;
+    cursor:           inherit;
+    highlight:        inherit;
+    text-color:       inherit;
+}
+element-icon {
+    background-color: transparent;
+    size:             1.0000em ;
+    cursor:           inherit;
+    text-color:       inherit;
+}
+window {
+    padding:          5;
+    background-color: var(surface-container);
+    border-color:     var(secondary);
+    border:           1;
+}
+mainbox {
+    padding: 0;
+    border:  0;
+}
+message {
+    padding:      1px ;
+    border-color: var(secondary);
+    border:       2px dash 0px 0px ;
+}
+textbox {
+    text-color: var(on-background);
+}
+listview {
+    padding:      2px 0px 0px ;
+    scrollbar:    true;
+    border-color: var(secondary);
+    spacing:      2px ;
+    fixed-height: 0;
+    border:       2px dash 0px 0px ;
+}
+scrollbar {
+    width:        4px ;
+    padding:      0;
+    handle-width: 8px ;
+    border:       0;
+    handle-color: var(primary);
+}
+sidebar {
+    border-color: var(primary);
+    border:       2px dash 0px 0px ;
+}
+button {
+    cursor:     pointer;
+    spacing:    0;
+    text-color: var(on-background);
+}
+button selected {
+    background-color: var(primary);
+    text-color:       var(on-primary);
+}
+num-filtered-rows {
+    expand:     false;
+    text-color: var(on-background);
+}
+num-rows {
+    expand:     false;
+    text-color: var(on-background);
+}
+textbox-num-sep {
+    expand:     false;
+    str:        "/";
+    text-color: var(on-background);
+}
+inputbar {
+    padding:    1px ;
+    spacing:    0px ;
+    text-color: var(on-background);
+    children:   [ "prompt","textbox-prompt-colon","entry","overlay","num-filtered-rows","textbox-num-sep","num-rows","case-indicator" ];
+}
+overlay {
+    padding:          0px 0.2000em ;
+    background-color: var(background);
+    foreground-color: var(on-background);
+    margin:           0px 0.2000em ;
+    text-color:       var(on-background);
+}
+case-indicator {
+    spacing:    0;
+    text-color: var(on-background);
+}
+entry {
+    text-color:        var(tertiary);
+    cursor:            text;
+    spacing:           0;
+    placeholder-color: var(surface-bright);
+    placeholder:       "Type to filter";
+}
+prompt {
+    spacing:    0;
+    text-color: var(on-background);
+}
+textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    expand:     false;
+    str:        ":";
+    text-color: inherit;
+}

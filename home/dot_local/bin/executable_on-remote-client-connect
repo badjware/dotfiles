@@ -15,7 +15,6 @@ if [[ ! -f "$output_restore_cache" ]]; then
     swaymsg output "$selected_output" mode "$width"x"$height"@"$fps"Hz position 0 0 transform 0 enable >/dev/null
     while [[ "$(swaymsg -t get_outputs | jq -r '.[] | select(.name == "HEADLESS-1") | .active')" != "true" ]]; do
         echo "Waiting for output $selected_output to become active"
-        sleep 0.5
     done
     for output in $(swaymsg -t get_outputs | jq -r '.[] | select(.active) | .name'); do
         if [[ "$output" != "$selected_output" ]]; then

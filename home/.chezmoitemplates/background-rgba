@@ -1,0 +1,2 @@
+{{- $rgb := include "/tmp/chezmoi-background-rgb.json" | fromJson -}}
+rgba({{ $rgb.r }}, {{ $rgb.g }}, {{ $rgb.b }}, {{ . }})

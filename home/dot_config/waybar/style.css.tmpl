@@ -5,8 +5,8 @@
 }
 
 window#waybar, tooltip {
-    background: rgba(60, 56, 54, 0.9);
-    color: rgba(235, 219, 178, 1);
+    background: {{ template "background-rgba" "0.9" }};
+    color: {{ template "color-hex" "on_background" }};
 }
 
 label, button {
@@ -25,25 +25,27 @@ label, button {
 }
 
 #workspaces button.visible {
-    border: 1px dotted #ebdbb2;
+    border: 1px dotted {{ template "color-hex" "secondary" }};
+    font-weight: bold;
 }
 
 #workspaces button.focused {
-    background: #ebdbb2;
-    color: rgba(60, 56, 54, 0.9);
+    border-color: {{ template "color-hex" "primary_container" }};
+    background: {{ template "color-hex" "primary" }};
+    color: {{ template "color-hex" "on_primary" }};
 }
 
 #mode, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {
     padding: 0 10px;
-/*
-    margin-left: 15px
-*/
-    border-left: 1px dotted #ebdbb2;
+    border-left: 1px dotted {{ template "color-hex" "tertiary" }};
     border-radius: 6px;
 }
 
 #mode {
-    border-right: 1px dotted #ebdbb2;
+    border-left: 1px dotted {{ template "color-hex" "tertiary" }};
+    border-right: 1px dotted {{ template "color-hex" "tertiary" }};
+    color: {{ template "color-hex" "secondary" }};
+    margin-left: 15px;
 }
 
 #idle_inhibitor, #tray, #custom-vpn {
@@ -57,38 +59,8 @@ label, button {
     padding-left: 3px;
 }
 
-/*
-#clock {
-    color: #66899d;
-    border-bottom: 2px solid #66899d;
-}
-
-#network {
-    color: #527c77;
-    border-bottom: 2px solid #527c77;
-}
-
-#cpu {
-    color: #919652;
-    border-bottom: 2px solid #919652;
-}
-
-#memory {
-    color: #8d6494;
-    border-bottom: 2px solid #8d6494;
-}
-
-#wireplumber {
-    color: #b04c50;
-    border-bottom: 2px solid #b04c50;
-}
-
-#custom-vpn {
-    border-left: 1px dotted #ebdbb2;
-    border-radius: 6.5px;
-}
-*/
 #tray {
     margin-left: 3px;
     font-family: sans-serif;
 }
+/* vim: set ft=css: */

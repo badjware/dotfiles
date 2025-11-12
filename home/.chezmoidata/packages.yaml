@@ -79,6 +79,7 @@ packages:
       - libappindicator-gtk3
       # - linux-wallpaperengine-git
       - mako
+      - matugen
       - mpvpaper
       - qt5-wayland
       - qt6-wayland

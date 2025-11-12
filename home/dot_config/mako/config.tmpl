@@ -1,0 +1,20 @@
+anchor=bottom-right
+background-color={{ template "color-hex" "background" }}
+text-color={{ template "color-hex" "on_background" }}
+border-color={{ template "color-hex" "secondary_container" }}
+width=400
+height=100
+border-radius=5
+border-size=3
+padding=10
+outer-margin=10
+margin=5
+
+max-icon-size=32
+default-timeout=36000
+
+on-button-left=invoke-default-action
+on-button-right=dismiss
+
+[urgency=high]
+border-color={{ template "color-hex" "error_container" }}

@@ -59,6 +59,7 @@ packages:
       - terraform
 
       # language / runtimes
+      - cargo
       - go
       - pyenv
       - python-pip
@@ -79,7 +80,6 @@ packages:
       - libappindicator-gtk3
       # - linux-wallpaperengine-git
       - mako
-      - matugen
       - mpvpaper
       - qt5-wayland
       - qt6-wayland
@@ -127,6 +127,9 @@ packages:
   fedora:
     repo:
       - https://kubecolor.github.io/packages/rpm/kubecolor.repo
+    
+    copr:
+      - dwmw2/openconnect
 
     base:
       # archive
@@ -183,6 +186,7 @@ packages:
       - moby-engine
 
       # languages / runtimes
+      - cargo
       - golang
       - python3-pip
       - python3-pyfiglet

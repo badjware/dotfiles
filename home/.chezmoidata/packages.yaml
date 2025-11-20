@@ -56,6 +56,7 @@ packages:
       - kubecolor
       - kubectl
       - kustomize
+      - mirrord-bin
       - terraform
 
       # language / runtimes
@@ -63,6 +64,7 @@ packages:
       - go
       - pyenv
       - python-pip
+      - python-pipx
       - python-pyfiglet
       - python-virtualenv
       - yarn
@@ -188,6 +190,7 @@ packages:
       # languages / runtimes
       - cargo
       - golang
+      - pipx
       - python3-pip
       - python3-pyfiglet
       - python3-virtualenv

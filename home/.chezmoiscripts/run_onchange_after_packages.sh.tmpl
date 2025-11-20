@@ -1,5 +1,9 @@
 #!/bin/bash -xe
 
+################
+## Arch Linux ##
+################
+
 {{ if eq .chezmoi.osRelease.id "arch" }}
 sudo pacman -Sy
 
@@ -17,12 +21,17 @@ pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
 pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{ end }}
 
+############
+## Fedora ##
+############
+
 {{ else if eq .chezmoi.osRelease.id "fedora" }}
 # setup extra repos
 sudo dnf install dnf5-plugins
 {{ range $r := .packages.fedora.repo }}
 sudo dnf -y config-manager addrepo --overwrite --from-repofile {{ $r }}
 {{ end }}
+# COPR
 {{ range $c := .packages.fedora.copr }}
 sudo dnf -y copr enable {{ $c }}
 {{ end }}
@@ -36,6 +45,10 @@ sudo dnf -y install {{ .packages.fedora.base | join " " }}
 {{ if ne .chassisType "container" }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 
+if ! which autotiling &>/dev/null; then
+    pipx install autotiling
+fi
+
 # swaylock-plugins
 if ! which swaylock-plugin &>/dev/null; then
     sudo dnf -y install meson wayland-devel wayland-protocols-devel libxkbcommon-devel cairo-devel gdk-pixbuf2-devel pam-devel scdoc
@@ -48,6 +61,7 @@ if ! which swaylock-plugin &>/dev/null; then
     popd
 fi
 
+# mpvpaper
 if ! which mpvpaper &>/dev/null; then
     sudo dnf -y install ninja meson mpv-devel
     git clone --depth 1 https://github.com/GhostNaN/mpvpaper.git /tmp/mpvpaper
@@ -71,14 +85,17 @@ fi
 #fi
 {{ end }}
 
-if [[ ! -d "$HOME/.pyenv" ]] then
-    curl -fsSL https://pyenv.run | bash
+if ! which pyenv &>/dev/null; then
+    bash ~/.cache/install/pyenv.sh
 fi
 if ! which pay-respects &>/dev/null; then
-    curl -sSfL https://raw.githubusercontent.com/iffse/pay-respects/main/install.sh | sh
+    bash ~/.cache/install/pay-respects.sh
 fi
 if ! which starship &>/dev/null; then
-    curl -sS https://starship.rs/install.sh | sh
+    bash ~/.cache/install/starship.sh
+fi
+if ! which mirrord &>/dev/null; then
+    bash ~/.cache/install/mirrord.sh
 fi
 #if ! dnf info msttcore-fonts-installer.noarch &>/dev/null; then
 #    # https://mscorefonts2.sourceforge.net/
@@ -90,16 +107,11 @@ if lpf state 2>/dev/null | grep -q approve-wait; then
 fi
 {{ end }}
 
-if ! which autotiling &>/dev/null; then
-    pip install --user autotiling
-fi
+############
+## Common ##
+############
 
-# other loose packages
 go install github.com/badjware/gitforgefs@latest
-
-if ! which mirrord &>/dev/null; then
-    bash ~/.cache/install/mirrord.sh
-fi
 
 {{ if ne .chassisType "container" }}
 if [[ ! -d "$HOME/.themes/Orchis" ]]; then

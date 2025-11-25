@@ -1,6 +1,6 @@
 #!/bin/bash
 
-swaymsg 'output "DP-4" enable'
+# swaymsg 'output "DP-2" enable'
 swaymsg 'output * adaptive_sync off'
 
 systemctl --user start gammastep

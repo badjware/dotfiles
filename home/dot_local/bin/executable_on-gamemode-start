@@ -1,8 +1,8 @@
 #!/bin/bash
 
 xrandr --output "$(xrandr | grep '+0+' | grep -Eo '^DP-[0-9]')" --primary
-#swaymsg 'output "DP-4" disable'
-#swaymsg 'output * adaptive_sync on'
+#swaymsg 'output "DP-2" disable'
+swaymsg 'output * adaptive_sync on'
 
 systemctl --user stop gammastep
 sudo systemctl stop docker.service

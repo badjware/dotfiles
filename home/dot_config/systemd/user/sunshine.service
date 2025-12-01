@@ -9,7 +9,7 @@ After=sway-session.target
 [Service]
 ExecStart=/usr/bin/sunshine
 Restart=on-failure
-RestartSec=5s
+RestartSec=30s
 
 [Install]
 WantedBy=sway-session.target

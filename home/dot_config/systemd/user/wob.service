@@ -5,6 +5,8 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=%h/.local/bin/wob
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy=sway-session.target

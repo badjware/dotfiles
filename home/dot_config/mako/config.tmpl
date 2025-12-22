@@ -9,6 +9,9 @@ border-size=3
 padding=10
 outer-margin=10
 margin=5
+{{- if hasKey . "defaultOutput" }}
+output="{{ .defaultOutput }}"
+{{- end }}
 
 max-icon-size=32
 default-timeout=30000

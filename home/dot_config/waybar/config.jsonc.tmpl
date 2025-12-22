@@ -7,9 +7,9 @@
 {{- end }}
     "height": 24, // Waybar height (to be removed for auto height)
 {{- if eq .chezmoi.hostname "pallet" }}
-    "output": ["DP-1", "HDMI-A-1", "HDMI-A-2", "HEADLESS-1"],
-{{- else if eq .chassisType "laptop" }}
-    "output": ["eDP-1"],
+    "output": ["{{ .defaultOutput }}", "HDMI-A-1", "HDMI-A-2", "HEADLESS-1"],
+{{- else if hasKey . "defaultOutput" }}
+    "output": ["{{ .defaultOutput }}"],
 {{- end }}
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],

@@ -4,6 +4,6 @@ Wants=sit-down.timer
 
 [Service]
 Type=oneshot
-ExecStart=notify-send -t 10000 "Time to sit down!"
+ExecStart=notify-send "Time to sit down!"
 [Install]
 WantedBy=multi-user.target

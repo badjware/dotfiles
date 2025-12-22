@@ -1,0 +1,11 @@
+[Unit]
+Description=Stand up reminder
+Requires=stand-up.service
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+Persistent=true
+Unit=stand-up.service
+
+[Install]
+WantedBy=timers.target

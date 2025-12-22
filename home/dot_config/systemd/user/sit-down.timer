@@ -1,0 +1,11 @@
+[Unit]
+Description=Sitdown reminder
+Requires=sit-down.service
+
+[Timer]
+OnCalendar=*-*-* *:15:00
+Persistent=true
+Unit=sit-down.service
+
+[Install]
+WantedBy=timers.target

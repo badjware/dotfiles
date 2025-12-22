@@ -10,4 +10,3 @@ BusName=org.freedesktop.Notifications
 
 [Install]
 WantedBy=sway-session.target
-

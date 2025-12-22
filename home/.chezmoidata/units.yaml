@@ -9,4 +9,6 @@ units:
     - wob.service
     - mako.service
     - gammastep.service
-    - wayvnc-event-watcher.service
+    # - wayvnc-event-watcher.service
+    - sit-down.timer
+    - stand-up.timer

@@ -1,0 +1,10 @@
+[Unit]
+Description=Sitdown reminder notification
+Wants=stand-up.timer
+
+[Service]
+Type=oneshot
+ExecStart=notify-send -t 10000 "Time to stand up!"
+
+[Install]
+WantedBy=multi-user.target

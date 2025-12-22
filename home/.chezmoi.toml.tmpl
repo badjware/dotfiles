@@ -20,7 +20,7 @@ encryption = "gpg"
     passphrase = {{ $passphrase | quote }}
     chassisType = {{ $chassisType | quote }}
 {{- if eq .chezmoi.hostname "pallet" }}
-    defaultOutput = "DP-1"
+    defaultOutput = "DP-2"
 {{- else if eq $chassisType "laptop" }}
     defaultOutput = "eDP-1"
 {{- end }}

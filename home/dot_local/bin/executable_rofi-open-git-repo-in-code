@@ -3,7 +3,7 @@
 base_directory="$HOME/develop"
 
 if [ -z "$1" ]; then
-    fd --hidden --follow --glob '.git' "$base_directory" | xargs dirname | sed "s|^$base_directory/||" | sort | uniq | grep -v '/\.'
+    fd --hidden --follow --type d --glob '.git' "$base_directory" -X stat --format="%Y %n" | sort -r | cut -d ' ' -f '2-' | xargs dirname | sed "s|^$base_directory/||"
 else
     code "$base_directory/$1"
 fi

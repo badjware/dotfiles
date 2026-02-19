@@ -19,6 +19,7 @@ packages:
       # tools
       - bat
       - bind # for `dig`, `nslookup`
+      - btop
       - curl
       - dialog
       - dos2unix
@@ -146,6 +147,7 @@ packages:
       - bat
       - bind-utils
       - bsdtar
+      - btop
       - curl
       - dialog
       - dos2unix

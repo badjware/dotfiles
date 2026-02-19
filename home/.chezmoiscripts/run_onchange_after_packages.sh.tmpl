@@ -45,10 +45,6 @@ sudo dnf -y install {{ .packages.fedora.base | join " " }}
 {{ if ne .chassisType "container" }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 
-if ! which autotiling &>/dev/null; then
-    pipx install autotiling
-fi
-
 # swaylock-plugins
 if ! which swaylock-plugin &>/dev/null; then
     sudo dnf -y install meson wayland-devel wayland-protocols-devel libxkbcommon-devel cairo-devel gdk-pixbuf2-devel pam-devel scdoc
@@ -128,6 +124,10 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     ./install.sh -n Tela-circle
     popd
     rm -rf /tmp/tela-circle
+fi
+
+if ! which autotiling &>/dev/null; then
+    pipx install autotiling
 fi
 {{ end }}
 

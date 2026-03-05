@@ -4,6 +4,12 @@
     font-size: 13px;
 }
 
+@keyframes blink {
+    to {
+        color: {{ template "color-hex" "background" }};
+    }
+}
+
 window#waybar, tooltip {
     background: {{ template "background-rgba" "0.9" }};
     color: {{ template "color-hex" "on_background" }};
@@ -33,6 +39,18 @@ label, button {
     border-color: {{ template "color-hex" "primary_container" }};
     background: {{ template "color-hex" "primary" }};
     color: {{ template "color-hex" "on_primary" }};
+}
+
+#workspaces button.urgent {
+    color: {{ template "color-hex" "error" }};
+
+    animation: blink 1s linear infinite;
+}
+
+#workspaces button.urgent.focused {
+    border-color: {{ template "color-hex" "error_container" }};
+    background: {{ template "color-hex" "error" }};
+    color: {{ template "color-hex" "on_error" }};
 }
 
 #mode, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {

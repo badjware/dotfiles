@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo mkdir -p /etc/firefox
+sudo mkdir -p /etc/firefox/policies
 sudo tee /etc/firefox/policies/policies.json >/dev/null <<EOD
 {
     "policies": {

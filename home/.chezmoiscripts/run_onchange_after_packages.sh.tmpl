@@ -15,10 +15,10 @@ if ! which pikaur >/dev/null; then
     rm -rf /tmp/pikaur
 fi
 
-pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
+pikaur -Sy --needed --noconfirm {{ .packages.arch.base | join " " }}
 
 {{ if ne .chassisType "container" }}
-pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
+pikaur -Sy --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{ end }}
 
 ############

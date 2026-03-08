@@ -98,6 +98,7 @@ packages:
       - wl-clipboard
       - wob
       - xarchiver
+      - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
 
@@ -120,7 +121,7 @@ packages:
       - gnome-themes-extra
       - gtk-engine-murrine
       - sassc
-      - xcursor-breeze
+      - breeze-cursors
 
       # xorg
       - xorg-xauth
@@ -219,6 +220,7 @@ packages:
       - wl-clipboard
       - wob
       - xarchiver
+      - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
 

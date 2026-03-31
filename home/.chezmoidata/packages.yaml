@@ -79,9 +79,9 @@ packages:
       - feh
       - firefox
       - gammastep
+      - gnome-keyring
       - grim
       - libappindicator-gtk3
-      # - linux-wallpaperengine-git
       - mako
       - mpvpaper
       - qt5-wayland
@@ -101,6 +101,7 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
+      # - linux-wallpaperengine-git
 
       # pipewire
       - pavucontrol
@@ -207,6 +208,7 @@ packages:
       - feh
       - firefox
       - gammastep
+      - gnome-keyring
       - grim
       - mako
       - rofi-wayland

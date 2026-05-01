@@ -2,8 +2,8 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { Type } from "@mariozechner/pi-ai";
 import { defineTool, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Type } from "typebox";
 
 type JsonRpcMessage = {
 	jsonrpc: "2.0";
@@ -18,11 +18,10 @@ type McpToolCallResult = {
 	content?: Array<{ type?: string; text?: string }>;
 	structuredContent?: unknown;
 	isError?: boolean;
-	_meta?: unknown;
 };
 
 const baseDir = dirname(fileURLToPath(import.meta.url));
-const serverPath = join(baseDir, "ddg_mcp_server.py");
+const serverPath = join(baseDir, "search-web.py");
 const pythonCommand = process.env.PI_DDG_MCP_PYTHON || "python3";
 const requestTimeoutMs = Number(process.env.PI_DDG_MCP_TIMEOUT_MS || 30000);
 
@@ -50,13 +49,13 @@ class McpClient {
 		this.child.stdout.on("data", (chunk: Buffer) => this.onStdout(chunk));
 		this.child.stderr.on("data", (chunk: Buffer) => {
 			const text = chunk.toString("utf8").trim();
-			if (text.length > 0) console.error(`[ddg-mcp] ${text}`);
+			if (text) console.error(`[search-web] ${text}`);
 		});
-		this.child.on("error", (error) => this.failAll(`Failed to start DDG MCP server: ${error.message}`));
+		this.child.on("error", (error) => this.failAll(`Failed to start search_web server: ${error.message}`));
 		this.child.on("exit", (code, signal) => {
 			if (this.closed) return;
 			this.failAll(
-				`DDG MCP server exited unexpectedly${code !== null ? ` with code ${code}` : ""}${signal ? ` (signal ${signal})` : ""}.`,
+				`search_web server exited unexpectedly${code !== null ? ` with code ${code}` : ""}${signal ? ` (signal ${signal})` : ""}.`,
 			);
 		});
 	}
@@ -67,10 +66,7 @@ class McpClient {
 				await this.request("initialize", {
 					protocolVersion: "2024-11-05",
 					capabilities: {},
-					clientInfo: {
-						name: "pi-ddg-mcp-bridge",
-						version: "0.1.0",
-					},
+					clientInfo: { name: "pi-search-web", version: "0.3.0" },
 				});
 				this.notify("notifications/initialized", {});
 			})();
@@ -78,10 +74,10 @@ class McpClient {
 		return this.initPromise;
 	}
 
-	async callTool(name: string, args: Record<string, unknown>): Promise<McpToolCallResult> {
+	async callTool(args: Record<string, unknown>): Promise<McpToolCallResult> {
 		await this.initialize();
 		return (await this.request("tools/call", {
-			name,
+			name: "search_web",
 			arguments: args,
 		})) as McpToolCallResult;
 	}
@@ -96,7 +92,7 @@ class McpClient {
 		this.closed = true;
 		for (const [, pending] of this.pending) {
 			clearTimeout(pending.timeout);
-			pending.reject(new Error("DDG MCP server shut down."));
+			pending.reject(new Error("search_web server shut down."));
 		}
 		this.pending.clear();
 		this.child.kill();
@@ -107,15 +103,13 @@ class McpClient {
 	}
 
 	private request(method: string, params?: unknown): Promise<unknown> {
-		if (this.closed) throw new Error("DDG MCP client is closed.");
-
+		if (this.closed) throw new Error("search_web client is closed.");
 		const id = this.nextId++;
 		return new Promise((resolve, reject) => {
 			const timeout = setTimeout(() => {
 				this.pending.delete(id);
-				reject(new Error(`DDG MCP request timed out after ${requestTimeoutMs}ms (${method}).`));
+				reject(new Error(`search_web request timed out after ${requestTimeoutMs}ms (${method}).`));
 			}, requestTimeoutMs);
-
 			this.pending.set(id, { resolve, reject, timeout });
 			this.write({ jsonrpc: "2.0", id, method, params });
 		});
@@ -129,34 +123,28 @@ class McpClient {
 
 	private onStdout(chunk: Buffer): void {
 		this.buffer = Buffer.concat([this.buffer, chunk]);
-
 		while (true) {
 			const headerEnd = this.buffer.indexOf("\r\n\r\n");
 			if (headerEnd === -1) return;
-
 			const headerText = this.buffer.subarray(0, headerEnd).toString("utf8");
 			const match = headerText.match(/Content-Length:\s*(\d+)/i);
 			if (!match) {
-				this.failAll("DDG MCP server sent a message without Content-Length.");
+				this.failAll("search_web server sent a message without Content-Length.");
 				return;
 			}
-
 			const contentLength = Number(match[1]);
 			const messageStart = headerEnd + 4;
 			const messageEnd = messageStart + contentLength;
 			if (this.buffer.length < messageEnd) return;
-
 			const body = this.buffer.subarray(messageStart, messageEnd).toString("utf8");
 			this.buffer = this.buffer.subarray(messageEnd);
-
 			let message: JsonRpcMessage;
 			try {
 				message = JSON.parse(body) as JsonRpcMessage;
 			} catch (error) {
-				this.failAll(`DDG MCP server returned invalid JSON: ${(error as Error).message}`);
+				this.failAll(`search_web server returned invalid JSON: ${(error as Error).message}`);
 				return;
 			}
-
 			this.handleMessage(message);
 		}
 	}
@@ -165,15 +153,12 @@ class McpClient {
 		if (typeof message.id !== "number") return;
 		const pending = this.pending.get(message.id);
 		if (!pending) return;
-
 		clearTimeout(pending.timeout);
 		this.pending.delete(message.id);
-
 		if (message.error) {
 			pending.reject(new Error(message.error.message));
 			return;
 		}
-
 		pending.resolve(message.result);
 	}
 
@@ -188,12 +173,11 @@ class McpClient {
 	}
 }
 
-function textFromMcpResult(result: McpToolCallResult): string {
+function textFromResult(result: McpToolCallResult): string {
 	const parts = (result.content || [])
 		.filter((part) => part.type === "text" && typeof part.text === "string")
 		.map((part) => part.text?.trim())
-		.filter((part): part is string => Boolean(part && part.length > 0));
-
+		.filter((part): part is string => Boolean(part));
 	if (parts.length > 0) return parts.join("\n\n");
 	if (result.structuredContent !== undefined) return JSON.stringify(result.structuredContent, null, 2);
 	return "Tool returned no text.";
@@ -211,7 +195,6 @@ export default function (pi: ExtensionAPI) {
 				return client;
 			})();
 		}
-
 		try {
 			return await clientPromise;
 		} catch (error) {
@@ -220,22 +203,9 @@ export default function (pi: ExtensionAPI) {
 		}
 	}
 
-	async function callMcpTool(name: string, args: Record<string, unknown>): Promise<McpToolCallResult> {
-		const client = await getClient();
-		try {
-			return await client.callTool(name, args);
-		} catch (error) {
-			client.shutdown();
-			clientPromise = undefined;
-			throw error;
-		}
-	}
-
 	function resetClient(): void {
 		if (!clientPromise) return;
-		void clientPromise
-			.then((client) => client.shutdown())
-			.catch(() => undefined);
+		void clientPromise.then((client) => client.shutdown()).catch(() => undefined);
 		clientPromise = undefined;
 	}
 
@@ -243,23 +213,23 @@ export default function (pi: ExtensionAPI) {
 		resetClient();
 	});
 
-	pi.registerCommand("ddg-status", {
-		description: "Check the global DuckDuckGo MCP bridge status",
+	pi.registerCommand("search-web-status", {
+		description: "Check the search_web bridge status",
 		handler: async (_args, ctx) => {
 			try {
 				await getClient();
-				ctx.ui.notify("DuckDuckGo MCP bridge is ready.", "success");
+				ctx.ui.notify("search_web bridge is ready.", "success");
 			} catch (error) {
-				ctx.ui.notify(`DuckDuckGo MCP bridge failed: ${(error as Error).message}`, "error");
+				ctx.ui.notify(`search_web bridge failed: ${(error as Error).message}`, "error");
 			}
 		},
 	});
 
-	pi.registerCommand("ddg-restart", {
-		description: "Restart the global DuckDuckGo MCP bridge",
+	pi.registerCommand("search-web-restart", {
+		description: "Restart the search_web bridge",
 		handler: async (_args, ctx) => {
 			resetClient();
-			ctx.ui.notify("DuckDuckGo MCP bridge restarted.", "info");
+			ctx.ui.notify("search_web bridge restarted.", "info");
 		},
 	});
 
@@ -275,50 +245,25 @@ export default function (pi: ExtensionAPI) {
 			],
 			parameters: Type.Object({
 				query: Type.String({ description: "Search query" }),
-				max_results: Type.Optional(
-					Type.Number({ description: "Maximum number of results to return (default 5, max 10)" }),
-				),
+				max_results: Type.Optional(Type.Number({ description: "Maximum number of results to return (default 5, max 10)" })),
 				region: Type.Optional(Type.String({ description: "DuckDuckGo region code like us-en or uk-en" })),
-				safe_search: Type.Optional(
-					Type.String({ description: "Safe search mode: off, moderate, or strict" }),
-				),
+				safe_search: Type.Optional(Type.String({ description: "Safe search mode: off, moderate, or strict" })),
 			}),
 			async execute(_toolCallId, params, _signal, onUpdate) {
 				onUpdate?.({ content: [{ type: "text", text: `Searching DuckDuckGo for: ${params.query}` }] });
-				const result = await callMcpTool("search_web", params as Record<string, unknown>);
-				return {
-					content: [{ type: "text", text: textFromMcpResult(result) }],
-					details: result.structuredContent ?? result,
-					isError: Boolean(result.isError),
-				};
-			},
-		}),
-	);
-
-	pi.registerTool(
-		defineTool({
-			name: "fetch_url",
-			label: "Fetch URL",
-			description: "Fetch a public web page and extract readable text content.",
-			promptSnippet: "Fetch a public URL and extract readable page text.",
-			promptGuidelines: [
-				"Use fetch_url to read a public web page after search_web finds a relevant result or when the user gives a public URL.",
-				"Use fetch_url only for public http or https URLs; do not use it for local, private, or internal network targets.",
-			],
-			parameters: Type.Object({
-				url: Type.String({ description: "Public http or https URL to fetch" }),
-				max_chars: Type.Optional(
-					Type.Number({ description: "Maximum number of extracted characters to return (default 12000)" }),
-				),
-			}),
-			async execute(_toolCallId, params, _signal, onUpdate) {
-				onUpdate?.({ content: [{ type: "text", text: `Fetching URL: ${params.url}` }] });
-				const result = await callMcpTool("fetch_url", params as Record<string, unknown>);
-				return {
-					content: [{ type: "text", text: textFromMcpResult(result) }],
-					details: result.structuredContent ?? result,
-					isError: Boolean(result.isError),
-				};
+				const client = await getClient();
+				try {
+					const result = await client.callTool(params as Record<string, unknown>);
+					return {
+						content: [{ type: "text", text: textFromResult(result) }],
+						details: result.structuredContent ?? result,
+						isError: Boolean(result.isError),
+					};
+				} catch (error) {
+					client.shutdown();
+					clientPromise = undefined;
+					throw error;
+				}
 			},
 		}),
 	);

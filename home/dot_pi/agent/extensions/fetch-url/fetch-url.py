@@ -14,28 +14,13 @@ from html.parser import HTMLParser
 from typing import Any
 
 PROTOCOL_VERSION = "2024-11-05"
-SERVER_NAME = "ddg-mcp-server"
-SERVER_VERSION = "0.1.0"
-DDG_LITE_URL = "https://lite.duckduckgo.com/lite/"
-USER_AGENT = os.environ.get("PI_DDG_USER_AGENT", "pi-ddg-mcp/0.1")
+SERVER_NAME = "fetch-url"
+SERVER_VERSION = "0.3.0"
+USER_AGENT = os.environ.get("PI_DDG_USER_AGENT", "pi-fetch-url/0.3")
 DEFAULT_TIMEOUT_S = float(os.environ.get("PI_DDG_TIMEOUT_S", "20"))
-DEFAULT_MAX_RESULTS = int(os.environ.get("PI_DDG_DEFAULT_MAX_RESULTS", "5"))
 DEFAULT_FETCH_MAX_CHARS = int(os.environ.get("PI_DDG_DEFAULT_FETCH_MAX_CHARS", "12000"))
 MAX_FETCH_BYTES = int(os.environ.get("PI_DDG_MAX_FETCH_BYTES", str(2 * 1024 * 1024)))
 ALLOW_PRIVATE = os.environ.get("PI_DDG_ALLOW_PRIVATE", "0").lower() in {"1", "true", "yes", "on"}
-SAFE_SEARCH_MAP = {
-    "off": "-2",
-    "moderate": "-1",
-    "strict": "1",
-}
-RESULT_RE = re.compile(
-    r"<a rel=\"nofollow\" href=\"(?P<href>[^\"]+)\" class='result-link'>(?P<title>.*?)</a>"
-    r"(?P<tail>.*?)"
-    r"(?:<td class='result-snippet'>\s*(?P<snippet>.*?)\s*</td>)?"
-    r"(?P<tail2>.*?)"
-    r"<span class='link-text'>(?P<display>.*?)</span>",
-    re.S,
-)
 TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
 SCRIPT_STYLE_RE = re.compile(r"<(script|style|noscript|svg)[^>]*>.*?</\1>", re.I | re.S)
 TAG_RE = re.compile(r"<[^>]+>")
@@ -173,19 +158,6 @@ def strip_tags(value: str) -> str:
     return text.strip()
 
 
-def unwrap_ddg_url(href: str) -> str:
-    href = html.unescape(href)
-    if href.startswith("//"):
-        href = "https:" + href
-    parsed = urllib.parse.urlparse(href)
-    if parsed.netloc.endswith("duckduckgo.com") and parsed.path == "/l/":
-        query = urllib.parse.parse_qs(parsed.query)
-        uddg = query.get("uddg")
-        if uddg:
-            return urllib.parse.unquote(uddg[0])
-    return href
-
-
 def normalize_text(value: str) -> str:
     value = value.replace("\xa0", " ")
     lines = []
@@ -197,43 +169,6 @@ def normalize_text(value: str) -> str:
             lines.append("")
     normalized = "\n".join(lines)
     return MULTI_NEWLINE_RE.sub("\n\n", normalized).strip()
-
-
-def parse_search_results(html_text: str, max_results: int) -> list[dict[str, str]]:
-    results: list[dict[str, str]] = []
-    for match in RESULT_RE.finditer(html_text):
-        url = unwrap_ddg_url(match.group("href"))
-        title = strip_tags(match.group("title"))
-        snippet = strip_tags(match.group("snippet") or "")
-        display = strip_tags(match.group("display") or "")
-        if not url.startswith(("http://", "https://")):
-            continue
-        if not title:
-            continue
-        results.append(
-            {
-                "title": title,
-                "url": url,
-                "display_url": display or url,
-                "snippet": snippet,
-            }
-        )
-        if len(results) >= max_results:
-            break
-    return results
-
-
-def format_search_results(query: str, results: list[dict[str, str]]) -> str:
-    if not results:
-        return f"No DuckDuckGo results found for: {query}"
-    lines = [f"DuckDuckGo results for: {query}", ""]
-    for index, result in enumerate(results, start=1):
-        lines.append(f"{index}. {result['title']}")
-        lines.append(f"   URL: {result['url']}")
-        if result.get("snippet"):
-            lines.append(f"   Snippet: {result['snippet']}")
-        lines.append("")
-    return "\n".join(lines).strip()
 
 
 def validate_public_url(url: str) -> urllib.parse.ParseResult:
@@ -308,37 +243,6 @@ def html_to_text(html_text: str) -> tuple[str | None, str]:
     return title, text
 
 
-def search_web(arguments: dict[str, Any]) -> dict[str, Any]:
-    query = str(arguments.get("query", "")).strip()
-    if not query:
-        return make_tool_error("search_web requires a non-empty query.")
-
-    max_results = int(arguments.get("max_results") or DEFAULT_MAX_RESULTS)
-    max_results = max(1, min(10, max_results))
-    region = str(arguments.get("region") or "").strip()
-    safe_search = str(arguments.get("safe_search") or "moderate").strip().lower()
-
-    params = {"q": query}
-    if region:
-        params["kl"] = region
-    if safe_search in SAFE_SEARCH_MAP:
-        params["kp"] = SAFE_SEARCH_MAP[safe_search]
-
-    url = DDG_LITE_URL + "?" + urllib.parse.urlencode(params)
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=DEFAULT_TIMEOUT_S) as response:
-        html_text = response.read().decode("utf-8", "replace")
-
-    results = parse_search_results(html_text, max_results)
-    structured = {
-        "query": query,
-        "region": region or None,
-        "safe_search": safe_search,
-        "results": results,
-    }
-    return make_text_result(format_search_results(query, results), structured)
-
-
 def fetch_url(arguments: dict[str, Any]) -> dict[str, Any]:
     raw_url = str(arguments.get("url", "")).strip()
     if not raw_url:
@@ -353,16 +257,14 @@ def fetch_url(arguments: dict[str, Any]) -> dict[str, Any]:
         return make_tool_error(str(error))
 
     decoded = body.decode(charset or "utf-8", "replace")
-    title: str | None
-    text: str
     stripped = decoded.lstrip()
     if stripped.startswith("<!DOCTYPE html") or stripped.startswith("<html") or "<body" in stripped[:5000].lower():
         title, text = html_to_text(decoded)
     else:
-        title = None
-        text = normalize_text(decoded)
+        title, text = None, normalize_text(decoded)
 
-    if len(text) > max_chars:
+    original_length = len(text)
+    if original_length > max_chars:
         text = text[: max_chars - 1].rstrip() + "…"
 
     summary_lines = [f"URL: {final_url}"]
@@ -371,58 +273,16 @@ def fetch_url(arguments: dict[str, Any]) -> dict[str, Any]:
     summary_lines.append("")
     summary_lines.append(text or "No readable text content extracted.")
 
-    structured = {
-        "requested_url": raw_url,
-        "final_url": final_url,
-        "title": title,
-        "content": text,
-        "truncated": len(text) >= max_chars,
-    }
-    return make_text_result("\n".join(summary_lines).strip(), structured)
-
-
-TOOLS = [
-    {
-        "name": "search_web",
-        "description": "Search DuckDuckGo and return ranked results with titles, URLs, and snippets.",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "Search query"},
-                "max_results": {
-                    "type": "number",
-                    "description": "Maximum number of results to return (default 5, max 10)",
-                },
-                "region": {
-                    "type": "string",
-                    "description": "DuckDuckGo region code like us-en or uk-en",
-                },
-                "safe_search": {
-                    "type": "string",
-                    "description": "Safe search mode: off, moderate, or strict",
-                },
-            },
-            "required": ["query"],
-            "additionalProperties": False,
+    return make_text_result(
+        "\n".join(summary_lines).strip(),
+        {
+            "requested_url": raw_url,
+            "final_url": final_url,
+            "title": title,
+            "content": text,
+            "truncated": original_length > max_chars,
         },
-    },
-    {
-        "name": "fetch_url",
-        "description": "Fetch a public web page and extract readable text content.",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "url": {"type": "string", "description": "Public http or https URL to fetch"},
-                "max_chars": {
-                    "type": "number",
-                    "description": "Maximum number of extracted characters to return (default 12000)",
-                },
-            },
-            "required": ["url"],
-            "additionalProperties": False,
-        },
-    },
-]
+    )
 
 
 def handle_request(message: dict[str, Any]) -> dict[str, Any] | None:
@@ -444,27 +304,41 @@ def handle_request(message: dict[str, Any]) -> dict[str, Any] | None:
         }
 
     if method == "tools/list":
-        return {"jsonrpc": "2.0", "id": request_id, "result": {"tools": TOOLS}}
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "result": {
+                "tools": [
+                    {
+                        "name": "fetch_url",
+                        "description": "Fetch a public web page and extract readable text content.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "url": {"type": "string", "description": "Public http or https URL to fetch"},
+                                "max_chars": {
+                                    "type": "number",
+                                    "description": "Maximum number of extracted characters to return (default 12000)",
+                                },
+                            },
+                            "required": ["url"],
+                            "additionalProperties": False,
+                        },
+                    }
+                ]
+            },
+        }
 
     if method == "tools/call":
         params = message.get("params") or {}
         name = params.get("name")
         arguments = params.get("arguments") or {}
         try:
-            if name == "search_web":
-                result = search_web(arguments)
-            elif name == "fetch_url":
-                result = fetch_url(arguments)
-            else:
-                result = make_tool_error(f"Unknown tool: {name}")
-            return {"jsonrpc": "2.0", "id": request_id, "result": result}
+            result = fetch_url(arguments) if name == "fetch_url" else make_tool_error(f"Unknown tool: {name}")
         except Exception as error:  # noqa: BLE001
             log(f"Tool failure ({name}): {error}")
-            return {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "result": make_tool_error(f"Tool execution failed: {error}"),
-            }
+            result = make_tool_error(f"Tool execution failed: {error}")
+        return {"jsonrpc": "2.0", "id": request_id, "result": result}
 
     if request_id is None:
         return None
@@ -472,10 +346,7 @@ def handle_request(message: dict[str, Any]) -> dict[str, Any] | None:
     return {
         "jsonrpc": "2.0",
         "id": request_id,
-        "error": {
-            "code": -32601,
-            "message": f"Method not found: {method}",
-        },
+        "error": {"code": -32601, "message": f"Method not found: {method}"},
     }
 
 

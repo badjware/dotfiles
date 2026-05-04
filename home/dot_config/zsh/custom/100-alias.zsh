@@ -9,6 +9,7 @@ alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
+alias pibox="/home/marchambault/develop/code.badjware.dev/badjware/pibox/launch.sh --config-tmpl /home/marchambault/develop/code.badjware.dev/badjware/pibox/configs/databricks-anthropic.json.tmpl"
 
 # ls
 alias ls='lsd --group-dirs=first'

@@ -40,6 +40,7 @@ packages:
       - pay-respects
       - pv
       - ripgrep
+      - rocm-smi-lib
       - rsync
       - starship
       - sudo
@@ -133,7 +134,7 @@ packages:
   fedora:
     repo:
       - https://kubecolor.github.io/packages/rpm/kubecolor.repo
-    
+
     copr:
       - dwmw2/openconnect
 
@@ -171,6 +172,7 @@ packages:
       - pass
       - pv
       - ripgrep
+      - rocm-smi
       - rsync
       - sudo
       - tmux

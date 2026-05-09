@@ -1,6 +1,7 @@
 alias svim="sudo -e"
 alias vissh="$EDITOR ~/.ssh/config"
 alias vihosts="sudo -e /etc/hosts"
+alias cdcustom="cd ~/.config/zsh/custom"
 
 alias vim="nvim"
 alias top="btop"

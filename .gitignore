@@ -10,3 +10,4 @@ files/.vim/bundle/
 files/.tmux/plugins/
 !files/.tmux/plugins/tpm
 
+__pycache__/

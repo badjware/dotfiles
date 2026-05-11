@@ -1,268 +1,204 @@
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { defineTool, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "typebox";
 
-type JsonRpcMessage = {
-	jsonrpc: "2.0";
-	id?: number;
-	method?: string;
-	params?: unknown;
-	result?: unknown;
-	error?: { code: number; message: string; data?: unknown };
+const DDG_LITE_URL = "https://lite.duckduckgo.com/lite/";
+const USER_AGENT = process.env.PI_DDG_USER_AGENT || "pi-search-web/0.4";
+const DEFAULT_TIMEOUT_MS = Number(process.env.PI_DDG_TIMEOUT_S || "20") * 1000;
+const DEFAULT_MAX_RESULTS = Number(process.env.PI_DDG_DEFAULT_MAX_RESULTS || "5");
+
+const SAFE_SEARCH_MAP: Record<string, string> = {
+	off: "-2",
+	moderate: "-1",
+	strict: "1",
 };
 
-type McpToolCallResult = {
-	content?: Array<{ type?: string; text?: string }>;
-	structuredContent?: unknown;
-	isError?: boolean;
-};
+const RESULT_RE =
+	/<a rel="nofollow" href="(?<href>[^"]+)" class='result-link'>(?<title>[\s\S]*?)<\/a>(?<tail>[\s\S]*?)(?:<td class='result-snippet'>\s*(?<snippet>[\s\S]*?)\s*<\/td>)?(?<tail2>[\s\S]*?)<span class='link-text'>(?<display>[\s\S]*?)<\/span>/g;
 
-const baseDir = dirname(fileURLToPath(import.meta.url));
-const serverPath = join(baseDir, "search-web.py");
-const pythonCommand = process.env.PI_DDG_MCP_PYTHON || "python3";
-const requestTimeoutMs = Number(process.env.PI_DDG_MCP_TIMEOUT_MS || 30000);
+const TAG_RE = /<[^>]+>/g;
+const WHITESPACE_RE = /[ \t\v\f\r]+/g;
 
-class McpClient {
-	private child: ChildProcessWithoutNullStreams;
-	private buffer = Buffer.alloc(0);
-	private nextId = 1;
-	private pending = new Map<
-		number,
-		{
-			resolve: (value: unknown) => void;
-			reject: (error: Error) => void;
-			timeout: NodeJS.Timeout;
-		}
-	>();
-	private initPromise?: Promise<void>;
-	private closed = false;
-
-	constructor() {
-		this.child = spawn(pythonCommand, [serverPath], {
-			stdio: ["pipe", "pipe", "pipe"],
-			env: process.env,
-		});
-
-		this.child.stdout.on("data", (chunk: Buffer) => this.onStdout(chunk));
-		this.child.stderr.on("data", (chunk: Buffer) => {
-			const text = chunk.toString("utf8").trim();
-			if (text) console.error(`[search-web] ${text}`);
-		});
-		this.child.on("error", (error) => this.failAll(`Failed to start search_web server: ${error.message}`));
-		this.child.on("exit", (code, signal) => {
-			if (this.closed) return;
-			this.failAll(
-				`search_web server exited unexpectedly${code !== null ? ` with code ${code}` : ""}${signal ? ` (signal ${signal})` : ""}.`,
-			);
-		});
-	}
-
-	async initialize(): Promise<void> {
-		if (!this.initPromise) {
-			this.initPromise = (async () => {
-				await this.request("initialize", {
-					protocolVersion: "2024-11-05",
-					capabilities: {},
-					clientInfo: { name: "pi-search-web", version: "0.3.0" },
-				});
-				this.notify("notifications/initialized", {});
-			})();
-		}
-		return this.initPromise;
-	}
-
-	async callTool(args: Record<string, unknown>): Promise<McpToolCallResult> {
-		await this.initialize();
-		return (await this.request("tools/call", {
-			name: "search_web",
-			arguments: args,
-		})) as McpToolCallResult;
-	}
-
-	async listTools(): Promise<unknown> {
-		await this.initialize();
-		return this.request("tools/list", {});
-	}
-
-	shutdown(): void {
-		if (this.closed) return;
-		this.closed = true;
-		for (const [, pending] of this.pending) {
-			clearTimeout(pending.timeout);
-			pending.reject(new Error("search_web server shut down."));
-		}
-		this.pending.clear();
-		this.child.kill();
-	}
-
-	private notify(method: string, params?: unknown): void {
-		this.write({ jsonrpc: "2.0", method, params });
-	}
-
-	private request(method: string, params?: unknown): Promise<unknown> {
-		if (this.closed) throw new Error("search_web client is closed.");
-		const id = this.nextId++;
-		return new Promise((resolve, reject) => {
-			const timeout = setTimeout(() => {
-				this.pending.delete(id);
-				reject(new Error(`search_web request timed out after ${requestTimeoutMs}ms (${method}).`));
-			}, requestTimeoutMs);
-			this.pending.set(id, { resolve, reject, timeout });
-			this.write({ jsonrpc: "2.0", id, method, params });
-		});
-	}
-
-	private write(message: JsonRpcMessage): void {
-		const payload = Buffer.from(JSON.stringify(message), "utf8");
-		const header = Buffer.from(`Content-Length: ${payload.length}\r\n\r\n`, "utf8");
-		this.child.stdin.write(Buffer.concat([header, payload]));
-	}
-
-	private onStdout(chunk: Buffer): void {
-		this.buffer = Buffer.concat([this.buffer, chunk]);
-		while (true) {
-			const headerEnd = this.buffer.indexOf("\r\n\r\n");
-			if (headerEnd === -1) return;
-			const headerText = this.buffer.subarray(0, headerEnd).toString("utf8");
-			const match = headerText.match(/Content-Length:\s*(\d+)/i);
-			if (!match) {
-				this.failAll("search_web server sent a message without Content-Length.");
-				return;
-			}
-			const contentLength = Number(match[1]);
-			const messageStart = headerEnd + 4;
-			const messageEnd = messageStart + contentLength;
-			if (this.buffer.length < messageEnd) return;
-			const body = this.buffer.subarray(messageStart, messageEnd).toString("utf8");
-			this.buffer = this.buffer.subarray(messageEnd);
-			let message: JsonRpcMessage;
+function decodeEntities(input: string): string {
+	return input
+		.replace(/&#x([0-9a-fA-F]+);/g, (_m, hex) => {
 			try {
-				message = JSON.parse(body) as JsonRpcMessage;
-			} catch (error) {
-				this.failAll(`search_web server returned invalid JSON: ${(error as Error).message}`);
-				return;
+				return String.fromCodePoint(parseInt(hex, 16));
+			} catch {
+				return "";
 			}
-			this.handleMessage(message);
-		}
-	}
+		})
+		.replace(/&#(\d+);/g, (_m, dec) => {
+			try {
+				return String.fromCodePoint(parseInt(dec, 10));
+			} catch {
+				return "";
+			}
+		})
+		.replace(/&nbsp;/gi, " ")
+		.replace(/&amp;/gi, "&")
+		.replace(/&lt;/gi, "<")
+		.replace(/&gt;/gi, ">")
+		.replace(/&quot;/gi, '"')
+		.replace(/&apos;/gi, "'");
+}
 
-	private handleMessage(message: JsonRpcMessage): void {
-		if (typeof message.id !== "number") return;
-		const pending = this.pending.get(message.id);
-		if (!pending) return;
-		clearTimeout(pending.timeout);
-		this.pending.delete(message.id);
-		if (message.error) {
-			pending.reject(new Error(message.error.message));
-			return;
-		}
-		pending.resolve(message.result);
-	}
+function stripTags(value: string): string {
+	return decodeEntities(value.replace(TAG_RE, "")).replace(WHITESPACE_RE, " ").trim();
+}
 
-	private failAll(message: string): void {
-		if (this.closed) return;
-		this.closed = true;
-		for (const [, pending] of this.pending) {
-			clearTimeout(pending.timeout);
-			pending.reject(new Error(message));
+function unwrapDdgUrl(href: string): string {
+	let decoded = decodeEntities(href);
+	if (decoded.startsWith("//")) decoded = `https:${decoded}`;
+	try {
+		const parsed = new URL(decoded, "https://duckduckgo.com");
+		if (parsed.hostname.endsWith("duckduckgo.com") && parsed.pathname === "/l/") {
+			const uddg = parsed.searchParams.get("uddg");
+			if (uddg) return decodeURIComponent(uddg);
 		}
-		this.pending.clear();
+		return parsed.toString();
+	} catch {
+		return decoded;
 	}
 }
 
-function textFromResult(result: McpToolCallResult): string {
-	const parts = (result.content || [])
-		.filter((part) => part.type === "text" && typeof part.text === "string")
-		.map((part) => part.text?.trim())
-		.filter((part): part is string => Boolean(part));
-	if (parts.length > 0) return parts.join("\n\n");
-	if (result.structuredContent !== undefined) return JSON.stringify(result.structuredContent, null, 2);
-	return "Tool returned no text.";
+type SearchResult = {
+	title: string;
+	url: string;
+	display_url: string;
+	snippet: string;
+};
+
+function parseSearchResults(htmlText: string, maxResults: number): SearchResult[] {
+	const results: SearchResult[] = [];
+	RESULT_RE.lastIndex = 0;
+	let match: RegExpExecArray | null;
+	while ((match = RESULT_RE.exec(htmlText)) !== null) {
+		const groups = match.groups ?? {};
+		const url = unwrapDdgUrl(groups.href || "");
+		const title = stripTags(groups.title || "");
+		const snippet = stripTags(groups.snippet || "");
+		const display = stripTags(groups.display || "");
+		if (!/^https?:\/\//.test(url) || !title) continue;
+		results.push({
+			title,
+			url,
+			display_url: display || url,
+			snippet,
+		});
+		if (results.length >= maxResults) break;
+	}
+	return results;
+}
+
+function formatSearchResults(query: string, results: SearchResult[]): string {
+	if (results.length === 0) return `No DuckDuckGo results found for: ${query}`;
+	const lines = [`DuckDuckGo results for: ${query}`, ""];
+	results.forEach((result, i) => {
+		lines.push(`${i + 1}. ${result.title}`);
+		lines.push(`   URL: ${result.url}`);
+		if (result.snippet) lines.push(`   Snippet: ${result.snippet}`);
+		lines.push("");
+	});
+	return lines.join("\n").trim();
 }
 
 export default function (pi: ExtensionAPI) {
-	let clientPromise: Promise<McpClient> | undefined;
-
-	async function getClient(): Promise<McpClient> {
-		if (!clientPromise) {
-			clientPromise = (async () => {
-				const client = new McpClient();
-				await client.initialize();
-				await client.listTools();
-				return client;
-			})();
-		}
-		try {
-			return await clientPromise;
-		} catch (error) {
-			clientPromise = undefined;
-			throw error;
-		}
-	}
-
-	function resetClient(): void {
-		if (!clientPromise) return;
-		void clientPromise.then((client) => client.shutdown()).catch(() => undefined);
-		clientPromise = undefined;
-	}
-
-	pi.on("session_shutdown", () => {
-		resetClient();
-	});
-
-	pi.registerCommand("search-web-status", {
-		description: "Check the search_web bridge status",
-		handler: async (_args, ctx) => {
-			try {
-				await getClient();
-				ctx.ui.notify("search_web bridge is ready.", "success");
-			} catch (error) {
-				ctx.ui.notify(`search_web bridge failed: ${(error as Error).message}`, "error");
-			}
-		},
-	});
-
-	pi.registerCommand("search-web-restart", {
-		description: "Restart the search_web bridge",
-		handler: async (_args, ctx) => {
-			resetClient();
-			ctx.ui.notify("search_web bridge restarted.", "info");
-		},
-	});
-
 	pi.registerTool(
 		defineTool({
 			name: "search_web",
 			label: "Search Web",
 			description: "Search DuckDuckGo and return ranked results with titles, URLs, and snippets.",
-			promptSnippet: "Search DuckDuckGo for web results by query and return titles, URLs, and snippets.",
+			promptSnippet:
+				"Search DuckDuckGo for web results by query and return titles, URLs, and snippets.",
 			promptGuidelines: [
 				"Use search_web when the user asks for current, external, or web-based information.",
 				"After search_web, use fetch_url on one or two relevant results when snippets are not enough.",
 			],
 			parameters: Type.Object({
 				query: Type.String({ description: "Search query" }),
-				max_results: Type.Optional(Type.Number({ description: "Maximum number of results to return (default 5, max 10)" })),
-				region: Type.Optional(Type.String({ description: "DuckDuckGo region code like us-en or uk-en" })),
-				safe_search: Type.Optional(Type.String({ description: "Safe search mode: off, moderate, or strict" })),
+				max_results: Type.Optional(
+					Type.Number({ description: "Maximum number of results to return (default 5, max 10)" }),
+				),
+				region: Type.Optional(
+					Type.String({ description: "DuckDuckGo region code like us-en or uk-en" }),
+				),
+				safe_search: Type.Optional(
+					Type.String({ description: "Safe search mode: off, moderate, or strict" }),
+				),
 			}),
-			async execute(_toolCallId, params, _signal, onUpdate) {
-				onUpdate?.({ content: [{ type: "text", text: `Searching DuckDuckGo for: ${params.query}` }] });
-				const client = await getClient();
-				try {
-					const result = await client.callTool(params as Record<string, unknown>);
+			async execute(_toolCallId, params, signal, onUpdate) {
+				const query = (params.query || "").trim();
+				if (!query) {
 					return {
-						content: [{ type: "text", text: textFromResult(result) }],
-						details: result.structuredContent ?? result,
-						isError: Boolean(result.isError),
+						content: [{ type: "text", text: "search_web requires a non-empty query." }],
+						details: {},
+						isError: true,
+					};
+				}
+
+				let maxResults = Math.floor(params.max_results ?? DEFAULT_MAX_RESULTS);
+				if (!Number.isFinite(maxResults)) maxResults = DEFAULT_MAX_RESULTS;
+				maxResults = Math.max(1, Math.min(10, maxResults));
+				const region = (params.region || "").trim();
+				const safeSearch = (params.safe_search || "moderate").trim().toLowerCase();
+
+				const url = new URL(DDG_LITE_URL);
+				url.searchParams.set("q", query);
+				if (region) url.searchParams.set("kl", region);
+				if (safeSearch in SAFE_SEARCH_MAP) {
+					url.searchParams.set("kp", SAFE_SEARCH_MAP[safeSearch]);
+				}
+
+				onUpdate?.({
+					content: [{ type: "text", text: `Searching DuckDuckGo for: ${query}` }],
+				});
+
+				const timeout = new AbortController();
+				const timer = setTimeout(() => timeout.abort(), DEFAULT_TIMEOUT_MS);
+				const combined = signal
+					? AbortSignal.any([signal, timeout.signal])
+					: timeout.signal;
+
+				try {
+					const response = await fetch(url.toString(), {
+						method: "GET",
+						signal: combined,
+						headers: { "User-Agent": USER_AGENT },
+					});
+					if (!response.ok) {
+						return {
+							content: [
+								{
+									type: "text",
+									text: `DuckDuckGo request failed: HTTP ${response.status} ${response.statusText}`,
+								},
+							],
+							details: { query, status: response.status },
+							isError: true,
+						};
+					}
+					const htmlText = await response.text();
+					const results = parseSearchResults(htmlText, maxResults);
+					const structured = {
+						query,
+						region: region || null,
+						safe_search: safeSearch,
+						results,
+					};
+					return {
+						content: [{ type: "text", text: formatSearchResults(query, results) }],
+						details: structured,
+						isError: false,
 					};
 				} catch (error) {
-					client.shutdown();
-					clientPromise = undefined;
-					throw error;
+					const message = error instanceof Error ? error.message : String(error);
+					return {
+						content: [{ type: "text", text: `search_web failed: ${message}` }],
+						details: { query },
+						isError: true,
+					};
+				} finally {
+					clearTimeout(timer);
 				}
 			},
 		}),

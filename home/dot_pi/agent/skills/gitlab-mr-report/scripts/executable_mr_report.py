@@ -451,6 +451,7 @@ def build_focus(rows: list[MRRow]) -> dict[str, list]:
 
     review_queue = refs(
         lambda r: "reviewer" in r.roles
+        and "author" not in r.roles
         and not r.draft
         and not r.approved_by_me
         and r.commented_awaiting == 0

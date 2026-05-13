@@ -91,6 +91,12 @@ Source: `focus.commented_awaiting_response`. Include role and
 `commented_awaiting` as the thread count. (Applies regardless of role —
 author or reviewer.)
 
+**Direction:** in every MR in this category, **you** wrote the last note
+and are waiting for the **other party** to respond or resolve. The
+required action is to follow up with or ping the author/reviewer, **not**
+to reply yourself. Never describe these as threads where someone is
+waiting on you.
+
 ### 🛠 Needs rebase (yours)
 Source: `focus.needs_rebase` (each entry is `{ref, reason}`). Render
 `reason == "conflicts"` as **conflicts** and
@@ -127,7 +133,9 @@ Rules:
   - An MR that is simultaneously **stale + draft + has waiting threads**
     ("push to completion or close?").
   - The **oldest** entry in `commented_awaiting_response` with a high
-    thread count (likely the highest-leverage followup).
+    thread count (likely the highest-leverage followup — remember: you
+    are waiting on the other party here; the suggested action is to ping
+    them, not to reply yourself).
   - A **large** MR (high `files` or `+N/-M`) that's also stale,
     conflicted, or has a failing pipeline (🛑), where rebasing/fixing will
     only get harder.

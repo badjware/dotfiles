@@ -7,54 +7,36 @@ export interface HistoryEntry {
 	timestamp: number;
 }
 
-/**
- * Read all entries from disk. Called once at session_start.
- */
+const serialize = (entries: HistoryEntry[]) => entries.map((e) => JSON.stringify(e)).join("\n") + "\n";
+
+/** Read all entries from disk. Called once at session_start. */
 export function loadHistory(file: string): HistoryEntry[] {
 	if (!existsSync(file)) return [];
 	return readFileSync(file, "utf-8")
 		.split("\n")
 		.filter(Boolean)
-		.flatMap((line) => {
-			try {
-				return [JSON.parse(line) as HistoryEntry];
-			} catch {
-				return [];
-			}
-		});
+		.map((line) => JSON.parse(line) as HistoryEntry);
 }
 
 /**
- * Append one entry to disk and return the updated in-memory array.
- * Skips empty text and consecutive duplicates.
- * Compacts the file when MAX_ENTRIES is exceeded.
+ * Append one entry, dedup (drop any earlier identical text so the new one moves to the end),
+ * and compact when MAX_ENTRIES is exceeded. Returns the updated in-memory array.
  */
 export function appendHistory(file: string, entries: HistoryEntry[], text: string): HistoryEntry[] {
 	const trimmed = text.trim();
 	if (!trimmed) return entries;
 
-	// Dedup: skip if identical to the last entry
-	if (entries.length > 0 && entries[entries.length - 1].text === trimmed) return entries;
-
 	const entry: HistoryEntry = { text: trimmed, timestamp: Date.now() };
+	const filtered = entries.filter((e) => e.text !== trimmed);
+	const combined = [...filtered, entry];
+	const updated = combined.length > MAX_ENTRIES ? combined.slice(-MAX_ENTRIES) : combined;
+	const needsRewrite = filtered.length !== entries.length || updated.length !== combined.length;
 
 	try {
-		appendFileSync(file, JSON.stringify(entry) + "\n", "utf-8");
+		if (needsRewrite) writeFileSync(file, serialize(updated), "utf-8");
+		else appendFileSync(file, JSON.stringify(entry) + "\n", "utf-8");
 	} catch {
-		// Non-fatal: continue with in-memory history even if the write fails
-		return [...entries, entry];
-	}
-
-	const updated = [...entries, entry];
-
-	if (updated.length > MAX_ENTRIES) {
-		const compacted = updated.slice(-MAX_ENTRIES);
-		try {
-			writeFileSync(file, compacted.map((e) => JSON.stringify(e)).join("\n") + "\n", "utf-8");
-		} catch {
-			// Non-fatal: keep the over-limit in-memory list; compaction will retry next time
-		}
-		return compacted;
+		// Non-fatal: keep in-memory state; next call will retry
 	}
 
 	return updated;

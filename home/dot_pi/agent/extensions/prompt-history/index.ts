@@ -19,7 +19,7 @@ export default function (pi: ExtensionAPI) {
 
 	// ── Capture every submitted prompt ────────────────────────────────────
 	pi.on("input", async (event, _ctx) => {
-		if (event.source === "interactive" && event.text.trim()) {
+		if (event.source === "interactive") {
 			history = appendHistory(historyFile, history, event.text);
 		}
 		return { action: "continue" };

@@ -55,7 +55,7 @@ export class HistorySearchOverlay extends Container {
 		this.onDone = done;
 		this.allItems = [...entries].reverse(); // show newest first
 		this.filtered = this.allItems;
-		this.viewTop = Math.max(0, Math.min(this.filtered.length - 1, MAX_VISIBLE - 1));
+		this.resetView();
 
 		// ── Layout (list above, input at bottom) ───────────────────────────
 		this.addChild(new DynamicBorder((s: string) => theme.fg("border", s)));
@@ -78,12 +78,15 @@ export class HistorySearchOverlay extends Container {
 		this.updateList();
 	}
 
+	/** Reset pointer and window to the newest entry. Clamps so viewTop is never -1. */
+	private resetView() {
+		this.selectedIndex = 0;
+		this.viewTop = Math.max(0, Math.min(this.filtered.length - 1, MAX_VISIBLE - 1));
+	}
+
 	private filterEntries(query: string) {
 		this.filtered = query ? fuzzyFilter(this.allItems, query, (e) => e.text) : this.allItems;
-		// Reset pointer and window to the newest entry
-		this.selectedIndex = 0;
-		// Clamp to 0 when filtered is empty so viewTop is never -1
-		this.viewTop = Math.max(0, Math.min(this.filtered.length - 1, MAX_VISIBLE - 1));
+		this.resetView();
 		this.updateList();
 	}
 
@@ -111,11 +114,6 @@ export class HistorySearchOverlay extends Container {
 		// The window only shifts by 1 when the pointer hits an edge (see updateSelection).
 		const viewBottom = Math.max(0, this.viewTop - MAX_VISIBLE + 1);
 
-		// Scroll indicator at the top when there are older entries hidden above
-		if (this.viewTop < this.filtered.length - 1) {
-			this.listContainer.addChild(new TruncatedText(theme.fg("muted", `  (${this.selectedIndex + 1}/${this.filtered.length})`), 0, 0));
-		}
-
 		// Render from viewTop (top/oldest) down to viewBottom (bottom/newest)
 		for (let i = this.viewTop; i >= viewBottom; i--) {
 			const entry = this.filtered[i]!;
@@ -126,12 +124,6 @@ export class HistorySearchOverlay extends Container {
 				: "  " + firstLine;
 			this.listContainer.addChild(new TruncatedText(line, 0, 0));
 		}
-	}
-
-	override invalidate() {
-		super.invalidate();
-		// Rebuild list so pre-baked theme colours are refreshed
-		this.updateList();
 	}
 
 	handleInput(keyData: string) {

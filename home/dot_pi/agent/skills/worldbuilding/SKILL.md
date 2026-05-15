@@ -1,131 +1,136 @@
 ---
 name: worldbuilding
-description: Manages a structured knowledge base for fictional worlds used in storywriting (characters, locations, factions, items, events, lore, sessions). Each world lives in its own folder as Markdown files with YAML frontmatter, cross-linked by stable IDs, and indexed for fast retrieval. Use whenever the user wants to create/update/query worldbuilding entries, check canon consistency, look up relationships, resolve @id references, or list events on a timeline. This skill manages the knowledge base only — it does not write story prose.
+description: Plain-text canon store for a single fictional world used to ground prose generation. Entries are Markdown files with minimal YAML frontmatter (id, type, name, tags, related, summary), located under `./world/`, indexed in `index.json`. Use whenever the user wants to look up canon (characters, locations, events, lore, anything), add or update entries when iteration changes canon, or list events on a timeline. This skill manages the knowledge base only and does not write prose; pair it with a storywriting skill.
 compatibility: Requires python3 (stdlib only). Plain-text files; git-friendly.
 ---
 
 # Worldbuilding
 
-Structured, git-friendly knowledge base for fictional worlds. Each entry is a Markdown file with YAML frontmatter. Cross-links use stable IDs (e.g. `char-elira`). A deterministic `index.json` enables fast lookup without reading every file.
+## Purpose
 
-**Scope:** This skill manages the world's knowledge base (CRUD, queries, consistency checks, reference expansion). **It does not write narrative prose** — that belongs to a separate storywriting skill, which can consume this one's output.
+A canon store the storywriting agent reads from to generate consistent prose, and writes to when iteration changes canon. The world lives under `./world/`, one Markdown file per entry. `world/index.json` is the cheap-context payload the agent loads first.
+
+This skill does not write prose. It manages the data only.
 
 ## When to use
 
-Trigger this skill whenever the user:
-- Creates/updates/removes a worldbuilding entry
-- Asks about a character, location, faction, item, event, lore topic, or session note
-- Wants to find entries by tag, type, or relation
-- Asks "who is connected to X?" / "what happens in chapter N?" / "is this consistent with canon?"
-- Mentions `@some-id` references that should be expanded
-- Wants to rebuild the index or initialize a new world
+- The user asks anything about an entity in the world (character, place, faction, event, item, lore, custom).
+- The user introduces a new fact, contradiction, or change while drafting; persist it.
+- The user mentions an `@some-id` reference that should be resolved.
+- About to draft prose: load `index.json`, identify relevant entries, read those files in full.
 
 ## Layout
 
-Default location: `./worlds/<world-name>/` in the current working directory. A different parent can be passed with `--path`.
-
 ```
-worlds/<world-name>/
-  world.md              # premise, tone, high-level rules
-  index.json            # auto-generated; committed for diffs
-  characters/<id>.md
+world/
+  world.md            # premise, tone, narrative voice (recommended)
+  index.json          # generated; commit it
+  characters/<id>.md  # convention; any subfolder works
   locations/<id>.md
-  factions/<id>.md
-  items/<id>.md
-  events/<id>.md        # datable/chapter-anchored
-  lore/<id>.md          # magic, religion, cosmology, deities
-  sessions/<id>.md      # chapter/session notes
-  species/<id>.md       # races, creatures, bestiary
-  cultures/<id>.md      # peoples, customs, languages
-  documents/<id>.md     # in-world letters, books, prophecies, inscriptions
+  events/<id>.md
+  ...
 ```
 
-Every entry file is named `<id>.md`. IDs are stable, lowercase-kebab, prefixed by type (`char-`, `loc-`, `fac-`, `item-`, `evt-`, `lore-`, `sess-`, `spec-`, `cult-`, `doc-`).
+The index globs `world/**/*.md`. Folder structure is a human convention, not enforced.
 
 ## Entry format
 
 ```markdown
 ---
-id: char-elira
+id: char-jane-doe
 type: character
-name: Elira Vance
-aliases: ["The Ashborn"]
-tags: [protagonist, mage, northern-kingdom]
-related: [loc-ravenhold, fac-silver-circle]
-summary: Exiled battle-mage hunting the people who burned her village.
-updated: 2026-05-12
-# type-specific fields (e.g. for events: chapter, date)
+name: Jane Doe
+tags: [protagonist, detective]
+related: [loc-precinct-12, char-mark-lin]
+summary: Burned-out detective investigating the case that ended her partner's career.
 ---
 
-# Elira Vance
+# Jane Doe
 
-Free-form prose: backstory, description, notes...
+Free-form prose: backstory, voice, mannerisms, physical description, secrets,
+and anything the agent should know when writing scenes with her.
 ```
 
-- `summary` (1–2 sentences) is what the agent loads from the index when it needs many entries cheaply.
-- `related` uses IDs; the index builds a reverse-link graph.
-- Frontmatter keys are written in stable order for clean git diffs.
+### Required fields
 
-See [references/schema.md](references/schema.md) for per-type fields.
+- `id` (stable, lowercase-kebab, never renamed)
+- `type` (free-form string; convention: `character`, `location`, `faction`, `item`, `event`, `lore`, `species`, `culture`, `document`, or whatever fits)
+- `name`
+- `summary` (1-2 sentences; this is what the agent loads in bulk)
 
-## Usage
+### Optional fields
 
-All operations go through one CLI. Run from the skill directory so relative paths resolve:
+- `tags` (list of strings)
+- `related` (list of IDs; the index builds a reverse-link graph)
+- `chapter` (int) and `date` (string) on `type: event` entries; consumed by `timeline`
+
+Anything else in the frontmatter is preserved but not interpreted. Prefer putting rich detail in the body.
+
+### Frontmatter syntax
+
+Strict subset of YAML, one `key: value` per line:
+- strings (plain or `"quoted"`), integers, `null`/`~`
+- flow lists: `tags: [a, b, "c with comma,"]`
+
+No booleans, no maps, no block style. If you need structured data, write prose in the body.
+
+## Commands
+
+Default world is `./world/`; override with `--world <dir>`.
 
 ```bash
-(cd <skill-dir> && python3 ./scripts/wb.py <command> [args])
+wb.py new --type T --name "<Name>" [--id ID] [--dir DIR] [--tags a,b] [--related id1,id2] [--summary "..."]
+wb.py get <id>
+wb.py find [--type T] [--tag T] [--related ID] [--q "text"]
+wb.py related <id>
+wb.py timeline [--until-chapter N] [--until-date YYYY-MM-DD]
+wb.py index
+wb.py check
 ```
 
-### Commands
+`new` writes to `world/<type>s/<id>.md` by default and rebuilds the index. ID defaults to `<prefix>-<slug-of-name>` using a small built-in prefix table for the conventional types (see DEFAULTS in `wb.py`); pass `--id` to override.
+
+## Agent workflow
+
+### Reading canon (before writing prose)
+
+1. Read `world/index.json` once. It contains every entry's id, type, name, tags, related, summary, plus reverse links. This is the cheap-context payload.
+2. Identify ids relevant to the upcoming scene (by tag, by `related` neighborhood, by name match).
+3. Read those entry files in full with `wb.py get` or by direct file read for depth.
+4. For chapter-anchored stories, run `wb.py timeline --until-chapter N` to see only what has happened by chapter N.
+5. Never invent canon facts. If a needed detail is missing, ask the user.
+
+### Writing canon (during iteration)
+
+1. When the user introduces a new fact, persist it: `wb.py new` for new entities, or edit the file directly for updates.
+2. After any write, run `wb.py index` so the index is current.
+3. Run `wb.py check` after meaningful changes; report any broken references or duplicates.
+4. When draft prose introduces something not in canon (a side character, a place name), ask the user whether to canonize it. Don't silently expand the world.
+5. Suggest a git commit after coherent batches of changes; do not commit automatically.
+
+### Resolving references
+
+When the user writes `@some-id` in a message, resolve it via `wb.py get` (or by globbing `world/**/<id>.md`) before answering. There is no dedicated `expand` command; the agent does this inline.
+
+## Bootstrapping a world
+
+There is no `init` command. To start a new world:
 
 ```bash
-# Create a new world
-wb.py init <world-name> [--path <parent-dir>]
+mkdir world
+cat > world/world.md <<'EOF'
+---
+id: world
+type: lore
+name: <World Name>
+summary: One-line premise.
+---
 
-# Create a new entry (prints the created file path; opens a template)
-wb.py new <world-dir> --type <type> --name "<Display Name>" [--id <id>] [--tags a,b] [--related id1,id2] [--summary "..."]
+# <World Name>
 
-# Read an entry
-wb.py get <world-dir> <id>
-
-# Query entries (prints JSON list of matching {id, type, name, summary, path})
-wb.py find <world-dir> [--type T] [--tag T] [--related ID] [--q "text"]
-
-# Graph neighbors of an entry (incoming + outgoing)
-wb.py related <world-dir> <id>
-
-# Timeline of events (sorted; optionally filtered)
-wb.py timeline <world-dir> [--until-chapter N] [--until-date YYYY-MM-DD]
-
-# Expand @id mentions in a block of text to "Name (id)"
-wb.py expand <world-dir> --text "Elira met @loc-ravenhold..."
-
-# Rebuild index.json (run after manual edits)
-wb.py index <world-dir>
-
-# Validate: broken references, duplicate IDs, missing required fields
-wb.py check <world-dir>
+Premise, tone, narrative voice, anything that shapes prose generation.
+EOF
+python3 wb.py index
 ```
 
-`<world-dir>` can be an absolute path or a world name resolvable under `./worlds/`.
-
-## Agent workflow rules
-
-1. **Before creating an entry**, always run `wb.py find` to check for an existing one (avoid duplicates).
-2. **Before asserting a fact** in conversation, consult `wb.py get` or `find` — do not invent canon. If the user states something new, offer to persist it.
-3. **Consistency check**: when the user adds or changes a fact, run `wb.py check` afterwards and report any broken references.
-4. **After any write** (new/update/delete), run `wb.py index <world-dir>` so the index stays current.
-5. **Timeline awareness**: when the user asks "what does X know at chapter 7?", filter events with `wb.py timeline --until-chapter 7`.
-6. **Expand references**: if the user writes `@some-id` in a message, call `wb.py expand` to resolve them before answering.
-7. **Git**: entries and `index.json` are meant to be committed. After meaningful changes, suggest a commit; do not commit automatically.
-8. **No prose writing**: if the user asks for story prose, reply that this skill only manages the world and suggest invoking a storywriting skill — but still gladly return structured world data it can consume.
-
-## Updating entries
-
-To update an entry, read the file, edit the frontmatter or body directly (standard `edit` tool), then run `wb.py index <world-dir>`. The script does not need to mediate edits — plain-text files are the source of truth.
-
-## Referencing a world to an agent
-
-A world can be "attached" to a conversation by telling the agent its path. The agent then uses that path as `<world-dir>` for every command in the session. Suggested phrasing to the user on first use:
-
-> Tell me the world's path (e.g. `./worlds/mythia`) and I'll use it for the rest of this conversation.
+Then add entries with `wb.py new`.

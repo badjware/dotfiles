@@ -1,59 +1,49 @@
 #!/usr/bin/env python3
-"""Worldbuilding knowledge-base CLI. Stdlib only.
+"""Worldbuilding canon store. Stdlib only.
 
-Entries are Markdown files with YAML-ish frontmatter. A minimal, strict
-frontmatter parser handles only the schema documented in references/schema.md:
-  - string scalars (plain or "quoted")
-  - integer scalars
-  - flow-style lists: [a, b, "c"]
-It does NOT attempt to be a general YAML parser.
+A flat collection of Markdown entries with minimal YAML frontmatter, used to
+ground prose generation. The whole world lives under `./world/` (override
+with --world). Files can sit in any subfolder; the index globs `world/**/*.md`.
+
+Frontmatter is a strict subset of YAML:
+  - one `key: value` per line
+  - values: plain strings, "quoted strings", integers, null/~, flow lists
+  - no booleans, no maps, no block style
 """
 from __future__ import annotations
 
 import argparse
-import datetime as _dt
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Type registry
+# Conventions (defaults only, not enforced)
 # ---------------------------------------------------------------------------
 
-TYPES = {
-    "character": {"dir": "characters", "prefix": "char-"},
-    "location":  {"dir": "locations",  "prefix": "loc-"},
-    "faction":   {"dir": "factions",   "prefix": "fac-"},
-    "item":      {"dir": "items",      "prefix": "item-"},
-    "event":     {"dir": "events",     "prefix": "evt-"},
-    "lore":      {"dir": "lore",       "prefix": "lore-"},
-    "session":   {"dir": "sessions",   "prefix": "sess-"},
-    "species":   {"dir": "species",    "prefix": "spec-"},
-    "culture":   {"dir": "cultures",   "prefix": "cult-"},
-    "document":  {"dir": "documents",  "prefix": "doc-"},
+# Type -> (folder, id-prefix). Used by `new` to pick a sensible default
+# location and ID. Unknown types fall back to (`<type>s`, `<type>`).
+DEFAULTS = {
+    "character": ("characters", "char"),
+    "location":  ("locations",  "loc"),
+    "faction":   ("factions",   "fac"),
+    "item":      ("items",      "item"),
+    "event":     ("events",     "evt"),
+    "lore":      ("lore",       "lore"),
+    "species":   ("species",    "spec"),
+    "culture":   ("cultures",   "cult"),
+    "document":  ("documents",  "doc"),
 }
 
-PREFIX_TO_TYPE = {v["prefix"]: t for t, v in TYPES.items()}
+KEY_ORDER = ["id", "type", "name", "tags", "related", "summary", "chapter", "date"]
+REQUIRED = ("id", "type", "name", "summary")
 
-COMMON_KEY_ORDER = ["id", "type", "name", "aliases", "tags", "related", "summary"]
-TYPE_KEYS = {
-    "character": ["role", "status", "affiliations", "location"],
-    "location":  ["region", "parent"],
-    "faction":   ["allegiance", "leader"],
-    "item":      ["owner", "location"],
-    "event":     ["chapter", "date", "participants", "where"],
-    "lore":      ["category"],
-    "session":   ["chapter", "pov"],
-    "species":   ["habitat", "sapient", "languages"],
-    "culture":   ["region", "languages"],
-    "document":  ["category", "author", "date"],
-}
-TAIL_KEYS = ["updated"]
+DEFAULT_WORLD_DIR = "world"
 
-LIST_FIELDS = {"aliases", "tags", "related", "affiliations", "participants", "languages"}
-INT_FIELDS = {"chapter"}
+
+def _defaults_for(t: str):
+    return DEFAULTS.get(t, (f"{t}s", t))
 
 
 # ---------------------------------------------------------------------------
@@ -88,16 +78,13 @@ def _parse_flow_list(raw: str):
             if ch == quote:
                 in_str = False
         elif ch in ("\"", "'"):
-            in_str = True
-            quote = ch
-            buf.append(ch)
+            in_str = True; quote = ch; buf.append(ch)
         elif ch == ",":
-            items.append("".join(buf))
-            buf = []
+            items.append("".join(buf)); buf = []
         else:
             buf.append(ch)
     items.append("".join(buf))
-    return [_parse_scalar(x) for x in items if x.strip() != ""]
+    return [_parse_scalar(x) for x in items if x.strip()]
 
 
 def parse_frontmatter(text: str):
@@ -110,23 +97,17 @@ def parse_frontmatter(text: str):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         if ":" not in line:
-            raise ValueError(f"frontmatter line {lineno}: missing ':': {line!r}")
+            raise ValueError(f"line {lineno}: missing ':' in {line!r}")
         key, _, val = line.partition(":")
-        key = key.strip()
-        val = val.strip()
-        if val.startswith("["):
-            data[key] = _parse_flow_list(val)
-        else:
-            data[key] = _parse_scalar(val)
+        key = key.strip(); val = val.strip()
+        data[key] = _parse_flow_list(val) if val.startswith("[") else _parse_scalar(val)
     return data, body
 
 
 def _dump_scalar(v):
     if v is None:
         return ""
-    if isinstance(v, bool):
-        return "true" if v else "false"
-    if isinstance(v, int):
+    if isinstance(v, int) and not isinstance(v, bool):
         return str(v)
     s = str(v)
     if s == "" or re.search(r"[:\"'#\[\],]", s) or s.strip() != s:
@@ -139,28 +120,19 @@ def _dump_list(items):
 
 
 def dump_frontmatter(data: dict, body: str) -> str:
-    t = data.get("type")
-    order = list(COMMON_KEY_ORDER)
-    if t in TYPE_KEYS:
-        order += TYPE_KEYS[t]
-    order += TAIL_KEYS
     seen, lines = set(), []
-    for k in order:
-        if k in data and data[k] is not None:
-            seen.add(k)
-            v = data[k]
-            if isinstance(v, list):
-                lines.append(f"{k}: {_dump_list(v)}")
-            else:
-                lines.append(f"{k}: {_dump_scalar(v)}")
-    for k in sorted(data.keys()):
-        if k in seen or data[k] is None:
-            continue
-        v = data[k]
+    def emit(k, v):
         if isinstance(v, list):
             lines.append(f"{k}: {_dump_list(v)}")
         else:
             lines.append(f"{k}: {_dump_scalar(v)}")
+    for k in KEY_ORDER:
+        if k in data and data[k] is not None:
+            seen.add(k); emit(k, data[k])
+    for k in sorted(data):
+        if k in seen or data[k] is None:
+            continue
+        emit(k, data[k])
     body = body.lstrip("\n")
     if not body.endswith("\n"):
         body += "\n"
@@ -168,58 +140,34 @@ def dump_frontmatter(data: dict, body: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Helpers
+# IO helpers
 # ---------------------------------------------------------------------------
 
-def _today():
-    return _dt.date.today().isoformat()
-
-
 def _slugify(s: str) -> str:
-    s = s.strip().lower()
-    s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = re.sub(r"[^a-z0-9]+", "-", s.strip().lower())
     return s.strip("-")
 
 
-def resolve_world_dir(arg: str) -> Path:
-    p = Path(arg).expanduser()
-    if p.is_dir():
-        return p
-    cand = Path.cwd() / "worlds" / arg
-    if cand.is_dir():
-        return cand
-    raise SystemExit(f"world not found: {arg} (also tried {cand})")
+def resolve_world_dir(arg: str | None) -> Path:
+    p = Path(arg or DEFAULT_WORLD_DIR).expanduser()
+    if not p.is_dir():
+        raise SystemExit(f"world not found: {p} (create it with `mkdir {p}`)")
+    return p
 
 
 def iter_entry_files(world: Path):
-    for t, meta in TYPES.items():
-        d = world / meta["dir"]
-        if not d.is_dir():
+    for f in sorted(world.rglob("*.md")):
+        if f.name == "index.json":  # impossible but defensive
             continue
-        for f in sorted(d.glob("*.md")):
-            yield t, f
+        yield f
 
 
 def load_entry(path: Path):
-    text = path.read_text(encoding="utf-8")
-    data, body = parse_frontmatter(text)
-    return data, body
-
-
-def save_entry(path: Path, data: dict, body: str):
-    data["updated"] = _today()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_frontmatter(data, body), encoding="utf-8")
+    return parse_frontmatter(path.read_text(encoding="utf-8"))
 
 
 def find_entry_path(world: Path, entry_id: str) -> Path | None:
-    prefix = entry_id.split("-", 1)[0] + "-"
-    t = PREFIX_TO_TYPE.get(prefix)
-    if t:
-        p = world / TYPES[t]["dir"] / f"{entry_id}.md"
-        if p.exists():
-            return p
-    for _, f in iter_entry_files(world):
+    for f in iter_entry_files(world):
         if f.stem == entry_id:
             return f
     return None
@@ -229,53 +177,24 @@ def find_entry_path(world: Path, entry_id: str) -> Path | None:
 # Commands
 # ---------------------------------------------------------------------------
 
-def cmd_init(args):
-    parent = Path(args.path).expanduser() if args.path else Path.cwd() / "worlds"
-    slug = _slugify(args.name)
-    root = parent / slug
-    if root.exists():
-        raise SystemExit(f"already exists: {root}")
-    root.mkdir(parents=True)
-    for meta in TYPES.values():
-        (root / meta["dir"]).mkdir()
-    (root / "world.md").write_text(dump_frontmatter(
-        {
-            "id": "world",
-            "type": "lore",
-            "name": args.name,
-            "tags": [],
-            "related": [],
-            "summary": f"Top-level notes for the world '{args.name}'.",
-            "category": "overview",
-        },
-        f"# {args.name}\n\nPremise, tone, and high-level rules go here.\n",
-    ), encoding="utf-8")
-    rebuild_index(root)
-    print(str(root))
-
-
 def cmd_new(args):
     world = resolve_world_dir(args.world)
-    if args.type not in TYPES:
-        raise SystemExit(f"unknown type: {args.type}")
-    meta = TYPES[args.type]
-    entry_id = args.id or (meta["prefix"] + _slugify(args.name))
-    if not entry_id.startswith(meta["prefix"]):
-        raise SystemExit(f"id '{entry_id}' must start with '{meta['prefix']}'")
-    path = world / meta["dir"] / f"{entry_id}.md"
+    folder, prefix = _defaults_for(args.type)
+    entry_id = args.id or f"{prefix}-{_slugify(args.name)}"
+    target_dir = Path(args.dir) if args.dir else world / folder
+    target_dir.mkdir(parents=True, exist_ok=True)
+    path = target_dir / f"{entry_id}.md"
     if path.exists():
         raise SystemExit(f"already exists: {path}")
     data = {
         "id": entry_id,
         "type": args.type,
         "name": args.name,
-        "aliases": [],
         "tags": [s.strip() for s in (args.tags or "").split(",") if s.strip()],
         "related": [s.strip() for s in (args.related or "").split(",") if s.strip()],
         "summary": args.summary or "",
     }
-    body = f"# {args.name}\n\n"
-    save_entry(path, data, body)
+    path.write_text(dump_frontmatter(data, f"# {args.name}\n\n"), encoding="utf-8")
     rebuild_index(world)
     print(str(path))
 
@@ -291,109 +210,90 @@ def cmd_get(args):
 def cmd_find(args):
     world = resolve_world_dir(args.world)
     q = (args.q or "").lower()
-    results = []
-    for t, f in iter_entry_files(world):
-        data, body = load_entry(f)
-        if args.type and data.get("type") != args.type:
+    out = []
+    for f in iter_entry_files(world):
+        try:
+            d, body = load_entry(f)
+        except Exception as e:
+            print(f"warn: {f}: {e}", file=sys.stderr); continue
+        if args.type and d.get("type") != args.type:
             continue
-        if args.tag and args.tag not in (data.get("tags") or []):
+        if args.tag and args.tag not in (d.get("tags") or []):
             continue
-        if args.related and args.related not in (data.get("related") or []):
+        if args.related and args.related not in (d.get("related") or []):
             continue
         if q:
             hay = " ".join([
-                str(data.get("name") or ""),
-                str(data.get("summary") or ""),
-                " ".join(data.get("aliases") or []),
-                " ".join(data.get("tags") or []),
+                str(d.get("name") or ""),
+                str(d.get("summary") or ""),
+                " ".join(d.get("tags") or []),
                 body,
             ]).lower()
             if q not in hay:
                 continue
-        results.append({
-            "id": data.get("id"),
-            "type": data.get("type"),
-            "name": data.get("name"),
-            "summary": data.get("summary"),
-            "tags": data.get("tags") or [],
+        out.append({
+            "id": d.get("id"), "type": d.get("type"), "name": d.get("name"),
+            "summary": d.get("summary"), "tags": d.get("tags") or [],
             "path": str(f.relative_to(world)),
         })
-    print(json.dumps(results, indent=2, ensure_ascii=False))
+    print(json.dumps(out, indent=2, ensure_ascii=False))
 
 
 def cmd_related(args):
     world = resolve_world_dir(args.world)
-    target = args.id
-    path = find_entry_path(world, target)
+    path = find_entry_path(world, args.id)
     if not path:
-        raise SystemExit(f"not found: {target}")
+        raise SystemExit(f"not found: {args.id}")
     data, _ = load_entry(path)
     outgoing = data.get("related") or []
     incoming = []
-    for _, f in iter_entry_files(world):
-        d, _b = load_entry(f)
-        if target in (d.get("related") or []):
+    for f in iter_entry_files(world):
+        try:
+            d, _b = load_entry(f)
+        except Exception:
+            continue
+        if args.id in (d.get("related") or []):
             incoming.append(d.get("id"))
 
     def resolve(ids):
-        out = []
+        result = []
         for i in ids:
             p = find_entry_path(world, i)
-            if p:
-                d, _ = load_entry(p)
-                out.append({"id": i, "name": d.get("name"), "type": d.get("type"), "summary": d.get("summary")})
+            if not p:
+                result.append({"id": i, "broken": True})
             else:
-                out.append({"id": i, "name": None, "type": None, "summary": None, "broken": True})
-        return out
+                d, _ = load_entry(p)
+                result.append({"id": i, "name": d.get("name"), "type": d.get("type"), "summary": d.get("summary")})
+        return result
 
     print(json.dumps({
-        "id": target,
+        "id": args.id,
         "outgoing": resolve(outgoing),
-        "incoming": resolve(incoming),
+        "incoming": resolve(sorted(set(incoming))),
     }, indent=2, ensure_ascii=False))
 
 
 def cmd_timeline(args):
     world = resolve_world_dir(args.world)
     events = []
-    for t, f in iter_entry_files(world):
-        if t != "event":
+    for f in iter_entry_files(world):
+        try:
+            d, _ = load_entry(f)
+        except Exception:
             continue
-        d, _ = load_entry(f)
-        ch = d.get("chapter")
-        date = d.get("date")
+        if d.get("type") != "event":
+            continue
+        ch = d.get("chapter"); date = d.get("date")
         if args.until_chapter is not None and isinstance(ch, int) and ch > args.until_chapter:
             continue
         if args.until_date and isinstance(date, str) and date > args.until_date:
             continue
         events.append({
             "id": d.get("id"), "name": d.get("name"),
-            "chapter": ch, "date": date,
-            "summary": d.get("summary"),
+            "chapter": ch, "date": date, "summary": d.get("summary"),
         })
-    events.sort(key=lambda e: (
-        e["chapter"] if isinstance(e["chapter"], int) else 10**9,
-        e["date"] or "",
-    ))
+    events.sort(key=lambda e: (e["chapter"] if isinstance(e["chapter"], int) else 10**9, e["date"] or ""))
     print(json.dumps(events, indent=2, ensure_ascii=False))
-
-
-_MENTION_RE = re.compile(r"@([a-z]+-[a-z0-9-]+)")
-
-
-def cmd_expand(args):
-    world = resolve_world_dir(args.world)
-    text = args.text if args.text is not None else sys.stdin.read()
-
-    def repl(m):
-        i = m.group(1)
-        p = find_entry_path(world, i)
-        if not p:
-            return f"@{i}(?)"
-        d, _ = load_entry(p)
-        return f"{d.get('name')} (@{i})"
-
-    sys.stdout.write(_MENTION_RE.sub(repl, text))
 
 
 def cmd_index(args):
@@ -405,22 +305,16 @@ def cmd_index(args):
 def rebuild_index(world: Path):
     entries = []
     reverse: dict[str, list[str]] = {}
-    for t, f in iter_entry_files(world):
+    for f in iter_entry_files(world):
         try:
             d, _ = load_entry(f)
         except Exception as e:
-            print(f"warn: {f}: {e}", file=sys.stderr)
-            continue
+            print(f"warn: {f}: {e}", file=sys.stderr); continue
         entries.append({
-            "id": d.get("id"),
-            "type": d.get("type"),
-            "name": d.get("name"),
-            "aliases": d.get("aliases") or [],
-            "tags": d.get("tags") or [],
-            "related": d.get("related") or [],
+            "id": d.get("id"), "type": d.get("type"), "name": d.get("name"),
+            "tags": d.get("tags") or [], "related": d.get("related") or [],
             "summary": d.get("summary") or "",
             "path": str(f.relative_to(world)),
-            "updated": d.get("updated"),
         })
         for r in d.get("related") or []:
             reverse.setdefault(r, []).append(d.get("id"))
@@ -428,40 +322,33 @@ def rebuild_index(world: Path):
     for k in reverse:
         reverse[k] = sorted(set(reverse[k]))
     idx = {
-        "generated": _today(),
         "count": len(entries),
         "entries": entries,
         "reverse_links": dict(sorted(reverse.items())),
     }
     (world / "index.json").write_text(
-        json.dumps(idx, indent=2, ensure_ascii=False, sort_keys=False) + "\n",
-        encoding="utf-8",
-    )
+        json.dumps(idx, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def cmd_check(args):
     world = resolve_world_dir(args.world)
-    ids = set()
-    dupes = []
-    issues = []
-    for t, f in iter_entry_files(world):
+    ids = set(); dupes = []; issues = []
+    for f in iter_entry_files(world):
         try:
             d, _ = load_entry(f)
         except Exception as e:
-            issues.append({"file": str(f.relative_to(world)), "error": str(e)})
-            continue
+            issues.append({"file": str(f.relative_to(world)), "error": str(e)}); continue
         eid = d.get("id")
         if not eid:
-            issues.append({"file": str(f.relative_to(world)), "error": "missing id"})
-            continue
+            issues.append({"file": str(f.relative_to(world)), "error": "missing id"}); continue
         if eid in ids:
             dupes.append(eid)
         ids.add(eid)
-        for req in ("type", "name", "summary"):
+        for req in REQUIRED:
             if not d.get(req):
                 issues.append({"id": eid, "error": f"missing required field '{req}'"})
     broken = []
-    for t, f in iter_entry_files(world):
+    for f in iter_entry_files(world):
         try:
             d, _ = load_entry(f)
         except Exception:
@@ -480,59 +367,33 @@ def cmd_check(args):
 # ---------------------------------------------------------------------------
 
 def build_parser():
-    p = argparse.ArgumentParser(prog="wb.py", description="Worldbuilding knowledge-base CLI")
+    p = argparse.ArgumentParser(prog="wb.py", description="Worldbuilding canon store")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    s = sub.add_parser("init", help="create a new world")
-    s.add_argument("name")
-    s.add_argument("--path", help="parent directory (default: ./worlds)")
-    s.set_defaults(func=cmd_init)
+    def w(s):
+        s.add_argument("--world", default=None, help="world directory (default: ./world)")
 
     s = sub.add_parser("new", help="create a new entry")
-    s.add_argument("world")
-    s.add_argument("--type", required=True, choices=list(TYPES.keys()))
+    w(s)
+    s.add_argument("--type", required=True)
     s.add_argument("--name", required=True)
     s.add_argument("--id")
+    s.add_argument("--dir", help="folder for the entry (default: ./world/<type>s/)")
     s.add_argument("--tags")
     s.add_argument("--related")
     s.add_argument("--summary")
     s.set_defaults(func=cmd_new)
 
-    s = sub.add_parser("get", help="print an entry's file contents")
-    s.add_argument("world"); s.add_argument("id")
-    s.set_defaults(func=cmd_get)
-
-    s = sub.add_parser("find", help="query entries")
-    s.add_argument("world")
-    s.add_argument("--type", choices=list(TYPES.keys()))
-    s.add_argument("--tag")
-    s.add_argument("--related")
-    s.add_argument("--q")
+    s = sub.add_parser("get", help="print an entry"); w(s); s.add_argument("id"); s.set_defaults(func=cmd_get)
+    s = sub.add_parser("find", help="query entries"); w(s)
+    s.add_argument("--type"); s.add_argument("--tag"); s.add_argument("--related"); s.add_argument("--q")
     s.set_defaults(func=cmd_find)
-
-    s = sub.add_parser("related", help="graph neighbors of an entry")
-    s.add_argument("world"); s.add_argument("id")
-    s.set_defaults(func=cmd_related)
-
-    s = sub.add_parser("timeline", help="event timeline")
-    s.add_argument("world")
-    s.add_argument("--until-chapter", type=int)
-    s.add_argument("--until-date")
+    s = sub.add_parser("related", help="graph neighbors of an entry"); w(s); s.add_argument("id"); s.set_defaults(func=cmd_related)
+    s = sub.add_parser("timeline", help="event timeline"); w(s)
+    s.add_argument("--until-chapter", type=int); s.add_argument("--until-date")
     s.set_defaults(func=cmd_timeline)
-
-    s = sub.add_parser("expand", help="expand @id mentions in text")
-    s.add_argument("world")
-    s.add_argument("--text")
-    s.set_defaults(func=cmd_expand)
-
-    s = sub.add_parser("index", help="rebuild index.json")
-    s.add_argument("world")
-    s.set_defaults(func=cmd_index)
-
-    s = sub.add_parser("check", help="validate references / duplicates / required fields")
-    s.add_argument("world")
-    s.set_defaults(func=cmd_check)
-
+    s = sub.add_parser("index", help="rebuild index.json"); w(s); s.set_defaults(func=cmd_index)
+    s = sub.add_parser("check", help="validate references / duplicates / required fields"); w(s); s.set_defaults(func=cmd_check)
     return p
 
 

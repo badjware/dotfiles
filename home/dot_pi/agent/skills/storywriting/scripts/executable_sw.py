@@ -147,7 +147,7 @@ def dump_frontmatter(data: dict, body: str) -> str:
 # ---------------------------------------------------------------------------
 
 WORLD_TYPE_DIRS = ["characters", "locations", "factions", "items", "events",
-                   "lore", "sessions", "species", "cultures", "documents"]
+                   "lore", "species", "cultures", "documents"]
 
 
 def find_world_entry(world_dir: Path, entry_id: str):
@@ -745,7 +745,7 @@ def build_parser():
     s.add_argument("name")
     s.add_argument("--path", help="parent directory (default: ./stories)")
     s.add_argument("--world", help="path to a worldbuilding world folder")
-    s.add_argument("--pov", help="default POV character ID (e.g. char-elira-vance)")
+    s.add_argument("--pov", help="default POV character ID (e.g. char-jane-doe)")
     s.add_argument("--tense", choices=["past", "present"])
     s.add_argument("--logline")
     s.set_defaults(func=cmd_init)

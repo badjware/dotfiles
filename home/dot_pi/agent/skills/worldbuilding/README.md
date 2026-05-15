@@ -1,45 +1,25 @@
 # worldbuilding
 
-A pi skill for managing a structured, git-friendly knowledge base for fictional worlds used in storywriting.
+A pi skill that maintains a plain-text canon store for a fictional world. The storywriting skill reads from it to generate consistent prose; this skill never writes prose itself.
 
-Each world is a folder of Markdown files with YAML frontmatter, cross-linked by stable IDs. A deterministic `index.json` enables fast queries without reading every file.
+See [SKILL.md](SKILL.md) for the agent-facing spec.
 
-This skill **does not write prose** — it only manages the world's knowledge base. Pair it with a separate storywriting skill that consumes its output.
-
-See [SKILL.md](SKILL.md) for agent-facing instructions and [references/schema.md](references/schema.md) for the entry schema.
-
-## Quick start (human)
+## Quick start
 
 ```bash
-SKILL=~/.pi/agent/skills/worldbuilding
+WB=~/.pi/agent/skills/worldbuilding/scripts/wb.py
 
-# Create a world (default parent: ./worlds/)
-(cd "$SKILL" && python3 ./scripts/wb.py init "Mythia")
-# -> ./worlds/mythia/
+mkdir world
+python3 "$WB" new --type character --name "Jane Doe" --tags "protagonist,detective" --summary "Burned-out detective."
+python3 "$WB" new --type location  --name "Precinct 12" --summary "Run-down police precinct."
 
-W=./worlds/mythia
-
-# Add entries
-(cd "$SKILL" && python3 ./scripts/wb.py new "$W" --type character --name "Elira Vance" --tags "protagonist,mage" --summary "Exiled battle-mage.")
-(cd "$SKILL" && python3 ./scripts/wb.py new "$W" --type location  --name "Ravenhold"   --summary "Fortress city in the north.")
-
-# Query
-(cd "$SKILL" && python3 ./scripts/wb.py find    "$W" --type character)
-(cd "$SKILL" && python3 ./scripts/wb.py related "$W" char-elira-vance)
-(cd "$SKILL" && python3 ./scripts/wb.py timeline "$W" --until-chapter 5)
-(cd "$SKILL" && python3 ./scripts/wb.py expand  "$W" --text "Meet @char-elira-vance in @loc-ravenhold")
-
-# After manual edits
-(cd "$SKILL" && python3 ./scripts/wb.py index "$W")
-(cd "$SKILL" && python3 ./scripts/wb.py check "$W")
+python3 "$WB" find --type character
+python3 "$WB" related char-jane-doe
+python3 "$WB" timeline --until-chapter 5
+python3 "$WB" check
 ```
 
-## Git
-
-Everything under a world dir is plain text and meant to be committed:
-- One entry per file → clean per-entry diffs.
-- Frontmatter keys written in a stable order → minimal noise.
-- `index.json` is deterministic and committed; rebuild after edits.
+All commands accept `--world <dir>` to point at a non-default location.
 
 ## Requirements
 

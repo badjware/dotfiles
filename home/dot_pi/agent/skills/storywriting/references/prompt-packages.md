@@ -10,11 +10,11 @@ The package is designed so the agent has everything it needs — POV, tense, sty
 {
   "mode": "draft",
   "story": {
-    "title": "The Ashborn",
+    "title": "Cold Case",
     "logline": "...",
     "pov_mode": "limited-third",
     "tense": "past",
-    "pov_default": "char-elira-vance"
+    "pov_default": "char-jane-doe"
   },
   "style_guide": "<contents of STYLE.md, verbatim>",
   "arc_outline": "<contents of outline/arc.md body>",
@@ -23,13 +23,13 @@ The package is designed so the agent has everything it needs — POV, tense, sty
     "id": "sc-ch01-s03",
     "chapter": 1,
     "order": 3,
-    "pov": "char-elira-vance",
+    "pov": "char-jane-doe",
     "pov_mode_effective": "limited-third",
     "tense_effective": "past",
-    "where": "loc-ravenhold",
-    "characters": ["char-elira-vance", "char-guard"],
+    "where": "loc-precinct-12",
+    "characters": ["char-jane-doe", "char-mark-lin"],
     "status": "outline",
-    "summary": "Elira arrives at the gate and is turned away."
+    "summary": "Jane reopens the file at Precinct 12."
   },
   "adjacent": {
     "previous": {"id": "sc-ch01-s02", "summary": "...", "last_paragraph": "..."},
@@ -49,7 +49,7 @@ The package is designed so the agent has everything it needs — POV, tense, sty
     "unresolved @id reference: @loc-unknown in scene summary"
   ],
   "instructions": [
-    "Write in limited-third POV from char-elira-vance.",
+    "Write in limited-third POV from char-jane-doe.",
     "Use past tense.",
     "Match the tone and vocabulary rules in style_guide.",
     "Do not invent canon facts that contradict world_context.",

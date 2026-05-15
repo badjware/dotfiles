@@ -61,11 +61,11 @@ id: sc-ch01-s01
 type: scene
 chapter: 1
 order: 1
-pov: char-elira-vance       # world ID
-where: loc-ravenhold         # world ID
-characters: [char-elira-vance]
+pov: char-jane-doe           # world ID
+where: loc-precinct-12       # world ID
+characters: [char-jane-doe]
 status: outline|draft|revised|final
-summary: Elira arrives at the gate and is turned away.
+summary: Jane reopens the file at Precinct 12.
 word_count: 0
 updated: 2026-05-12
 ```
@@ -125,7 +125,7 @@ sw.py status <story>
 sw.py index <story>
 
 # Resolve @id mentions in text → "Name (@id)"
-sw.py expand <story> --text "Meet @char-elira-vance at @loc-ravenhold"
+sw.py expand <story> --text "Meet @char-jane-doe at @loc-precinct-12"
 ```
 
 `<story>` can be an absolute path or a name resolvable under `./stories/`.

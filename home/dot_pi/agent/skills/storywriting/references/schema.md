@@ -10,13 +10,13 @@ Top-level project file. One per story.
 ---
 id: story
 type: story
-title: The Ashborn
-world: ../../worlds/mythia   # path to a worldbuilding world (relative to story dir)
-pov_default: char-elira-vance
+title: Cold Case
+world: ../../world           # path to a worldbuilding world (relative to story dir)
+pov_default: char-jane-doe
 pov_mode: limited-third      # first | limited-third | omniscient
 tense: past                  # past | present
-logline: "An exiled mage hunts the cabal that burned her village."
-tags: [dark-fantasy]
+logline: "A detective reopens the case that ended her partner's career."
+tags: [crime, contemporary]
 updated: 2026-05-12
 ---
 ```
@@ -33,14 +33,14 @@ id: out-arc           # or out-ch01
 type: outline
 scope: arc            # arc | chapter
 chapter: 1            # only when scope == chapter
-summary: "Act I: Elira is forced out of hiding."
+summary: "Act I: Jane is pulled back onto the case."
 updated: 2026-05-12
 ---
 ```
 
 Body: free-form beats. Conventions (not enforced):
 - Use `-` bullets for beats.
-- Reference world IDs as `@char-elira-vance`, `@loc-ravenhold`.
+- Reference world IDs as `@char-jane-doe`, `@loc-precinct-12`.
 - Mark open questions with `TODO:`.
 
 ## Scene files
@@ -53,11 +53,11 @@ id: sc-ch01-s01
 type: scene
 chapter: 1
 order: 1
-pov: char-elira-vance
-where: loc-ravenhold
-characters: [char-elira-vance]
+pov: char-jane-doe
+where: loc-precinct-12
+characters: [char-jane-doe]
 status: outline          # outline | draft | revised | final
-summary: Elira arrives at the gate and is turned away.
+summary: Jane reopens the file at Precinct 12.
 word_count: 0
 pov_mode_override: null  # optional: override story pov_mode for this scene
 tense_override: null     # optional: override story tense for this scene

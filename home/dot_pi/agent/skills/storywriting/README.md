@@ -12,11 +12,11 @@ See [SKILL.md](SKILL.md) for agent-facing instructions, [references/schema.md](r
 SW=~/.pi/agent/skills/storywriting
 
 # One-time: create a story attached to a world
-(cd "$SW" && python3 ./scripts/sw.py init "The Ashborn" \
-    --world ./worlds/mythia --pov char-elira-vance --tense past \
-    --logline "Exiled mage hunts the cabal that burned her village.")
+(cd "$SW" && python3 ./scripts/sw.py init "Cold Case" \
+    --world ./world --pov char-jane-doe --tense past \
+    --logline "A detective reopens the case that ended her partner's career.")
 
-S=./stories/the-ashborn
+S=./stories/cold-case
 
 # Outline
 (cd "$SW" && python3 ./scripts/sw.py new-outline "$S" --scope arc)
@@ -24,8 +24,8 @@ S=./stories/the-ashborn
 
 # Scenes
 (cd "$SW" && python3 ./scripts/sw.py new-scene "$S" \
-    --chapter 1 --order 1 --pov char-elira-vance --where loc-ravenhold \
-    --summary "Elira arrives at the gate and is turned away.")
+    --chapter 1 --order 1 --pov char-jane-doe --where loc-precinct-12 \
+    --summary "Jane reopens the file at @loc-precinct-12.")
 
 # Let the agent draft it (returns a JSON package it will write against)
 (cd "$SW" && python3 ./scripts/sw.py draft "$S" sc-ch01-s01)
@@ -42,7 +42,7 @@ S=./stories/the-ashborn
 1. **Outlining** — arc + per-chapter beat files.
 2. **Scene drafting** — prompt package with world context + style + adjacent scenes.
 3. **Revision passes** — `revise --goal "..."` produces a package with the existing prose attached.
-4. **Dialogue polishing** — use `revise` with a goal like `"polish @char-brenn's dialogue to sound clipped and military"`.
+4. **Dialogue polishing** — use `revise` with a goal like `"polish @char-mark-lin's dialogue to sound clipped and tired"`.
 5. **Continuity checking** — `continuity` validates every `@id` reference against the attached world.
 6. **Manuscript compilation** — `compile` stitches scenes → `chapters/ch-NN.md` → `manuscript.md` (Markdown only).
 

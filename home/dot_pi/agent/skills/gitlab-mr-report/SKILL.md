@@ -23,14 +23,8 @@ hidden when this happens.
 
 ## Setup
 
-Auth is resolved in this order:
-
-1. `GITLAB_TOKEN` env var (+ optional `GITLAB_HOST`, defaults to `gitlab.com`)
-2. `~/.config/glab-cli/config.yml` if `glab auth login` has been run
-
-The token needs `read_api` scope. Full configuration and token-permission
-details are in [README.md](README.md) — point the user there on any
-auth/setup error.
+Full configuration details are in [README.md](README.md) — point the user there on any
+auth/setup error. Provide the user with a full path to the README.md, but do not read its content.
 
 ## Usage
 
@@ -61,11 +55,11 @@ If it fails with an auth error, tell the user to either:
 
 The script prints a Markdown report to stdout with two sections:
 
-1. **Snapshot** — per-MR table (title, role, approvals, pipeline, conflicts, draft, files, +/-, age). A ✅ appended to the `Role` cell indicates that the *current user* has approved the MR (shown regardless of whether they're formally tagged as a reviewer).
+1. **Snapshot** — per-MR table (title, role, approvals, pipeline, conflicts, draft, files, +/-, age). A ✅ appended to the `Role` cell indicates that the *current user* has approved the MR; a 👍 indicates they gave a thumbs-up reaction without formally approving (shown regardless of whether they're formally tagged as a reviewer).
 2. **🧩 Data (for Focus generation)** — a fenced JSON block with:
    - `stale_days` — the staleness threshold (mirrors the header).
    - `focus` — an object keyed by Focus category name (`merge_ready`,
-     `review_queue`, `authored_conversations_waiting`,
+     `review_queue`, `thumbs_upped`, `authored_conversations_waiting`,
      `reviewing_replies_waiting`, `commented_awaiting_response`,
      `needs_rebase`, `awaiting_approvals`, `candidates_to_close`).
      Each value is a pre-sorted list of `ref` strings (or, for
@@ -76,8 +70,9 @@ The script prints a Markdown report to stdout with two sections:
    - `mrs` — an array of every MR with every `MRRow` field (`ref`, `url`,
      `roles`, `age_days`, `draft`, `conflict`, `pipeline`, `pipeline_bad`,
      `waiting`, `commented_awaiting`, `files`, `added`, `removed`,
-     `approvals_got`, `approvals_required`, `approved_by_me`). Use this
-     only to look up contextual fields for MRs already chosen by `focus`.
+     `approvals_got`, `approvals_required`, `approved_by_me`,
+     `thumbs_upped_by_me`). Use this only to look up contextual fields for
+     MRs already chosen by `focus`.
 
 ## Rendering the Focus section
 

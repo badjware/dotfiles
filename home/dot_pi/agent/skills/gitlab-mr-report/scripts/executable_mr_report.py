@@ -8,9 +8,8 @@ Auth resolution order:
   2. ~/.config/glab-cli/config.yml (token for the configured host)
 
 Host resolution order:
-  1. GITLAB_HOST env var (e.g. "gitlab.example.com")
+  1. GITLAB_HOST env var (e.g. "gitlab.com")
   2. glab config "host"
-  3. "gitlab.com"
 """
 from __future__ import annotations
 
@@ -248,6 +247,7 @@ class MRRow:
     approvals_got: int
     approvals_required: int
     approved_by_me: bool
+    thumbs_upped_by_me: bool
 
     @property
     def pipeline_bad(self) -> bool:
@@ -330,6 +330,19 @@ def _fetch_mr_row(
     except urllib.error.URLError:
         pass
 
+    thumbs_upped_by_me = False
+    try:
+        awards = _api_paged(
+            host, token,
+            f"/projects/{project_id}/merge_requests/{iid}/award_emoji",
+        )
+        thumbs_upped_by_me = any(
+            a.get("name") == "thumbsup" and (a.get("user") or {}).get("id") == my_id
+            for a in awards
+        )
+    except urllib.error.URLError:
+        pass
+
     waiting, commented_awaiting = _count_discussion_threads(host, token, merged, my_id)
 
     return MRRow(
@@ -350,6 +363,7 @@ def _fetch_mr_row(
         approvals_got=approvals_got,
         approvals_required=approvals_required,
         approved_by_me=approved_by_me,
+        thumbs_upped_by_me=thumbs_upped_by_me,
     )
 
 
@@ -401,6 +415,8 @@ def _render_snapshot(rows: list[MRRow]) -> list[str]:
         role_cell = r.role_str or "—"
         if r.approved_by_me:
             role_cell = f"{role_cell} ✅" if r.role_str else "✅"
+        elif r.thumbs_upped_by_me:
+            role_cell = f"{role_cell} 👍" if r.role_str else "👍"
         out.append(
             f"| {_link(r)} | {title} | {'📝' if r.draft else '—'} | {role_cell} | {_approvals_cell(r)} | "
             f"{_pipeline_cell(r)} | {'❌ conflicts' if r.conflict else '✅ clean'} | "
@@ -454,7 +470,15 @@ def build_focus(rows: list[MRRow]) -> dict[str, list]:
         and "author" not in r.roles
         and not r.draft
         and not r.approved_by_me
+        and not r.thumbs_upped_by_me
         and r.commented_awaiting == 0
+    )
+
+    thumbs_upped = refs(
+        lambda r: "reviewer" in r.roles
+        and "author" not in r.roles
+        and r.thumbs_upped_by_me
+        and not r.approved_by_me
     )
 
     authored_conversations_waiting = refs(
@@ -504,6 +528,7 @@ def build_focus(rows: list[MRRow]) -> dict[str, list]:
     return {
         "merge_ready": merge_ready,
         "review_queue": review_queue,
+        "thumbs_upped": thumbs_upped,
         "authored_conversations_waiting": authored_conversations_waiting,
         "reviewing_replies_waiting": reviewing_replies_waiting,
         "commented_awaiting_response": commented_awaiting_response,
@@ -541,6 +566,7 @@ def _render_data_footer(rows: list[MRRow]) -> list[str]:
             "approvals_got": r.approvals_got,
             "approvals_required": r.approvals_required,
             "approved_by_me": r.approved_by_me,
+            "thumbs_upped_by_me": r.thumbs_upped_by_me,
         })
     focus = build_focus(rows)
     return [

@@ -47,13 +47,13 @@ final `## 🎯 Focus` section from the 🧩 Data JSON block the script emits.
   `[ref](url)` link, separated from it by a single space. Do not
   re-emit the same marker later in the bullet's prose. In particular,
   🟠 for `age_days >= stale_days` applies to **every** Focus category
-  that lists an MR where age is relevant (Review queue, Authored
-  conversations waiting, Reviewing replies waiting, Commented awaiting
-  response, Awaiting approvals, Candidates to close) — not just Review
-  queue. If multiple markers apply, concatenate them in that same
-  leading slot with no space between them (e.g. `⭐🟠`). The age value
-  itself may still appear in the trailing context fields as plain text
-  (e.g. `81d old`), but without the emoji.
+  that lists an MR where age is relevant (Review queue, Thumbed up,
+  Conversations waiting on you, Commented awaiting response, Awaiting
+  approvals, Candidates to close) — not just Review queue. If multiple markers
+  apply, concatenate them in that same leading slot with no space
+  between them (e.g. `⭐🟠`). The age value itself may still appear in
+  the trailing context fields as plain text (e.g. `81d old`), but
+  without the emoji.
 
 ## Focus template
 
@@ -70,21 +70,31 @@ Source: `focus.review_queue`. In addition to the global 🟠-stale rule,
 prefix the first 1–2 entries with ⭐ (the script has already sorted by
 quickest wins — fewest files, then smallest total diff). ⭐ is unique
 to this category. The script excludes MRs where your latest unresolved
-comment is awaiting a response; those appear under **Commented — awaiting
-response** instead.
+comment is awaiting a response (those appear under **Commented — awaiting
+response**) and MRs where you have given a 👍 (those appear under
+**Thumbed up**).
 
 Start the rendered subsection with a one-line legend so the meaning of
 the markers is obvious at a glance:
 
 > _⭐ = quickest win (fewest files, smallest diff) · 🟠 = stale (no activity in ≥ `stale_days`)_
 
-### 💬 Authored — conversations waiting on you
-Source: `focus.authored_conversations_waiting`. Include `waiting` as the
-thread count; flag any with `conflict == true`.
+### 👍 Thumbed up (read, not yet approved)
+Source: `focus.thumbs_upped`. MRs where you are a reviewer, have given a
+👍 emoji reaction (signalling you read it but chose not to formally approve
+because you don’t own the project), and have not formally approved. Include
+role, files, +/- diff, and age. These are separated from the Review queue
+so they don’t create noise, but should still be checked occasionally in
+case the MR has been updated since you thumbed it up.
 
-### 💬 Reviewing — replies waiting on you
-Source: `focus.reviewing_replies_waiting`. Include `waiting` as the
-thread count.
+### 💬 Conversations waiting on you
+Merge `focus.authored_conversations_waiting` and
+`focus.reviewing_replies_waiting` into a single list. Deduplicate by
+`ref` (an MR in both lists appears once). Preserve the script's
+ordering: authored entries first (in their original order), then
+reviewing-only entries (in their original order). Include `waiting` as
+the thread count, the role(s) from `mrs[].roles` (e.g. `author`,
+`reviewer`, `author/reviewer`), and flag any with `conflict == true`.
 
 ### 💬 Commented — awaiting response
 Source: `focus.commented_awaiting_response`. Include role and
@@ -93,9 +103,8 @@ author or reviewer.)
 
 **Direction:** in every MR in this category, **you** wrote the last note
 and are waiting for the **other party** to respond or resolve. The
-required action is to follow up with or ping the author/reviewer, **not**
-to reply yourself. Never describe these as threads where someone is
-waiting on you.
+primary action is to follow up with or ping the author/reviewer. Never
+describe these as threads where someone is waiting on you.
 
 ### 🛠 Needs rebase (yours)
 Source: `focus.needs_rebase` (each entry is `{ref, reason}`). Render

@@ -191,8 +191,8 @@ bindsym $mod+Control+Return exec rofi -modes combi -show combi -combi-modes 'win
 #bindsym $mod+Control+p exec rofi-pass
 # rofi-aws-console
 bindsym $mod+Control+a exec rofi -show ' ' -modes ' :~/.local/bin/rofi-aws-console'
-# rofi-open-git-repo-in-code
-bindsym $mod+Control+r exec rofi -show ' ' -modes ' :~/.local/bin/rofi-open-git-repo-in-code'
+# rofi-open-git-repo-in-zed
+bindsym $mod+Control+r exec rofi -show ' ' -modes ' :~/.local/bin/rofi-open-git-repo-in-zed'
 # rofi-open-workspace-in-code
 bindsym $mod+Control+w exec rofi -show ' ' -modes ' :~/.local/bin/rofi-open-workspace-in-code'
 # rofi-bookmarks
@@ -261,7 +261,7 @@ bindsym $mod+delete mode passthrough; floating_modifier none
 
 # switch to workspace
 bindsym $mod+grave scratchpad show
-bindsym $mod+q workspace back_and_forth 
+bindsym $mod+q workspace back_and_forth
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
 bindsym $mod+3 workspace $ws3
@@ -313,7 +313,7 @@ assign {
 
 # reload the configuration file
 bindsym $mod+Shift+r reload
-# exit 
+# exit
 bindsym $mod+Shift+e exec "swaynag -t warning -m 'Do you really want to exit sway?' -b 'Yes, exit sway' 'swaymsg exit'"
 # lock the screen
 bindsym $mod+Pause exec ~/.local/bin/lock

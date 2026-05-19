@@ -6,11 +6,42 @@ import { Type } from "typebox";
 const TIMEOUT_S = Number(process.env.PI_FETCH_TIMEOUT_S || "20");
 const WIDTH = Number(process.env.PI_FETCH_WIDTH || "1024");
 const DEFAULT_MAX_CHARS = Number(process.env.PI_FETCH_DEFAULT_MAX_CHARS || "32000");
+const LONG_LINE_THRESHOLD = Number(process.env.PI_FETCH_LONG_LINE_THRESHOLD || "60");
 
 interface LynxResult {
 	stdout: string;
 	stderr: string;
 	code: number | null;
+}
+
+/**
+ * Strips leading and trailing "chrome" blocks from lynx text output.
+ *
+ * Strategy: split the output into blank-line-separated blocks and remove
+ * any all-short-line blocks at the head and tail of the document.  Blocks
+ * that contain at least one line whose trimmed length meets LONG_LINE_THRESHOLD
+ * are considered content and anchor the kept region.
+ *
+ * Known limitation: very long URLs or legal notices in page footers may
+ * extend the kept region slightly into footer territory — acceptable without
+ * site-specific keyword matching.
+ */
+function stripChrome(text: string): string {
+	const blocks = text.split(/\n\n+/);
+
+	const hasLongLine = (block: string): boolean =>
+		block.split("\n").some((line) => line.trimEnd().length >= LONG_LINE_THRESHOLD);
+
+	let start = 0;
+	while (start < blocks.length && !hasLongLine(blocks[start])) start++;
+
+	let end = blocks.length - 1;
+	while (end > start && !hasLongLine(blocks[end])) end--;
+
+	// No content blocks found — return as-is rather than an empty string.
+	if (start > end) return text;
+
+	return blocks.slice(start, end + 1).join("\n\n");
 }
 
 function runLynx(url: string, includeLinks: boolean, signal?: AbortSignal): Promise<LynxResult> {
@@ -83,6 +114,12 @@ export default function (pi: ExtensionAPI) {
 							"Append the numbered list of page links at the end (default false). Enable when you intend to follow links.",
 					}),
 				),
+				strip_chrome: Type.Optional(
+					Type.Boolean({
+						description:
+							"Remove navigation menus and other short-line boilerplate from the top and bottom of the page (default true). Set to false if the content is unexpectedly truncated or the page layout is unconventional.",
+					}),
+				),
 			}),
 			async execute(_toolCallId, params, signal, onUpdate) {
 				const rawUrl = (params.url || "").trim();
@@ -107,6 +144,7 @@ export default function (pi: ExtensionAPI) {
 				if (!Number.isFinite(maxChars)) maxChars = DEFAULT_MAX_CHARS;
 				maxChars = Math.max(500, Math.min(100000, maxChars));
 				const includeLinks = params.include_links ?? false;
+				const shouldStripChrome = params.strip_chrome ?? true;
 
 				onUpdate?.({ content: [{ type: "text", text: `Fetching URL: ${rawUrl}` }] });
 
@@ -123,11 +161,18 @@ export default function (pi: ExtensionAPI) {
 
 					let text = stdout
 						.replace(/\r\n/g, "\n")
+						// Lynx artifacts: <link>/<a name> rendered as "#word word…" lines
+						.replace(/^\s*#\w[^\n]*/gm, "")
+						// Lynx artifacts: <button> and <input type="checkbox"> markers
 						.replace(/\(BUTTON\) ?/g, "")
+						.replace(/\[ ?[Xx]? ?\]/g, "")
+						// Lynx artifacts: <input type="text"> and <img> with no alt text
 						.replace(/_{4,}/g, "")
+						.replace(/\[INLINE\]|\[IMG\]/g, "")
 						.replace(/^[ \t]+$/gm, "")
 						.replace(/\n{3,}/g, "\n\n")
 						.trim();
+					if (shouldStripChrome) text = stripChrome(text);
 					const originalLength = text.length;
 					const truncated = originalLength > maxChars;
 					if (truncated) text = `${text.slice(0, maxChars - 1).replace(/\s+$/, "")}…`;

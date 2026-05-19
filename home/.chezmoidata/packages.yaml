@@ -103,6 +103,7 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
+      - zeditor
       # - linux-wallpaperengine-git
 
       # pipewire
@@ -229,6 +230,7 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
+      - zed 
 
       # pipewire
       - pavucontrol

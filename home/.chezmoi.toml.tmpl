@@ -1,30 +1,15 @@
-{{- /* prompt for gpg passphrase on first run */ -}}
-{{ $passphrase := promptStringOnce . "passphrase" "passphrase" -}}
-
 {{- /* detect if on laptop or desktop */ -}}
 {{- $chassisType := "desktop" }}
-{{- if eq .chezmoi.os "darwin" }}
-{{-   if contains "MacBook" (output "system_profiler" "SPHardwareDataType") }}
-{{-     $chassisType = "laptop" }}
-{{-   else }}
-{{-     $chassisType = "desktop" }}
-{{-   end }}
-{{- else if eq .chezmoi.os "linux" }}
+{{- if eq .chezmoi.os "linux" }}
 {{-   $chassisType = (output "hostnamectl" "--json=short" | mustFromJson).Chassis }}
 {{- else if eq .chezmoi.os "windows" }}
 {{-   $chassisType = (output "powershell.exe" "-NoProfile" "-NonInteractive" "-Command" "if ((Get-CimInstance -Class Win32_Battery | Measure-Object).Count -gt 0) { Write-Output 'laptop' } else { Write-Output 'desktop' }") | trim }}
 {{- end -}}
 
-encryption = "gpg"
 [data]
-    passphrase = {{ $passphrase | quote }}
     chassisType = {{ $chassisType | quote }}
 {{- if eq .chezmoi.hostname "pallet" }}
     defaultOutput = "DP-2"
 {{- else if eq $chassisType "laptop" }}
     defaultOutput = "eDP-1"
 {{- end }}
-
-[gpg]
-    symmetric = true
-    args = ["--quiet", "--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"]

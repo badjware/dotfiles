@@ -31,11 +31,11 @@ stories/<story-name>/
   STYLE.md              # voice, tone, vocabulary, pacing rules
   outline/
     arc.md              # full-story beats
-    ch-01.md            # per-chapter beats
+    ch01.md             # per-chapter beats
   scenes/
     sc-ch01-s01.md      # one file per scene (frontmatter + prose)
   chapters/
-    ch-01.md            # compiled artifact (regenerated from scenes/)
+    ch01.md             # compiled artifact (regenerated from scenes/)
   manuscript.md         # compiled full book (regenerated)
   notes/
     continuity.md       # running notes

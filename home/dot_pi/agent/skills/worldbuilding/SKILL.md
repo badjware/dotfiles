@@ -110,7 +110,7 @@ wb.py check
 
 ### Resolving references
 
-When the user writes `@some-id` in a message, resolve it via `wb.py get` (or by globbing `world/**/<id>.md`) before answering. There is no dedicated `expand` command; the agent does this inline.
+When the user writes `@some-id` in a message, resolve it via `wb.py get` (or by globbing `world/**/<id>.md`) before answering. `wb.py` itself has no `expand` command; the agent does this inline. (The companion `storywriting` skill exposes its own `sw.py expand` for bulk-expanding mentions inside scene text.)
 
 ## Bootstrapping a world
 

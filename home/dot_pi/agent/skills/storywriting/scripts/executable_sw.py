@@ -146,21 +146,20 @@ def dump_frontmatter(data: dict, body: str) -> str:
 # World helpers (read-only; storywriting never writes to the world)
 # ---------------------------------------------------------------------------
 
-WORLD_TYPE_DIRS = ["characters", "locations", "factions", "items", "events",
-                   "lore", "species", "cultures", "documents"]
-
+# The worldbuilding skill treats folder structure as convention only and
+# globs `world/**/*.md`. Mirror that here: do not assume any specific layout.
 
 def find_world_entry(world_dir: Path, entry_id: str):
     if not world_dir or not world_dir.is_dir():
         return None
-    for d in WORLD_TYPE_DIRS:
-        p = world_dir / d / f"{entry_id}.md"
-        if p.exists():
-            try:
-                data, body = parse_frontmatter(p.read_text(encoding="utf-8"))
-                return {"data": data, "body": body, "path": str(p)}
-            except Exception:
-                return None
+    for p in world_dir.rglob(f"{entry_id}.md"):
+        if p.stem != entry_id:
+            continue
+        try:
+            data, body = parse_frontmatter(p.read_text(encoding="utf-8"))
+            return {"data": data, "body": body, "path": str(p)}
+        except Exception:
+            return None
     return None
 
 
@@ -585,7 +584,7 @@ def cmd_continuity(args):
                 ids.append(cid)
         ids += data.get("characters") or []
         ids += mentions
-        broken, unknown = [], []
+        broken = []
         for i in sorted(set(ids)):
             if not world_dir:
                 continue
@@ -676,13 +675,12 @@ def cmd_index(args):
 
 
 def rebuild_index(story: Path):
+    # Read-only: compute word counts for the index without rewriting scene
+    # files. The frontmatter `word_count` is informational; the index is
+    # authoritative.
     scenes = []
     for f, data, body in iter_scene_files(story):
         wc = word_count(body)
-        # Keep scene's recorded word_count in sync.
-        if data.get("word_count") != wc:
-            data["word_count"] = wc
-            save_file(f, data, body)
         scenes.append({
             "id": data.get("id"),
             "chapter": data.get("chapter"),

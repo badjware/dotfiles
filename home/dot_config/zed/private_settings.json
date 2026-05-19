@@ -1,0 +1,51 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "minimap": {
+    "thumb": "always",
+    "display_in": "active_editor",
+    "show": "auto"
+  },
+  "vim": {
+    "toggle_relative_line_numbers": false
+  },
+  "cli_default_open_behavior": "existing_window",
+  "proxy": "",
+  "collaboration_panel": {
+    "button": false
+  },
+  "ui_font_family": ".SystemUIFont",
+  "buffer_line_height": "comfortable",
+  "auto_update": false,
+  "edit_predictions": {
+    "allow_data_collection": "no",
+    "open_ai_compatible_api": {
+      "model": "",
+      "api_url": ""
+    }
+  },
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "terminal": {
+    "font_family": "Hack Nerd Font",
+    "font_fallbacks": ["monospace"],
+  },
+  "base_keymap": "VSCode",
+  "buffer_font_fallbacks": ["monospace", "Font Awesome 5 Pro"],
+  "buffer_font_family": "Hack",
+  "ui_font_size": 16.0,
+  "buffer_font_size": 14.0,
+  "theme": "One Dark",
+}

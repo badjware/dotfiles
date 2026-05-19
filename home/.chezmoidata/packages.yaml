@@ -230,7 +230,7 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
-      - zed 
+      - zed
 
       # pipewire
       - pavucontrol

@@ -7,6 +7,23 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "debugger": {
+    "dock": "right"
+  },
+  "project_panel": {
+    "dock": "left",
+  },
+  "active_pane_modifiers": {
+    "border_size": 2.0,
+    "inactive_opacity": 0.7,
+  },
+  "agent": {
+    "favorite_models": [],
+    "model_parameters": [],
+    "enable_feedback": false,
+    // disable for now, waiting for pi-acp to be more mature
+    "enabled": false,
+  },
   "context_servers": {},
   "minimap": {
     "thumb": "always",
@@ -14,10 +31,9 @@
     "show": "auto",
   },
   "vim": {
-    "toggle_relative_line_numbers": false,
+    "toggle_relative_line_numbers": true,
   },
   "cli_default_open_behavior": "existing_window",
-  "proxy": "",
   "collaboration_panel": {
     "button": false,
   },

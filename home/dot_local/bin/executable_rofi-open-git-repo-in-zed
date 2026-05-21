@@ -5,7 +5,7 @@ base_directory="$HOME/develop"
 if [ -z "$1" ]; then
     fd --hidden --follow --type d --glob '.git' "$base_directory" -X stat --format="%Y %n" | sort -r | cut -d ' ' -f '2-' | xargs dirname | sed "s|^$base_directory/||"
 else
-    if command -v zeditor; then
+    if command -v zeditor >/dev/null; then
         zeditor "$base_directory/$1"
     else
         zed "$base_directory/$1"

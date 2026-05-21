@@ -103,7 +103,7 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
-      - zeditor
+      - zed
       # - linux-wallpaperengine-git
 
       # pipewire

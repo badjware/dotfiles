@@ -1,7 +1,6 @@
 import { join } from "node:path";
 import { getAgentDir, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { appendHistory, loadHistory, type HistoryEntry } from "./history-store.js";
-import { HistoryEditor } from "./history-editor.js";
 import { HistorySearchOverlay } from "./search-overlay.js";
 
 export default function (pi: ExtensionAPI) {
@@ -9,13 +8,12 @@ export default function (pi: ExtensionAPI) {
 	let history: HistoryEntry[] = [];
 
 	// ── Load history at startup ────────────────────────────────────────────
-	pi.on("session_start", async (_event, ctx) => {
-		history = loadHistory(historyFile);
+	history = loadHistory(historyFile);
 
-		// Install the history-aware editor (re-applied on every session start
-		// so it survives /new, /resume, and /reload)
-		ctx.ui.setEditorComponent((tui, theme, kb) => new HistoryEditor(tui, theme, kb, () => history));
-	});
+	// Refresh history before each Ctrl+R so newly submitted prompts are visible.
+	const refreshHistory = () => {
+		history = loadHistory(historyFile);
+	};
 
 	// ── Capture every submitted prompt ────────────────────────────────────
 	pi.on("input", async (event, _ctx) => {
@@ -29,6 +27,7 @@ export default function (pi: ExtensionAPI) {
 	pi.registerShortcut("ctrl+r", {
 		description: "Search prompt history (Ctrl+R)",
 		handler: async (ctx) => {
+			refreshHistory();
 			if (history.length === 0) {
 				ctx.ui.notify("No history yet", "info");
 				return;

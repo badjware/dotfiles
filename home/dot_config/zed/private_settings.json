@@ -23,6 +23,7 @@
     "enable_feedback": false,
     // disable for now, waiting for pi-acp to be more mature
     "enabled": false,
+    "button": false,
   },
   "context_servers": {},
   "minimap": {

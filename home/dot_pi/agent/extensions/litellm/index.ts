@@ -137,6 +137,7 @@ function discoverReasoning(
   model: LiteLLMModel,
   modelInfo?: Record<string, unknown>,
 ): boolean {
+  if (modelInfo?.engine === "llama.cpp") return true;
   const metadata = asRecord(model.metadata);
   return (
     readBoolean(
@@ -151,6 +152,17 @@ function discoverReasoning(
     ) ?? false
   );
 }
+
+// Maps pi thinking levels to llama.cpp thinking_budget_tokens values.
+// -1 means unlimited (sampler is skipped entirely). "off" is handled
+// separately via enable_thinking: false.
+const LLAMA_CPP_THINKING_BUDGETS: Record<string, number> = {
+  minimal: 512,
+  low: 1024,
+  medium: 2048,
+  high: 4096,
+  xhigh: -1,
+};
 
 function authHeaders(): Record<string, string> {
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};
@@ -247,14 +259,42 @@ function toProviderModel({ model, modelInfo }: DiscoveredLiteLLMModel) {
       ) ?? 64000,
     // maxTokens is not set from model_info — it's a request-level parameter
     // that depends on input size, which we don't know at discovery time.
+    // xhigh requires an explicit thinkingLevelMap entry to appear in the level cycle.
+    ...(modelInfo?.engine === "llama.cpp" ? { thinkingLevelMap: { xhigh: "xhigh" } } : {}),
     compat: {
       supportsStore: false,
       supportsDeveloperRole: false,
       supportsReasoningEffort: false,
       supportsUsageInStreaming: true,
-      // maxTokensField: "max_tokens" as const,
-    },
+      },
   };
+}
+
+function makeStreamOptions(
+  options: Parameters<typeof streamSimpleOpenAICompletions>[2],
+  onPayload?: (params: Record<string, unknown>) => Record<string, unknown>,
+) {
+  return {
+    ...options,
+    // Cloudflare WAF blocks the OpenAI SDK's default User-Agent header.
+    headers: { ...options?.headers, "User-Agent": null as unknown as string },
+    onPayload: onPayload ?? options?.onPayload,
+  };
+}
+
+function injectThinkingParams(params: Record<string, unknown>, level: string): Record<string, unknown> {
+  if (level === "off") {
+    const existing = params.chat_template_kwargs;
+    return {
+      ...params,
+      chat_template_kwargs: {
+        ...(typeof existing === "object" && existing !== null ? existing : {}),
+        enable_thinking: false,
+      },
+    };
+  }
+  const budget = LLAMA_CPP_THINKING_BUDGETS[level] ?? -1;
+  return { ...params, thinking_budget_tokens: budget };
 }
 
 export default async function (pi: ExtensionAPI) {
@@ -268,8 +308,15 @@ export default async function (pi: ExtensionAPI) {
   let discoveredModelCount = 0;
   let lastDiscoveryError: string | undefined;
 
+  // Tracks model IDs served by a llama.cpp backend; rebuilt on each discovery.
+  const llamaCppModelIds = new Set<string>();
   async function registerDiscoveredModels() {
-    const discoveredModels = (await fetchModels()).map(toProviderModel);
+    llamaCppModelIds.clear();
+    const discovered = await fetchModels();
+    for (const { model, modelInfo } of discovered) {
+      if (modelInfo?.engine === "llama.cpp") llamaCppModelIds.add(model.id);
+    }
+    const discoveredModels = discovered.map(toProviderModel);
     discoveredModelCount = discoveredModels.length;
     lastDiscoveryError = undefined;
 
@@ -283,11 +330,10 @@ export default async function (pi: ExtensionAPI) {
         return streamSimpleOpenAICompletions(
           model as Model<"openai-completions">,
           context,
-          {
-            ...options,
-            apiKey: options?.apiKey || authToken || "dummy-api-key",
-            timeoutMs: options?.timeoutMs ?? configuredTimeoutMs,
-          },
+          makeStreamOptions(
+            { ...options, apiKey: options?.apiKey || authToken || "dummy-api-key", timeoutMs: options?.timeoutMs ?? configuredTimeoutMs },
+            llamaCppModelIds.has(model.id) ? (params) => injectThinkingParams(params, pi.getThinkingLevel()) : undefined,
+          ),
         );
       },
     });
@@ -310,11 +356,7 @@ export default async function (pi: ExtensionAPI) {
         return streamSimpleOpenAICompletions(
           model as Model<"openai-completions">,
           context,
-          {
-            ...options,
-            apiKey: options?.apiKey || authToken || "dummy-api-key",
-            timeoutMs: options?.timeoutMs ?? configuredTimeoutMs,
-          },
+          makeStreamOptions({ ...options, apiKey: options?.apiKey || authToken || "dummy-api-key", timeoutMs: options?.timeoutMs ?? configuredTimeoutMs }),
         );
       },
     });

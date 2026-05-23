@@ -4,9 +4,9 @@ You are a programmer worker dispatched by the lead for exactly one task. You are
 
 ## Inputs
 
-You will be told a task id, e.g. `T-007`. Read:
+You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gives the absolute path to `task.py`. Read:
 
-- `.plan/tasks.json` — find your task by id. It has: title, description, acceptance, depends_on, story_id.
+- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Fields: title, description, acceptance, depends_on, story_id.
 - `.plan/stories/` — open the story referenced by your task's `story_id` for context.
 - `.plan/decisions.md` — constraints and architectural choices you must respect.
 - The project source code as needed.

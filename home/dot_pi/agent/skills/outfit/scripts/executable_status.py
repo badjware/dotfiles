@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _state import (  # noqa: E402
-    ID_MILESTONE_RE, PHASES, die, find_plan_dir, read_status, read_tasks, write_status,
+    ID_MILESTONE_RE, PHASE_TRANSITIONS, PHASES, die, find_plan_dir, read_status,
+    read_tasks, write_status,
 )
 
 
@@ -21,9 +21,6 @@ def cmd_show(args: argparse.Namespace) -> int:
     for t in tasks:
         counts[t["status"]] = counts.get(t["status"], 0) + 1
     blocked = [(t["id"], t.get("blocked_reason", "")) for t in tasks if t["status"] == "blocked"]
-    if args.json:
-        print(json.dumps({"status": s, "task_counts": counts, "blocked": blocked}, indent=2))
-        return 0
     print(f"phase:             {s.get('phase')}")
     print(f"current_milestone: {s.get('current_milestone')}")
     print(f"gate_1_approved:   {s.get('gate_1_approved')}")
@@ -33,7 +30,7 @@ def cmd_show(args: argparse.Namespace) -> int:
         for m, st in gates.items():
             print(f"  {m}: {st}")
     print("task counts:")
-    for k in ("todo", "in_progress", "in_review", "in_qa", "done", "blocked"):
+    for k in ("todo", "in_progress", "in_review", "in_qa", "done", "blocked", "cancelled"):
         if k in counts:
             print(f"  {k}: {counts[k]}")
     if blocked:
@@ -48,9 +45,23 @@ def cmd_set_phase(args: argparse.Namespace) -> int:
         die(f"phase must be one of {sorted(PHASES)}: {args.phase!r}")
     plan = find_plan_dir()
     s = read_status(plan)
+    cur = s.get("phase")
+    if args.phase == cur:
+        die(f"phase is already {cur}")
+    allowed = PHASE_TRANSITIONS.get(cur, set())
+    if args.phase not in allowed:
+        # Special-case the most likely confusion: trying to enter execution from planning.
+        if cur == "planning" and args.phase == "execution":
+            die("cannot enter execution from planning via set-phase; use approve-gate-1")
+        die(f"invalid phase transition {cur} -> {args.phase}; allowed: {sorted(allowed) or 'none'}")
     s["phase"] = args.phase
+    note = ""
+    # Returning to discovery means the plan may change; re-require gate 1.
+    if args.phase == "discovery" and s.get("gate_1_approved"):
+        s["gate_1_approved"] = False
+        note = " (gate 1 reset; re-approve before resuming execution)"
     write_status(plan, s)
-    print(f"phase: {args.phase}")
+    print(f"phase: {args.phase}{note}")
     return 0
 
 
@@ -80,8 +91,9 @@ def cmd_approve_gate_1(args: argparse.Namespace) -> int:
     if not tasks:
         die("cannot approve gate 1: no tasks defined")
     s["gate_1_approved"] = True
+    s["phase"] = "execution"  # gate 1 atomically advances phase
     write_status(plan, s)
-    print("gate 1 approved")
+    print("gate 1 approved; phase: execution")
     return 0
 
 
@@ -108,7 +120,6 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p_show = sub.add_parser("show", help="print current status")
-    p_show.add_argument("--json", action="store_true")
     p_show.set_defaults(func=cmd_show)
 
     p_ph = sub.add_parser("set-phase", help="set current phase")

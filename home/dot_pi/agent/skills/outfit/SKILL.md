@@ -20,9 +20,9 @@ Workers never talk to the user. Within `.plan/`, workers write only inside their
 
 1. **Bootstrap.** Ask the user whether this is a new project (greenfield) or a feature in an existing project. Then follow `bootstrap/greenfield.md` or `bootstrap/existing.md`.
 2. **Discovery phase.** Lead acts as product owner: asks the user what they want, why, for whom, what success looks like. Writes user stories to `.plan/stories/`. Forbidden in this phase: writing tasks, decomposing into implementation, touching `tasks.json`.
-3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. **Gate 1 (user approval)**: present the plan, wait for approval before any code is written.
-4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then a reviewer, then a QA worker via `scripts/dispatch.py`. Lead drives task state via `scripts/task.py set-status` based on worker output. **Gate 2 (user approval)**: at the end of every milestone, present a milestone summary and wait for approval before starting the next milestone.
-5. **Re-discovery.** Allowed any time the user introduces new requirements. Lead must declare "entering discovery phase" explicitly before doing PO work again.
+3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. **Gate 1 (user approval)**: present the plan, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution`.
+4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then a reviewer, then a QA worker via `scripts/dispatch.py`. Lead drives task state via `scripts/task.py set-status` based on worker output. Lead may also `update` tasks or set their status to `cancelled` as the project evolves. **Gate 2 (user approval)**: at the end of every milestone, present a milestone summary and wait for approval before starting the next milestone.
+5. **Returning to discovery.** Allowed any time the user introduces new requirements: lead runs `scripts/status.py set-phase discovery` and re-enters discovery mode. Existing stories, plan, and tasks are preserved; the lead updates them as needed. There is no separate "re-discovery" phase, just discovery again.
 
 ## Phase discipline
 
@@ -30,7 +30,7 @@ The lead must declare the current phase at the start of every turn that performs
 
 ## JSON state is script-only
 
-`.plan/tasks.json` and `.plan/status.json` are **never** edited by hand by any agent, including the lead. All reads go through `scripts/task.py get|list` and `scripts/status.py show`; all writes go through `scripts/task.py {add|set-status|block}` and `scripts/status.py {set-phase|set-milestone|approve-gate-1|approve-milestone}`. The scripts enforce structural constraints (id formats, required fields, dependency existence and acyclicity) and the task-status state machine. If a script does not yet exist, the lead must stop and tell the user.
+`.plan/tasks.json` and `.plan/status.json` are **never** edited or read directly by any agent, including the lead and the workers. All reads go through `scripts/task.py {get|list}` and `scripts/status.py show`; all writes go through `scripts/task.py {add|set-status|update}` and `scripts/status.py {set-phase|set-milestone|approve-gate-1|approve-milestone}`. The scripts enforce structural constraints (id formats, required fields, dependency existence and acyclicity), the task-status state machine, and phase transition guards. If a script does not yet exist, the lead must stop and tell the user.
 
 ## Files this skill manages
 
@@ -56,13 +56,3 @@ The lead is the only writer of everything outside `work/`. Workers are the only 
 
 Read `roles/lead.md` for the full lead instructions. Then ask the user: greenfield or existing project? Then follow the matching bootstrap file.
 
-## Reference files
-
-- `roles/lead.md` — full lead instructions, phase rules, dispatch loop
-- `roles/programmer.md` — programmer worker prompt
-- `roles/reviewer.md` — reviewer worker prompt
-- `roles/qa.md` — qa worker prompt
-- `bootstrap/greenfield.md` — new project bootstrap
-- `bootstrap/existing.md` — existing project bootstrap
-- `templates/plan.md` — plan.md template
-- `templates/story.md` — user story template

@@ -4,9 +4,9 @@ You are a code reviewer dispatched by the lead for exactly one task. You run in 
 
 ## Inputs
 
-You will be told a task id. Read:
+You will be told a task id in your dispatch prompt, which also gives the absolute path to `task.py`. Read:
 
-- `.plan/tasks.json` — your task spec, especially `acceptance`.
+- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Pay attention to `acceptance`.
 - `.plan/stories/` — story context for the task.
 - `.plan/decisions.md` — constraints the implementation must respect.
 - `.plan/work/<task-id>/notes.md` — programmer's own notes.

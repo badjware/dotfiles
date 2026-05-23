@@ -63,10 +63,12 @@ def main() -> int:
     if not task_by_id(tasks, args.task_id):
         die(f"unknown task {args.task_id}")
 
-    role_file = skill_dir() / "roles" / f"{args.role}.md"
+    sd = skill_dir()
+    role_file = sd / "roles" / f"{args.role}.md"
     if not role_file.is_file():
         die(f"role file missing: {role_file}")
     role_content = role_file.read_text()
+    task_script = sd / "scripts" / "task.py"
 
     work_dir = plan / "work" / args.task_id
     work_dir.mkdir(parents=True, exist_ok=True)
@@ -82,10 +84,14 @@ def main() -> int:
     prompt = (
         f"Task: {args.task_id}.\n"
         f"You are a {args.role} worker. Your role specification is in your system prompt.\n"
-        f"State directory: .plan/\n"
-        f"- Read .plan/tasks.json for your task spec (id {args.task_id}).\n"
-        f"- Read .plan/stories/ for story context.\n"
-        f"- Read .plan/decisions.md for project constraints.\n"
+        f"State directory: .plan/ (in your cwd).\n"
+        f"\n"
+        f"Get your task spec by running:\n"
+        f"  {task_script} get {args.task_id}\n"
+        f"Also read for context:\n"
+        f"  .plan/stories/  (the story referenced by your task's story_id)\n"
+        f"  .plan/decisions.md  (project constraints)\n"
+        f"\n"
         f"Your scratch directory (the only place you write inside .plan/): "
         f".plan/work/{args.task_id}/\n"
         f"Write status.md last with one of: done | blocked | needs-changes.\n"
@@ -97,7 +103,6 @@ def main() -> int:
         "pi", "-p",
         "--append-system-prompt", role_content,
         "--session-dir", str(session_dir),
-        "-t", "read,write,edit,bash",
         prompt,
     ]
 

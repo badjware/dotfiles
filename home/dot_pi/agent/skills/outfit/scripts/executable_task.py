@@ -10,8 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _state import (  # noqa: E402
     ID_MILESTONE_RE, ID_STORY_RE, ID_TASK_RE, TASK_STATUSES, TASK_TRANSITIONS,
-    check_acyclic, die, find_plan_dir, next_task_id, read_tasks, task_by_id,
-    validate_task_shape, write_tasks,
+    TERMINAL_STATUSES, check_acyclic, die, find_plan_dir, next_task_id,
+    read_tasks, task_by_id, validate_task_shape, write_tasks,
 )
 
 
@@ -72,15 +72,14 @@ def cmd_list(args: argparse.Namespace) -> int:
     plan = find_plan_dir()
     data = read_tasks(plan)
     tasks = data["tasks"]
+    if not args.include_cancelled:
+        tasks = [t for t in tasks if t["status"] != "cancelled"]
     if args.status:
         tasks = [t for t in tasks if t["status"] == args.status]
     if args.status_not:
         tasks = [t for t in tasks if t["status"] != args.status_not]
     if args.milestone:
         tasks = [t for t in tasks if t["milestone"] == args.milestone]
-    if args.json:
-        print(json.dumps(tasks, indent=2))
-        return 0
     if not tasks:
         print("(no tasks)")
         return 0
@@ -121,14 +120,64 @@ def cmd_set_status(args: argparse.Namespace) -> int:
         t["blocked_reason"] = args.reason
     elif "blocked_reason" in t and new_status != "blocked":
         del t["blocked_reason"]
+    if new_status == "cancelled":
+        if not args.reason:
+            die("--reason required when setting status to cancelled")
+        t["cancelled_reason"] = args.reason
     write_tasks(plan, data)
     print(f"{args.id}: {cur} -> {new_status}")
     return 0
 
 
-def cmd_block(args: argparse.Namespace) -> int:
-    args.status = "blocked"
-    return cmd_set_status(args)
+def cmd_update(args: argparse.Namespace) -> int:
+    plan = find_plan_dir()
+    data = read_tasks(plan)
+    tasks = data["tasks"]
+    t = task_by_id(tasks, args.id)
+    if not t:
+        die(f"no task {args.id}")
+    if t["status"] in TERMINAL_STATUSES:
+        die(f"cannot update {args.id}: status is {t['status']} (terminal)")
+
+    changed = []
+    if args.title is not None:
+        t["title"] = args.title
+        changed.append("title")
+    if args.description is not None:
+        t["description"] = args.description
+        changed.append("description")
+    if args.milestone is not None:
+        if not ID_MILESTONE_RE.match(args.milestone):
+            die(f"--milestone must match M\\d+: {args.milestone!r}")
+        t["milestone"] = args.milestone
+        changed.append("milestone")
+    if args.acceptance is not None:
+        if not args.acceptance:
+            die("--acceptance requires at least one value")
+        for a in args.acceptance:
+            if not a:
+                die("acceptance criterion must be non-empty")
+        t["acceptance"] = list(args.acceptance)
+        changed.append("acceptance")
+    if args.depends is not None:
+        for d in args.depends:
+            if not ID_TASK_RE.match(d):
+                die(f"--depends must match T-\\d{{3,}}: {d!r}")
+            if not task_by_id(tasks, d):
+                die(f"--depends references unknown task {d}")
+            if d == t["id"]:
+                die("task cannot depend on itself")
+        t["depends_on"] = list(args.depends)
+        changed.append("depends")
+
+    if not changed:
+        die("no fields to update; pass at least one of --title/--description/--milestone/--acceptance/--depends")
+
+    validate_task_shape(t)
+    check_acyclic(tasks)
+    write_tasks(plan, data)
+    print(f"{args.id}: updated ({', '.join(changed)})")
+    return 0
 
 
 def main() -> int:
@@ -154,7 +203,8 @@ def main() -> int:
     p_list.add_argument("--status", help="filter by status")
     p_list.add_argument("--status-not", help="exclude this status")
     p_list.add_argument("--milestone", help="filter by milestone")
-    p_list.add_argument("--json", action="store_true", help="full JSON output")
+    p_list.add_argument("--include-cancelled", action="store_true",
+                        help="include cancelled tasks (excluded by default)")
     p_list.set_defaults(func=cmd_list)
 
     p_set = sub.add_parser("set-status", help="transition a task to a new status")
@@ -163,10 +213,16 @@ def main() -> int:
     p_set.add_argument("--reason", help="required when transitioning to blocked")
     p_set.set_defaults(func=cmd_set_status)
 
-    p_blk = sub.add_parser("block", help="shortcut for set-status <id> blocked --reason ...")
-    p_blk.add_argument("id")
-    p_blk.add_argument("--reason", required=True)
-    p_blk.set_defaults(func=cmd_block)
+    p_upd = sub.add_parser("update", help="update an in-flight task's editable fields")
+    p_upd.add_argument("id")
+    p_upd.add_argument("--title")
+    p_upd.add_argument("--description")
+    p_upd.add_argument("--milestone")
+    p_upd.add_argument("--acceptance", action="append",
+                       help="replace acceptance list (repeatable; pass each criterion as a separate --acceptance)")
+    p_upd.add_argument("--depends", action="append",
+                       help="replace depends_on list (repeatable; omit to leave unchanged)")
+    p_upd.set_defaults(func=cmd_update)
 
     args = ap.parse_args()
     return args.func(args)

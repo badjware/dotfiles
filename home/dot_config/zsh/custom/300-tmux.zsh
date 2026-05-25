@@ -1,1 +1,0 @@
-export ZSH_TMUX_FIXTERM_WITH_256COLOR=true

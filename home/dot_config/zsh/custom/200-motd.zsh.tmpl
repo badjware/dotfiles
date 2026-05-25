@@ -35,8 +35,9 @@ unset -f get_hostname_color
 
 export MOTD_SERVICES="$MOTD_SERVICES {{ join " " .units.system }}"
 
-# print motd
-if [[ ! "$TERM" =~ '^screen|tmux' ]]; then
+# print motd: outside tmux always, inside tmux only on the first pane of the first window
+if [[ -z "$TMUX" ]] \
+    || [[ "$(tmux display-message -p '#{window_index}.#{pane_index}')" == "1.1" ]]; then
     ZSH_THEME_HOSTNAME_COLOR="$ZSH_THEME_HOSTNAME_COLOR" motd
 fi
 

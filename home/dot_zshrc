@@ -54,7 +54,7 @@ zstyle ':omz:alpha:lib:git' async-prompt no
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git fzf fzf-tab tmux sudo colored-man-pages fast-syntax-highlighting zsh-autosuggestions)
+plugins=(git fzf fzf-tab sudo colored-man-pages fast-syntax-highlighting zsh-autosuggestions)
 
 # https://github.com/zsh-users/zsh-completions?tab=readme-ov-file#oh-my-zsh
 fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src

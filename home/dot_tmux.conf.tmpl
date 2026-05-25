@@ -13,6 +13,10 @@ bind r source-file ~/.tmux.conf \; display-message 'Config reloaded...'
 # Escape delay is anoying in vim
 set -s escape-time 0
 
+# True color
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",*256col*:RGB"
+
 # Mouse
 set -g mouse on
 
@@ -28,34 +32,32 @@ set -g base-index 1
 # Pane
 setw -g pane-base-index 1
 setw -g allow-rename off
-set -g pane-border-style fg='colour7'
-set -g pane-active-border-style fg='colour5'
+set -g pane-border-style fg='{{ template "color-hex" "tertiary" }}'
+set -g pane-active-border-style fg='{{ template "color-hex" "primary" }}'
 
 # Status bar
 set -g status-position top
-set -g status-bg 'default'
+set -g status-style 'bg=default,fg={{ template "color-hex" "on_background" }}'
+set -g status-justify left
 
-setw -g window-status-style fg='colour7'
-setw -g window-status-format ' #I:#W'
-setw -g window-status-current-style fg='colour15'
-setw -g window-status-current-format ' [#I:#W]'
+# Windows: inactive plain on_background, active = primary pill (matches waybar focused workspace)
+setw -g window-status-style fg='{{ template "color-hex" "on_background" }}'
+setw -g window-status-format ' #I:#W '
+setw -g window-status-current-style fg='{{ template "color-hex" "on_primary" }}',bg='{{ template "color-hex" "primary" }}',bold
+setw -g window-status-current-format ' #I:#W '
+setw -g window-status-activity-style fg='{{ template "color-hex" "error" }}',bold
 
-setw -g window-status-activity-style bold
+# Left: empty (window list pinned to left)
+set -g status-left ''
 
-set -g status-left-style fg='colour7'
-set -g status-left '{#[fg=colour6]#S#[fg=colour7]}'
-
-set -g status-right-length 100
-set -g status-right-style fg='colour7'
-set -g status-right '#U@#H'
+# Right: session name styled like waybar #mode (secondary fg, tertiary separator)
+set -g status-right-length 60
+set -g status-right-style fg='{{ template "color-hex" "secondary" }}'
+set -g status-right '#[fg={{ template "color-hex" "error" }},bold]#{?client_prefix,● ,}#[fg={{ template "color-hex" "secondary" }},bold]#S '
 
 # Plugins
 # Resurect pane content
 set -g @resurrect-capture-pane-contents 'on'
-
-# Also resurect the vim session
-set -g @resurrect-strategy-vim 'session' # for vim
-set -g @resurrect-strategy-nvim 'session' # for neovim
 # additional process to restore
 set -g @resurrect-processes 'ssh watch'
 
@@ -68,11 +70,9 @@ set -g @continuum-save-interval '5'
 # List of plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
-set -g @plugin 'soyuka/tmux-current-pane-hostname'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-#set -g @plugin 'git@github.com:badjware/tmux-continuum.git'
 
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 # prefix + I : install

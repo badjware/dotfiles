@@ -91,7 +91,6 @@ Plug 'tpope/vim-endwise'
 "Plug'chrisbra/unicode.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 "Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-obsession'
 
 " Linting / Completion
 Plug 'w0rp/ale'
@@ -123,9 +122,6 @@ hi Normal ctermbg=NONE
 highlight Comment cterm=italic
 set t_ZH=[3m
 set t_ZR=[23m
-
-" Auto-start Obsession so tmux-resurrect can restore the session
-autocmd VimEnter * nested if empty(v:this_session) | Obsession | endif
 
 " CoC
 " tab/shift-tab to navigate completion, enter to confirm

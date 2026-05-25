@@ -30,8 +30,13 @@ set updatetime=500
 " Case insensitive when all lowercase
 set ignorecase
 set smartcase
-" Clipboard
-"set clipboard^=unnamed,unnamedplus
+" Clipboard: yanks go to system clipboard, deletes do not
+augroup YankToClipboard
+    autocmd!
+    autocmd TextYankPost * if v:event.operator ==# 'y' |
+        \ call setreg('+', v:event.regcontents, v:event.regtype) |
+        \ endif
+augroup END
 
 " Remap arrow keys
 noremap <Up> <NOP>
@@ -90,15 +95,7 @@ Plug 'tpope/vim-obsession'
 
 " Linting / Completion
 Plug 'w0rp/ale'
-Plug 'ervandew/supertab'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
 Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
 Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
@@ -127,13 +124,36 @@ highlight Comment cterm=italic
 set t_ZH=[3m
 set t_ZR=[23m
 
-" deoplete
-"let g:deoplete#enable_at_startup = 1
+" Auto-start Obsession so tmux-resurrect can restore the session
+autocmd VimEnter * nested if empty(v:this_session) | Obsession | endif
 
-" supertab
-let g:SuperTabDefaultCompletionType = "<c-n>"
+" CoC
+" tab/shift-tab to navigate completion, enter to confirm
+inoremap <silent><expr> <Tab>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<C-g>u\<CR>"
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" navigation and code actions
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nnoremap <silent> K :call CocActionAsync('doHover')<CR>
+nmap <leader>rn <Plug>(coc-rename)
+nmap <leader>ca <Plug>(coc-codeaction-cursor)
 
 " ALE
+" linting/fixing only, let coc handle LSP
+let g:ale_disable_lsp = 1
 let g:ale_sign_error = ''
 let g:ale_sign_warning = ''
 highlight ALEErrorSign ctermfg=Red
@@ -247,4 +267,3 @@ function! s:MaybeUpdateLightline()
         call lightline#update()
     end
 endfunction
-

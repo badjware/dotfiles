@@ -42,11 +42,12 @@ setw -g allow-rename off
 set -g pane-border-style fg='{{ template "color-hex" "on_surface_variant" }}'
 set -g pane-active-border-style fg='{{ template "color-hex" "primary" }},bold'
 
-# Per-pane title bars: match the window-name styling in the status bar.
+# Empty top border bar to visually separate panes from the status bar.
 # Hidden when there's only one pane in the window.
 set -g pane-border-status off
-set -g pane-border-format '#{?pane_active,#[fg={{ template "color-hex" "on_primary" }}#,bg={{ template "color-hex" "primary" }}#,bold],#[fg={{ template "color-hex" "on_background" }}]} #P:#{pane_current_command} '
+set -g pane-border-format ''
 set-hook -g window-layout-changed 'if -F "#{==:#{window_panes},1}" "set -w pane-border-status off" "set -w pane-border-status top"'
+
 
 # Status bar
 set -g status-position top

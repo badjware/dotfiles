@@ -76,7 +76,13 @@ No booleans, no maps, no block style. If you need structured data, write prose i
 
 ## Commands
 
-Default world is `./world/`; override with `--world <dir>`.
+Run the script **from the user's project root** (the current working directory), using an absolute path to the script. Do **not** `cd` into the skill directory.
+
+```bash
+python3 <skill-dir>/scripts/wb.py <command> [args]
+```
+
+Default world is `./world/` (resolved against the current working directory); override with `--world <dir>`.
 
 ```bash
 wb.py new --type T --name "<Name>" [--id ID] [--dir DIR] [--tags a,b] [--related id1,id2] [--summary "..."]
@@ -130,7 +136,7 @@ summary: One-line premise.
 
 Premise, tone, narrative voice, anything that shapes prose generation.
 EOF
-python3 wb.py index
+python3 <skill-dir>/scripts/wb.py index
 ```
 
-Then add entries with `wb.py new`.
+Then add entries with `wb.py new`. All commands are run from the project root, e.g. `python3 <skill-dir>/scripts/wb.py index`.

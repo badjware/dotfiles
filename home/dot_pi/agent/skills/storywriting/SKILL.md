@@ -88,11 +88,13 @@ After writing, the agent saves prose into the scene file body and updates `statu
 
 ## Usage
 
-All operations go through one CLI. Run from the skill directory:
+All operations go through one CLI. Run it **from the user's project root** (the current working directory), using an absolute path to the script:
 
 ```bash
-(cd <skill-dir> && python3 ./scripts/sw.py <command> [args])
+python3 <skill-dir>/scripts/sw.py <command> [args]
 ```
+
+Do **not** `cd` into the skill directory. `<story>` and the default `./stories/` parent are resolved against the current working directory.
 
 ### Commands
 
@@ -133,15 +135,17 @@ sw.py expand <story> --text "Meet @char-jane-doe at @loc-precinct-12"
 ## Agent workflow rules
 
 1. **Attach on first use**: if no story path has been named, ask the user for one (or offer `sw.py init`).
-2. **Outline-before-draft (soft)**: `draft` warns if no chapter outline exists but still produces a package. Surface the warning to the user and offer to create an outline first.
-3. **Always load the prompt package**: do not write prose from memory. Call `sw.py draft` (or `revise`) and write strictly against the returned package.
-4. **POV discipline**: the package specifies POV character, POV mode, and tense — obey them. If the user asks to break them for a single scene, overwrite that scene's frontmatter (`pov`, `pov_mode_override`) first.
-5. **Canon respect**: if the prompt package's `warnings` includes broken `@id` references or missing world, stop and confirm with the user before inventing facts. Invented names go into `notes/todo.md`, then optionally to the worldbuilding skill.
-6. **Save prose into the scene file body**, keep frontmatter intact, then run `sw.py index` to refresh word counts and index.
-7. **Continuity pass**: after drafting, run `sw.py continuity` and surface any broken or unknown `@id`s.
-8. **Compile is write-only on artifacts**: never edit `chapters/*.md` or `manuscript.md` by hand — regenerate with `sw.py compile`.
-9. **Git**: suggest commits at meaningful milestones (outline done, scene drafted, chapter compiled); never commit automatically.
-10. **Hand-off, don't overreach**: if a scene introduces new named entities (a character, a place, a faction), list them in the response and suggest invoking the `worldbuilding` skill to persist them. Do not edit the world from this skill.
+2. **Plan, don't pounce**: when the user asks for a story or scene, the default first response is a proposal (premise, arc beats, or scene spec) and a request for confirmation. Drafting prose is opt-in, never the first action. Do not call `sw.py draft` until the user has explicitly approved an outline or scene spec.
+3. **Outline gate (hard)**: before calling `sw.py draft` for a scene, verify (a) an arc outline exists, (b) the relevant chapter outline exists, (c) the scene's frontmatter (summary, POV, where, characters) has been shown to the user and approved. If any is missing, stop and resolve it first. The CLI's `warnings` are not enough: the agent must enforce this gate itself.
+4. **Always load the prompt package**: do not write prose from memory. Call `sw.py draft` (or `revise`) and write strictly against the returned package.
+5. **POV discipline**: the package specifies POV character, POV mode, and tense — obey them. If the user asks to break them for a single scene, overwrite that scene's frontmatter (`pov`, `pov_mode_override`) first.
+6. **Canon respect**: if the prompt package's `warnings` includes broken `@id` references or missing world, stop and confirm with the user before inventing facts.
+7. **One-off by default**: assume the story is a one-off unless `story.md` has a `world:` path set **and** the user has indicated entities should persist beyond this story. Invented names go into `notes/todo.md`. Do **not** suggest invoking the `worldbuilding` skill, do not propose `wb.py new`, and do not edit the world.
+8. **Persisting to a world (only when attached)**: if a world is attached and a newly-invented named entity recurs across scenes or the user signals it matters beyond this story, mention it once and ask whether to persist it via the `worldbuilding` skill. Otherwise stay silent. Never edit the world from this skill.
+9. **Save prose into the scene file body**, keep frontmatter intact, then run `sw.py index` to refresh word counts and index.
+10. **Continuity pass**: after drafting, run `sw.py continuity` and surface any broken or unknown `@id`s.
+11. **Compile is write-only on artifacts**: never edit `chapters/*.md` or `manuscript.md` by hand — regenerate with `sw.py compile`.
+12. **Git**: suggest commits at meaningful milestones (outline done, scene drafted, chapter compiled); never commit automatically.
 
 ## Style guide
 

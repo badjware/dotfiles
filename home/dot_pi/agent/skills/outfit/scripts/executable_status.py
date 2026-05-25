@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _state import (  # noqa: E402
-    ID_MILESTONE_RE, PHASE_TRANSITIONS, PHASES, die, find_plan_dir, read_status,
-    read_tasks, write_status,
+    GitError, ID_MILESTONE_RE, PHASE_TRANSITIONS, PHASES, die, find_plan_dir,
+    git_commit_all, read_status, read_tasks, write_status,
 )
 
 
@@ -93,6 +93,13 @@ def cmd_approve_gate_1(args: argparse.Namespace) -> int:
     s["gate_1_approved"] = True
     s["phase"] = "execution"  # gate 1 atomically advances phase
     write_status(plan, s)
+    try:
+        git_commit_all(plan.parent, "outfit: plan approved (gate 1)")
+    except GitError as e:
+        s["gate_1_approved"] = False
+        s["phase"] = "planning"
+        write_status(plan, s)
+        die(f"commit failed (state reverted): {e}")
     print("gate 1 approved; phase: execution")
     return 0
 
@@ -109,8 +116,19 @@ def cmd_approve_milestone(args: argparse.Namespace) -> int:
     not_done = [t["id"] for t in ms_tasks if t["status"] != "done"]
     if not_done:
         die(f"cannot approve {args.milestone}: tasks not done: {not_done}")
-    s.setdefault("milestone_gates", {})[args.milestone] = "approved"
+    gates = s.setdefault("milestone_gates", {})
+    prior = gates.get(args.milestone)
+    gates[args.milestone] = "approved"
     write_status(plan, s)
+    try:
+        git_commit_all(plan.parent, f"outfit: milestone {args.milestone} approved")
+    except GitError as e:
+        if prior is None:
+            del gates[args.milestone]
+        else:
+            gates[args.milestone] = prior
+        write_status(plan, s)
+        die(f"commit failed (state reverted): {e}")
     print(f"milestone {args.milestone}: approved")
     return 0
 

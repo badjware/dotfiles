@@ -5,23 +5,23 @@ description: Runs a structured, multi-agent software project under a single user
 
 # Outfit
 
-A small mixed-role agent team under one lead. The user only ever talks to the lead. The lead orchestrates everyone else through files in `.plan/` and through the helper scripts under `scripts/`.
+A small mixed-role agent team under one lead. The user only ever talks to the lead. The lead orchestrates everyone else through files in `.plan/`, through the helper scripts under `scripts/`, and through git commits at named events.
 
 ## Roles
 
-- **lead** (this session, interactive): only user-facing agent. Runs discovery, planning, and execution phases. Sole writer of shared state (`plan.md`, `tasks.json`, `status.json`, `stories/`, `decisions.md`).
-- **programmer** (non-interactive worker): implements one task, writes to `.plan/work/<task-id>/` and to project source code.
-- **reviewer** (non-interactive worker, fresh context): reviews one completed task.
+- **lead** (this session, interactive): only user-facing agent. Runs discovery, planning, and execution phases. Sole writer of shared state (`plan.md`, `tasks.json`, `status.json`, `stories/`, `decisions.md`) and sole committer.
+- **programmer** (non-interactive worker): implements one task, writes to `.plan/work/<task-id>/` and to project source code. Does not commit.
+- **reviewer** (non-interactive worker, fresh context): reviews one completed task using `git diff` against the dispatch baseline.
 - **qa** (non-interactive worker, fresh context): writes and runs acceptance checks for one task.
 
 Workers never talk to the user. Within `.plan/`, workers write only inside their own `work/<task-id>/` directory. Source code writes elsewhere in the project are unrestricted (subject to per-role scope rules).
 
 ## Workflow
 
-1. **Bootstrap.** Ask the user whether this is a new project (greenfield) or a feature in an existing project. Then follow `bootstrap/greenfield.md` or `bootstrap/existing.md`.
+1. **Bootstrap.** Run `scripts/detect-project.py` to classify the cwd as `greenfield`, `existing`, or `in-progress`. State the result and signals to the user, get confirmation, then follow `bootstrap/greenfield.md` or `bootstrap/existing.md` (the latter also covers resuming an `in-progress` run). `plan-init.py` ensures the project is a git repo (running `git init` if needed) and refuses to start if an existing repo has a dirty working tree.
 2. **Discovery phase.** Lead acts as product owner: asks the user what they want, why, for whom, what success looks like. Writes user stories to `.plan/stories/`. Forbidden in this phase: writing tasks, decomposing into implementation, touching `tasks.json`.
-3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. **Gate 1 (user approval)**: present the plan, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution`.
-4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then a reviewer, then a QA worker via `scripts/dispatch.py`. Lead drives task state via `scripts/task.py set-status` based on worker output. Lead may also `update` tasks or set their status to `cancelled` as the project evolves. **Gate 2 (user approval)**: at the end of every milestone, present a milestone summary and wait for approval before starting the next milestone.
+3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. Lead also records technology and constraint decisions in `decisions.md`, flagging any that require user input (credentials, library choices, deployment targets, etc.) so they can be resolved before execution. **Gate 1 (user approval)**: present the plan and pending user-input items, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution` **and commits the plan**.
+4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then a reviewer, then a QA worker via `scripts/dispatch.py`. Lead drives task state via `scripts/task.py set-status` based on worker output. `set-status <id> done` auto-commits the task. Lead may also `update` tasks or set their status to `cancelled` as the project evolves. **Gate 2 (user approval)**: at the end of every milestone, lead aggregates minor issues left over from per-task reviews and presents them with the milestone summary; user decides which to schedule as cleanup. Approval auto-commits the milestone.
 5. **Returning to discovery.** Allowed any time the user introduces new requirements: lead runs `scripts/status.py set-phase discovery` and re-enters discovery mode. Existing stories, plan, and tasks are preserved; the lead updates them as needed. There is no separate "re-discovery" phase, just discovery again.
 
 ## Phase discipline
@@ -31,6 +31,12 @@ The lead must declare the current phase at the start of every turn that performs
 ## JSON state is script-only
 
 `.plan/tasks.json` and `.plan/status.json` are **never** edited or read directly by any agent, including the lead and the workers. All reads go through `scripts/task.py {get|list}` and `scripts/status.py show`; all writes go through `scripts/task.py {add|set-status|update}` and `scripts/status.py {set-phase|set-milestone|approve-gate-1|approve-milestone}`. The scripts enforce structural constraints (id formats, required fields, dependency existence and acyclicity), the task-status state machine, and phase transition guards. If a script does not yet exist, the lead must stop and tell the user.
+
+## Git is required
+
+The project lives in a git repo (created by `plan-init.py` if needed). The lead is the only committer and commits at named events (gate 1 approval, each task done, each milestone approval) via auto-commits triggered from `status.py` and `task.py`. Failed commits are fatal and revert the corresponding state change. Workers do not commit; their changes accumulate in the working tree until the lead commits the task.
+
+Reviewers and QA workers see what changed via `git diff <baseline-sha>`, where the baseline is the project HEAD at dispatch time (recorded in `.plan/work/<task-id>/baseline-<role>.sha`).
 
 ## Files this skill manages
 
@@ -43,11 +49,16 @@ The lead must declare the current phase at the start of every turn that performs
 ├── status.json          # lead-owned: current phase, milestone, gate status
 ├── decisions.md         # lead-owned: key decisions log (append-only)
 └── work/
-    └── T-007/           # worker-owned scratch per task
-        ├── notes.md     # programmer scratch
-        ├── review.md    # reviewer output
-        ├── qa.md        # qa output
-        └── status.md    # worker-reported status: done | blocked | needs-changes
+    └── T-007/                  # worker-owned scratch per task
+        ├── notes.md            # programmer scratch
+        ├── review.md           # reviewer output
+        ├── qa.md               # qa output
+        ├── status-programmer.md  # done | blocked | needs-changes
+        ├── status-reviewer.md
+        ├── status-qa.md
+        ├── baseline-<role>.sha   # git HEAD at dispatch time, per role
+        ├── worker.log            # full transcript (gitignored)
+        └── session-*/            # pi session per dispatch (gitignored)
 ```
 
 The lead is the only writer of everything outside `work/`. Workers are the only writers inside `work/<their-task-id>/`.

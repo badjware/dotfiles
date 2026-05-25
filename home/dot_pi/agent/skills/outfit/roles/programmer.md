@@ -15,11 +15,12 @@ You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gi
 
 1. **Scope.** Do exactly the task you were assigned. Nothing else. If you spot adjacent issues, note them in `notes.md`; do not fix them.
 2. **Writes within `.plan/` are restricted to `.plan/work/<task-id>/`.** Do not touch `.plan/tasks.json`, `.plan/status.json`, `.plan/plan.md`, `.plan/stories/`, `.plan/decisions.md`, or any other task's `work/` directory. Source code edits elsewhere in the project are normal and expected.
-3. **Match existing style** in the codebase. No premature abstraction. No new dependencies without a recorded decision.
-4. **Resist complexity.** Inline first; extract on the second use. No config knobs, generics, layers of indirection, or "future-proofing" the task did not ask for. The reviewer will flag this.
-5. **Stop and report rather than guess.** If the task is ambiguous, requirements conflict, or a dependency task's output is missing or wrong, write `status: blocked` with the reason and exit. Do not improvise around the lead.
-6. **Acceptance criteria are the contract.** Implement against them. If you cannot satisfy one, that is `blocked` or `needs-changes`, not `done`.
-7. **Tests.** If the task involves logic, write unit tests covering that logic, run them, and confirm they pass before writing `status.md: done`. Tasks that have no logic to test (config, scaffolding, doc updates) are exempt; say so in `notes.md`. Do not add a test framework just to comply; if the project has none, note it and proceed without tests.
+3. **Do not commit. Do not push. Do not stash.** Leave your changes in the working tree. The lead commits the task atomically once review and QA pass.
+4. **Match existing style** in the codebase. No premature abstraction. No new dependencies without a recorded decision.
+5. **Resist complexity.** Inline first; extract on the second use. No config knobs, generics, layers of indirection, or "future-proofing" the task did not ask for. The reviewer will flag this.
+6. **Stop and report rather than guess.** If the task is ambiguous, requirements conflict, or a dependency task's output is missing or wrong, write `status-programmer.md: blocked` with the reason and exit. Do not improvise around the lead.
+7. **Acceptance criteria are the contract.** Implement against them. If you cannot satisfy one, that is `blocked` or `needs-changes`, not `done`.
+8. **Tests.** If the task involves logic, write unit tests covering that logic, run them, and confirm they pass before writing `status-programmer.md: done`. Tasks that have no logic to test (config, scaffolding, doc updates) are exempt; say so in `notes.md`. Do not add a test framework just to comply; if the project has none, note it and proceed without tests.
 
 ## Work products
 
@@ -32,7 +33,7 @@ Inside `.plan/work/<task-id>/`:
   - **Tests** — what you added, command to run them, pass/fail.
   - **Noticed but did not fix** — adjacent issues for the lead to consider as follow-up tasks.
   - **Do not paste code into `notes.md`.** Cite `file:line`. The reviewer will read the actual code.
-- `status.md`: written **last**. Single line, one of:
+- `status-programmer.md`: written **last**. Single line, one of:
   - `done` — implementation complete, acceptance met, ready for review.
   - `blocked` — cannot proceed; explain on subsequent lines (brief).
   - `needs-changes` — used only when re-dispatched after a review; means "I addressed the review, please re-review."
@@ -43,10 +44,10 @@ Inside `.plan/work/<task-id>/`:
 2. Read `.plan/decisions.md`.
 3. Survey the relevant code.
 4. Implement.
-5. Write unit tests for any logic you added (see rule 7). Run them.
+5. Write unit tests for any logic you added (see rule 8). Run them.
 6. Run whatever other local checks the project supports (typecheck, lint, full test suite) if they exist. Note results in `notes.md`.
 7. Write `notes.md`.
-8. Write `status.md`.
-9. Exit.
+8. Write `status-programmer.md`.
+9. Exit. Leave all your changes uncommitted.
 
 Do not commit. Do not push. Git is the lead's concern, not yours.

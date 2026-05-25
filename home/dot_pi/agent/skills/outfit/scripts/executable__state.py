@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -26,7 +27,7 @@ TASK_TRANSITIONS: dict[str, set[str]] = {
 PHASES = {"discovery", "planning", "execution"}
 # Phase transition guards. `execution` is reachable only via approve-gate-1, not set-phase.
 # `discovery` is reachable from any phase: it is also the way to revisit requirements
-# mid-project (what was previously called "re-discovery").
+# mid-project.
 PHASE_TRANSITIONS: dict[str, set[str]] = {
     "discovery": {"planning"},
     "planning": {"discovery"},
@@ -173,3 +174,51 @@ def next_task_id(tasks: list[dict]) -> str:
 def skill_dir() -> Path:
     """Return the outfit skill directory (parent of scripts/)."""
     return Path(__file__).resolve().parent.parent
+
+
+# --- git helpers ---
+
+class GitError(Exception):
+    pass
+
+
+def git_run(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", *args], cwd=cwd,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, check=False,
+    )
+
+
+def git_is_repo(path: Path) -> bool:
+    r = git_run(["rev-parse", "--is-inside-work-tree"], path)
+    return r.returncode == 0 and r.stdout.strip() == "true"
+
+
+def git_head_sha(repo_root: Path) -> str | None:
+    r = git_run(["rev-parse", "HEAD"], repo_root)
+    if r.returncode != 0:
+        return None  # no commits yet
+    return r.stdout.strip()
+
+
+def git_working_tree_dirty(repo_root: Path) -> bool:
+    """True if working tree has uncommitted changes (only meaningful if HEAD exists)."""
+    r = git_run(["status", "--porcelain"], repo_root)
+    if r.returncode != 0:
+        raise GitError(f"git status failed: {r.stderr.strip()}")
+    return bool(r.stdout.strip())
+
+
+def git_commit_all(repo_root: Path, message: str) -> None:
+    """Stage all and commit with `message`. Raises GitError on failure or empty commit."""
+    r = git_run(["add", "-A"], repo_root)
+    if r.returncode != 0:
+        raise GitError(f"git add failed: {r.stderr.strip()}")
+    # nothing to commit?
+    r = git_run(["diff", "--cached", "--quiet"], repo_root)
+    if r.returncode == 0:
+        raise GitError("nothing to commit (no staged changes)")
+    r = git_run(["commit", "-m", message], repo_root)
+    if r.returncode != 0:
+        raise GitError(f"git commit failed: {r.stderr.strip() or r.stdout.strip()}")

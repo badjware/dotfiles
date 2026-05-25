@@ -9,10 +9,19 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _state import (  # noqa: E402
-    ID_MILESTONE_RE, ID_STORY_RE, ID_TASK_RE, TASK_STATUSES, TASK_TRANSITIONS,
-    TERMINAL_STATUSES, check_acyclic, die, find_plan_dir, next_task_id,
-    read_tasks, task_by_id, validate_task_shape, write_tasks,
+    GitError, ID_MILESTONE_RE, ID_STORY_RE, ID_TASK_RE, TASK_STATUSES,
+    TASK_TRANSITIONS, TERMINAL_STATUSES, check_acyclic, die, find_plan_dir,
+    git_commit_all, next_task_id, read_tasks, task_by_id, validate_task_shape,
+    write_tasks,
 )
+
+# When transitioning into an active state, the status file for that role is stale
+# from any prior round and must be cleared so dispatch produces a fresh result.
+ROLE_FOR_STATUS = {
+    "in_progress": "programmer",
+    "in_review": "reviewer",
+    "in_qa": "qa",
+}
 
 
 def cmd_add(args: argparse.Namespace) -> int:
@@ -113,18 +122,36 @@ def cmd_set_status(args: argparse.Namespace) -> int:
             dep = task_by_id(data["tasks"], d)
             if dep and dep["status"] != "done":
                 die(f"cannot start {args.id}: dependency {d} is {dep['status']}, not done")
+    if new_status == "blocked" and not args.reason:
+        die("--reason required when setting status to blocked")
+    if new_status == "cancelled" and not args.reason:
+        die("--reason required when setting status to cancelled")
+
     t["status"] = new_status
     if new_status == "blocked":
-        if not args.reason:
-            die("--reason required when setting status to blocked")
         t["blocked_reason"] = args.reason
     elif "blocked_reason" in t and new_status != "blocked":
         del t["blocked_reason"]
     if new_status == "cancelled":
-        if not args.reason:
-            die("--reason required when setting status to cancelled")
         t["cancelled_reason"] = args.reason
     write_tasks(plan, data)
+
+    # Clear the now-stale status file for the role matching the new active state,
+    # so dispatch produces a fresh result for this round.
+    if new_status in ROLE_FOR_STATUS:
+        sf = plan / "work" / args.id / f"status-{ROLE_FOR_STATUS[new_status]}.md"
+        if sf.exists():
+            sf.unlink()
+
+    # On transition to done, auto-commit. Failure is fatal: revert the state change.
+    if new_status == "done":
+        try:
+            git_commit_all(plan.parent, f"outfit: {args.id} {t['title']}")
+        except GitError as e:
+            t["status"] = cur
+            write_tasks(plan, data)
+            die(f"commit failed (state reverted to {cur}): {e}")
+
     print(f"{args.id}: {cur} -> {new_status}")
     return 0
 

@@ -1,0 +1,10 @@
+[
+  {
+    "context": "Terminal",
+    "bindings": {
+      "shift-enter": ["terminal::SendText", "\u001b[13;2u"],
+      "ctrl-enter": ["terminal::SendText", "\u001b[13;5u"],
+      "alt-enter": ["terminal::SendText", "\u001b[13;3u"]
+    }
+  }
+]

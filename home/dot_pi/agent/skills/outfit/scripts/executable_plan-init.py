@@ -74,6 +74,12 @@ def main() -> int:
         "# Decisions\n\n<!-- Append-only log of project decisions. Newest at the bottom. -->\n"
     )
 
+    (plan / "codebase.md").write_text(
+        "# Codebase map\n\n"
+        "<!-- Maintained by the programmer worker. Key modules, patterns, non-obvious conventions.\n"
+        "     Keep under 150 lines. Prune stale entries before adding new ones. -->\n"
+    )
+
     atomic_write_json(plan / "tasks.json", {"tasks": []})
     atomic_write_json(plan / "status.json", {
         "phase": "discovery",

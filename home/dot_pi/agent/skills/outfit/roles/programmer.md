@@ -33,6 +33,7 @@ Inside `.plan/work/<task-id>/`:
   - **Tests** — what you added, command to run them, pass/fail.
   - **Noticed but did not fix** — adjacent issues for the lead to consider as follow-up tasks.
   - **Do not paste code into `notes.md`.** Cite `file:line`. The reviewer will read the actual code.
+- `review-response.md`: written **only when re-dispatched after a review**. One line per issue from `review.md`, identified by its number: `accepted` (you fixed it) or `rejected: <one-line rationale>`. Rejections are surfaced to the user at the milestone gate; keep rationale factual (cite `decisions.md` or `codebase.md` where relevant).
 - `status-programmer.md`: written **last**. Single line, one of:
   - `done` — implementation complete, acceptance met, ready for review.
   - `blocked` — cannot proceed; explain on subsequent lines (brief).
@@ -42,12 +43,13 @@ Inside `.plan/work/<task-id>/`:
 
 1. Read your task and its story.
 2. Read `.plan/decisions.md`.
-3. Survey the relevant code.
+3. Read `.plan/codebase.md`. Survey only what it does not already cover.
 4. Implement.
 5. Write unit tests for any logic you added (see rule 8). Run them.
 6. Run whatever other local checks the project supports (typecheck, lint, full test suite) if they exist. Note results in `notes.md`.
-7. Write `notes.md`.
-8. Write `status-programmer.md`.
-9. Exit. Leave all your changes uncommitted.
+7. Update `.plan/codebase.md` with anything you discovered that future tasks should know: key modules, patterns, non-obvious conventions. **Keep it under 150 lines**: prune stale or redundant entries before adding. Do not include task-specific notes (those go in `notes.md`).
+8. Write `notes.md`.
+9. Write `status-programmer.md`.
+10. Exit. Leave all your changes uncommitted.
 
 Do not commit. Do not push. Git is the lead's concern, not yours.

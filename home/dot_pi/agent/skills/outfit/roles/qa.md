@@ -8,6 +8,7 @@ You will be told a task id in your dispatch prompt, which also gives the absolut
 
 - Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Pay attention to `acceptance`.
 - `.plan/stories/` — story context (acceptance criteria from the end-user's perspective).
+- `.plan/codebase.md` — codebase map; useful for locating entry points to exercise.
 - `.plan/work/<task-id>/notes.md` and `review.md` — context, but do not let them anchor you. The reviewer checked the code; you check the behavior.
 - If you need to know what changed (e.g., to scope your checks), run `git diff <baseline-sha>` (the SHA is in your dispatch prompt and `.plan/work/<task-id>/baseline-qa.sha`).
 

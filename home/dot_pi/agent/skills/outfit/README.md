@@ -16,11 +16,11 @@ pi
 > /skill:outfit
 ```
 
-The lead detects whether the directory is greenfield, an existing project, or an in-progress outfit run, asks you to confirm, then walks you through:
+The lead detects whether the directory is greenfield, an existing project, or an in-progress outfit run. For existing and in-progress projects it proceeds directly; for greenfield it asks you to confirm before initializing a new git repo. It then walks you through:
 
 1. **Discovery**: lead asks what you want and writes user stories to `.plan/stories/`.
 2. **Planning**: lead decomposes stories into tasks, records technology decisions, flags items that need your input. **Gate 1**: you approve the plan before any code is written.
-3. **Execution**: for each task, the lead dispatches a programmer, then a reviewer, then a QA worker. State transitions and commits are automatic. **Gate 2+**: at the end of every milestone, the lead presents a summary plus accumulated minor issues from per-task reviews.
+3. **Execution**: for each task, the lead dispatches a programmer → reviewer → QA worker. Reviewers return `done` (minor issues logged) or `needs-changes` (blocker/major only); on `needs-changes` the programmer is re-dispatched once and may reject issues it disagrees with. State transitions and commits are automatic. **Gate 2+**: at the end of every milestone, the lead presents a summary with accumulated minor issues and any programmer rejections; you decide which to schedule as cleanup tasks.
 
 You only ever talk to the lead. Workers run as separate non-interactive `pi` processes and write their findings to files; the lead reads them and decides what to do next.
 
@@ -64,17 +64,19 @@ Outfit creates and manages `.plan/` in the project:
 ├── tasks.json           # structured task state (managed by scripts/task.py)
 ├── status.json          # phase, milestone, gate approvals
 ├── decisions.md         # append-only decisions log
+├── codebase.md          # programmer-maintained codebase map (≤150 lines)
 └── work/
     └── T-007/
-        ├── notes.md            # programmer's notes
-        ├── review.md           # reviewer's findings
-        ├── qa.md               # QA's results
+        ├── notes.md              # programmer's notes
+        ├── review.md             # reviewer's findings
+        ├── review-response.md    # programmer's accepted/rejected per issue (on rework)
+        ├── qa.md                 # QA's results
         ├── status-programmer.md  # done | blocked | needs-changes
         ├── status-reviewer.md
         ├── status-qa.md
-        ├── baseline-<role>.sha # git HEAD at dispatch
-        ├── worker.log          # full transcript (gitignored)
-        └── session-*/          # pi sessions per dispatch (gitignored)
+        ├── baseline-<role>.sha   # git HEAD at dispatch
+        ├── worker.log            # full transcript (gitignored)
+        └── session-*/            # pi sessions per dispatch (gitignored)
 ```
 
 Worker logs and session directories are excluded by an outfit-managed block in `.gitignore`. The curated artifacts (`notes.md`, `review.md`, `qa.md`, status files, baselines) are committed and serve as the project's audit trail.

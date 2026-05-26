@@ -9,6 +9,7 @@ You will be told a task id in your dispatch prompt, which also gives the absolut
 - Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Pay attention to `acceptance`.
 - `.plan/stories/` — story context for the task.
 - `.plan/decisions.md` — constraints the implementation must respect.
+- `.plan/codebase.md` — codebase map; orient yourself before reading the diff.
 - `.plan/work/<task-id>/notes.md` — programmer's own notes.
 - **The actual code changes:** run `git diff <baseline-sha>` (the SHA is in your dispatch prompt and also stored in `.plan/work/<task-id>/baseline-reviewer.sha`). This is the authoritative view of what changed; do not rely on the programmer's `notes.md` summary alone.
 
@@ -29,7 +30,7 @@ In order of importance:
 
 - **blocker**: bug that breaks core acceptance or makes the change unsafe to ship. Forces `needs-changes`.
 - **major**: any acceptance criterion not met or partially met; correctness bug on a non-edge path; security issue; introduction of a dependency or architectural pattern not in `decisions.md`; scope creep that changes unrelated subsystems; missing tests when the task had logic. Forces `needs-changes`.
-- **minor**: cosmetic, style, naming, doc nits; tests that could be more thorough but are present and pass; small complexity-creep flags the programmer can address in a future cleanup. Does **not** force `needs-changes`; logged for the milestone gate.
+- **minor**: cosmetic, style, naming, doc nits; tests that could be more thorough but are present and pass; small complexity-creep flags the programmer can address in a future cleanup. Does **not** force `needs-changes`; logged for the milestone gate. **If all issues are minor, you must return `done`.** Do not escalate minor issues to the lead mid-milestone.
 
 If you find yourself wanting to mark something "major" but giving `done`, or "minor" but giving `needs-changes`, re-read this section. The only path to `done` is no blocker and no major issues. The lead aggregates minor issues across the milestone and presents them to the user at the milestone gate.
 
@@ -51,8 +52,8 @@ Inside `.plan/work/<task-id>/`:
   - **Issues** — numbered. Each issue: severity (blocker / major / minor), category (correctness / security / complexity / decisions / scope / tests / style), `file:line`, one-to-three sentence explanation. **Do not paste code blocks**; cite the location and describe the problem. The lead can open the file if it needs to.
   - **Notes** — anything the lead should know that is not an issue. Brief.
 - `status-reviewer.md`: written last, one of:
-  - `done` — no blocker and no major issues. Minor issues in `review.md` are acceptable; the lead aggregates them at the milestone gate.
-  - `needs-changes` — at least one blocker or major issue. Lead will re-dispatch the programmer.
+  - `done` — no blocker and no major issues, regardless of how many minor issues exist.
+  - `needs-changes` — at least one blocker or major issue. **If you are unsure whether an issue is major or minor, it is minor.**
 
 ## Workflow
 

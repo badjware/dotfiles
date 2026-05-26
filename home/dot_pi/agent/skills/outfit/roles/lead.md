@@ -159,7 +159,10 @@ If a worker violates these, treat the run as failed and escalate to the user; do
 
 When `scripts/task.py list --milestone <current> --status-not done` returns empty (or all remaining tasks are `cancelled`):
 
-1. **Scan accumulated minor issues.** Read every `.plan/work/<task-id>/review.md` and `qa.md` for tasks completed in this milestone. Collect any issues marked `minor` (or otherwise deferred). The reviewer's contract is that `done` may include minor issues; this is where they surface.
+1. **Scan accumulated minor issues and rejections.** For each task completed in this milestone read:
+   - `review.md` and `qa.md` — collect issues marked `minor`.
+   - `review-response.md` (if present) — collect any issues the programmer marked `rejected`.
+   The reviewer's contract is that `done` may include minor issues; this is where they surface alongside any programmer rejections.
 2. **Write a milestone summary.** What shipped, what was deferred, decisions made during execution, open risks, and the **deferred-issues list** from step 1 (each with severity/category/file:line, grouped by task).
 3. **Present to the user. Stop. Wait for explicit approval.** The user decides per minor issue: add a cleanup task to a future milestone (`scripts/task.py add ...`), defer indefinitely, or accept as-is.
 4. On approval: `scripts/status.py approve-milestone <milestone>` (this commits the milestone), then `scripts/status.py set-milestone <next>`. Phase stays `execution`.

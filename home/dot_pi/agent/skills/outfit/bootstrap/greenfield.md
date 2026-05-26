@@ -4,7 +4,7 @@ Use when `scripts/detect-project.py` reports `kind: greenfield`, or the user has
 
 ## Detection
 
-Run `scripts/detect-project.py`. It reports one of `greenfield`, `existing`, or `in-progress`, with the signals that drove the decision. **Always state the detection result to the user and ask them to confirm** before following a bootstrap file. If the user disagrees, follow the bootstrap they ask for.
+Run `scripts/detect-project.py`. If the result is `greenfield`, **confirm with the user before proceeding** — this is the point of no return for `git init`. If the user says this is actually an existing project, switch to `bootstrap/existing.md`.
 
 ## Steps
 

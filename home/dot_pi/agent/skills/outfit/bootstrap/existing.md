@@ -4,7 +4,7 @@ Use when `scripts/detect-project.py` reports `kind: existing`, or the user has c
 
 ## Detection
 
-Run `scripts/detect-project.py`. It reports one of `greenfield`, `existing`, or `in-progress`. **Always state the detection result and signals to the user and ask them to confirm** before proceeding. If `kind: in-progress`, see "Resuming a prior outfit run" below.
+Run `scripts/detect-project.py`. For `existing` or `in-progress`, proceed without prompting. If the result is unexpectedly `greenfield`, confirm with the user before switching to `bootstrap/greenfield.md`. For `in-progress`, see "Resuming a prior outfit run" below.
 
 ## Steps
 

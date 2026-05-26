@@ -99,6 +99,7 @@ def main() -> int:
         f"Also read for context:\n"
         f"  .plan/stories/  (the story referenced by your task's story_id)\n"
         f"  .plan/decisions.md  (project constraints)\n"
+        f"  .plan/codebase.md  (accumulated codebase map; read before surveying source)\n"
         f"\n"
         f"Your scratch directory (the only place you write inside .plan/): "
         f".plan/work/{args.task_id}/\n"

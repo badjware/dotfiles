@@ -14,7 +14,7 @@
 family = "Hack Nerd Font"
 
 [window]
-opacity = 0.95
+opacity = 0.97
 
 # Emit CSI u sequences for modified Enter so they survive tmux + reach apps like pi.
 [[keyboard.bindings]]

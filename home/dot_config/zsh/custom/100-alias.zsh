@@ -10,8 +10,10 @@ alias http-server="python -m http.server"
 alias rename="perl-rename"
 alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
-alias pibox="/home/marchambault/develop/github.com/badjware/pibox/launch.sh"
-alias claudebox="/home/marchambault/develop/github.com/badjware/pibox/launch.sh --harness claude"
+
+fpath=(~/develop/github.com/badjware/pibox/completions $fpath)
+alias pibox="~/develop/github.com/badjware/pibox/launch.sh"
+alias claudebox="~/develop/github.com/badjware/pibox/launch.sh --harness claude"
 
 # ls
 alias ls='lsd --group-dirs=first'

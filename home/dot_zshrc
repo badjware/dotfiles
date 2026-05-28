@@ -58,7 +58,6 @@ plugins=(git fzf fzf-tab sudo colored-man-pages fast-syntax-highlighting zsh-aut
 
 # https://github.com/zsh-users/zsh-completions?tab=readme-ov-file#oh-my-zsh
 fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
-autoload -U compinit && compinit
 
 source $ZSH/oh-my-zsh.sh
 
@@ -90,3 +89,5 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+autoload -U compinit && compinit

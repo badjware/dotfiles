@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Safe Teams PWA cleanup - auto-discovers profile, only removes cache & IndexedDB
+
+PROFILE_BASE="$HOME/.local/share/firefoxpwa/profiles"
+FOUND_PROFILE=""
+
+if [ ! -d "$PROFILE_BASE" ]; then
+    echo "Error: No Firefox PWA profiles found at $PROFILE_BASE"
+    exit 1
+fi
+
+for profile_dir in "$PROFILE_BASE"/*; do
+    [ -d "$profile_dir" ] || continue
+    if [ -d "$profile_dir/storage/default/https+++teams.microsoft.com" ]; then
+        FOUND_PROFILE="$profile_dir"
+        break
+    fi
+done
+
+if [ -z "$FOUND_PROFILE" ]; then
+    echo "Error: No Teams PWA profile found"
+    exit 1
+fi
+
+TEAMS_STORAGE="$FOUND_PROFILE/storage/default/https+++teams.microsoft.com"
+
+# clear IndexedDB
+if [ -d "$TEAMS_STORAGE/idb" ]; then
+    rm -rf "$TEAMS_STORAGE/idb"/*
+    echo "Cleared Teams IndexedDB cache"
+fi
+
+# clear browser cache
+if [ -d "$FOUND_PROFILE/cache2" ]; then
+    rm -rf "$FOUND_PROFILE/cache2"/*
+    echo "Cleared browser cache"
+fi

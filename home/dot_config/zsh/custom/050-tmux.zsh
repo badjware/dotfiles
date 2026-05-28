@@ -34,7 +34,7 @@ tmux() {
 }
 
 # Auto-launch on interactive shell, except from $HOME
-if [[ -z "$TMUX" && $- == *i* && -z "$NO_TMUX" && "$PWD" != "$HOME" ]] \
+if [[ -z "$TMUX" && $- == *i* && $- != *c* && -z "$NO_TMUX" && -z "$ZED_FILE" && "$PWD" != "$HOME" ]] \
     && command -v tmux >/dev/null; then
     tmux && exit
 fi

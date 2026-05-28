@@ -16,4 +16,3 @@ eval $(keychain --eval --quiet --noask --nogui)
 
 export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH"
-

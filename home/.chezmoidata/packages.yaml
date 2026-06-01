@@ -77,6 +77,7 @@ packages:
       - autotiling
       - blueman
       - brightnessctl
+      - corectrl
       - dex
       - feh
       - firefox
@@ -182,14 +183,13 @@ packages:
       - zsh
 
       # devops
-      # TODO: add kustomize
+      # TODO: add kustomize, terraform
       - ansible
       - awscli
       - docker-buildx
       - docker-cli
       - docker-compose
       - gh
-      - golang-github-hashicorp-terraform-exec-devel
       - helm
       - k9s
       - kubecolor
@@ -209,6 +209,7 @@ packages:
       - alacritty
       - blueman
       - brightnessctl
+      - corectrl
       - dex-autostart
       - feh
       - firefox
@@ -250,7 +251,7 @@ packages:
 
       # theming
       - breeze-cursor-theme
-      - gnome-themes-extra
+      # - gnome-themes-extra
       - gtk-murrine-engine
       - sassc
 

@@ -1,10 +1,9 @@
 #!/bin/bash
 
 xrandr --output "$(xrandr | grep '+0+' | grep -Eo '^DP-[0-9]')" --primary
-# swaymsg 'output * adaptive_sync on'
+
+swaymsg 'output * adaptive_sync on'
+swaymsg 'output * hdr on'
 
 systemctl --user stop gammastep
 sudo systemctl stop docker.service
-
-sudo bash -c 'echo high >/sys/class/drm/card1/device/power_dpm_force_performance_level'
-

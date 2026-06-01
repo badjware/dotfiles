@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# swaymsg 'output * adaptive_sync off'
+# adaptive sync causes flickers in the desktop so we prefer to disable it when not in-game
+swaymsg 'output * adaptive_sync off'
+# hdr prever brightness control so we disable it when not in-game
+swaymsg 'output * hdr off'
 
 systemctl --user start gammastep
 sudo systemctl start docker
-
-sudo bash -c 'echo auto >/sys/class/drm/card1/device/power_dpm_force_performance_level'
-

@@ -83,6 +83,7 @@ output "*" {
     background ~/.local/share/wallpaper fill
 
     adaptive_sync off
+    hdr off
     allow_tearing no
     max_render_time off
 }
@@ -96,7 +97,6 @@ output $output1 {
     position 1536 0
     {{- end }}
     allow_tearing yes
-    hdr on
 }
 
 set $output2 "Hewlett Packard HP ZR2440w CN44020RJF"
@@ -110,7 +110,6 @@ set $output3 "Sony SONY TV  *30 0x01010101"
 output $output3 {
     mode 3840x2160@120Hz
     scale 2
-    hdr on
     disable
 }
 

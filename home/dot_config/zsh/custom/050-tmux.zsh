@@ -24,9 +24,11 @@ tmux() {
         internal_name="$display_name"
     fi
 
-    local base="$internal_name" i=2
-    while command tmux has-session -t="$internal_name" 2>/dev/null; do
-        internal_name="${base}-${i}"
+    local base_internal="$internal_name" base_display="$display_name" i=2
+    while command tmux has-session -t="$internal_name" 2>/dev/null \
+        || command tmux has-session -t="$display_name" 2>/dev/null; do
+        internal_name="${base_internal}-${i}"
+        display_name="${base_display}-${i}"
         ((i++))
     done
 

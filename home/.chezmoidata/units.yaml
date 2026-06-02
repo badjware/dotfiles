@@ -4,6 +4,7 @@ units:
     - sshd.service
   user_base:
     - gitforgefs@code.badjware.dev.service
+    - gitforgefs@github.com.service
   user_desktop:
     - swayidle.service
     - wob.service

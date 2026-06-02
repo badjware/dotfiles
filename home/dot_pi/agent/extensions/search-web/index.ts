@@ -1,4 +1,5 @@
 import { defineTool, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 const DDG_LITE_URL = "https://lite.duckduckgo.com/lite/";
@@ -105,8 +106,8 @@ function parseSearchResults(htmlText: string, maxResults: number): SearchResult[
 }
 
 function formatSearchResults(query: string, results: SearchResult[]): string {
-	if (results.length === 0) return `No DuckDuckGo results found for: ${query}`;
-	const lines = [`DuckDuckGo results for: ${query}`, ""];
+	if (results.length === 0) return `No results found for: ${query}`;
+	const lines: string[] = [];
 	results.forEach((result, i) => {
 		lines.push(`${i + 1}. ${result.title}`);
 		lines.push(`   URL: ${result.url}`);
@@ -121,9 +122,8 @@ export default function (pi: ExtensionAPI) {
 		defineTool({
 			name: "search_web",
 			label: "Search Web",
-			description: "Search DuckDuckGo and return ranked results with titles, URLs, and snippets.",
-			promptSnippet:
-				"Search DuckDuckGo for web results by query and return titles, URLs, and snippets.",
+			description: "Search the web and return ranked results with titles, URLs, and snippets.",
+			promptSnippet: "Search the web by query and return titles, URLs, and snippets.",
 			promptGuidelines: [
 				"Use search_web when the user asks for current, external, or web-based information.",
 				"After search_web, use fetch_url on one or two relevant results when snippets are not enough.",
@@ -134,6 +134,14 @@ export default function (pi: ExtensionAPI) {
 					Type.Number({ description: "Maximum number of results to return (default 5, max 10)" }),
 				),
 			}),
+			renderCall(args, theme, _context) {
+				return new Text(
+					theme.fg("toolTitle", theme.bold("search_web ")) + theme.fg("muted", args.query),
+					0,
+					0,
+				);
+			},
+
 			async execute(_toolCallId, params, signal, onUpdate) {
 				const query = (params.query || "").trim();
 				if (!query) {

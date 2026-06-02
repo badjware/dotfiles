@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 
 import { defineTool, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 const TIMEOUT_S = Number(process.env.PI_FETCH_TIMEOUT_S || "20");
@@ -95,14 +96,14 @@ export default function (pi: ExtensionAPI) {
 		defineTool({
 			name: "fetch_url",
 			label: "Fetch URL",
-			description: "Fetch a public web page and extract readable text content.",
-			promptSnippet: "Fetch a public URL and extract readable page text.",
+			description: "Fetch a web page and extract readable text content. Not suitable for structured data (e.g. API responses).",
+			promptSnippet: "Fetch a URL and extract readable page text.",
 			promptGuidelines: [
-				"Use fetch_url to read a public web page after search_web finds a relevant result or when the user gives a public URL.",
-				"Use fetch_url only for public http or https URLs; do not use it for local, private, or internal network targets.",
+				"Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
+				"Do not use fetch_url to retrieve structured data such as API responses; use bash with curl instead.",
 			],
 			parameters: Type.Object({
-				url: Type.String({ description: "Public http or https URL to fetch" }),
+				url: Type.String({ description: "URL to fetch" }),
 				max_chars: Type.Optional(
 					Type.Number({
 						description: `Maximum number of extracted characters to return (default ${DEFAULT_MAX_CHARS})`,
@@ -121,6 +122,14 @@ export default function (pi: ExtensionAPI) {
 					}),
 				),
 			}),
+			renderCall(args, theme, _context) {
+				return new Text(
+					theme.fg("toolTitle", theme.bold("fetch_url ")) + theme.fg("muted", args.url),
+					0,
+					0,
+				);
+			},
+
 			async execute(_toolCallId, params, signal, onUpdate) {
 				const rawUrl = (params.url || "").trim();
 				if (!rawUrl) {
@@ -130,16 +139,6 @@ export default function (pi: ExtensionAPI) {
 						isError: true,
 					};
 				}
-				if (!/^https?:\/\//i.test(rawUrl)) {
-					return {
-						content: [
-							{ type: "text", text: "fetch_url only accepts http or https URLs." },
-						],
-						details: { requested_url: rawUrl },
-						isError: true,
-					};
-				}
-
 				let maxChars = Math.floor(params.max_chars ?? DEFAULT_MAX_CHARS);
 				if (!Number.isFinite(maxChars)) maxChars = DEFAULT_MAX_CHARS;
 				maxChars = Math.max(500, Math.min(100000, maxChars));
@@ -177,9 +176,7 @@ export default function (pi: ExtensionAPI) {
 					const truncated = originalLength > maxChars;
 					if (truncated) text = `${text.slice(0, maxChars - 1).replace(/\s+$/, "")}…`;
 
-					const summary = [`URL: ${rawUrl}`, "", text || "No readable text extracted."]
-						.join("\n")
-						.trim();
+					const summary = text || "No readable text extracted.";
 
 					return {
 						content: [{ type: "text", text: summary }],

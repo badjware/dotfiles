@@ -1,6 +1,6 @@
 # fetch-url extension
 
-A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool which retrieves a public web page and returns its readable text content (via the `lynx` text browser).
+A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool which retrieves a web page and returns its readable text content (via the `lynx` text browser). Not suitable for structured data (e.g. API responses); use `bash` with `curl` for that.
 
 ## Requirements
 
@@ -15,13 +15,13 @@ apt install lynx
 
 | Parameter | Type | Default | Notes |
 |---|---|---|---|
-| `url` | string | required | Must be `http://` or `https://`. |
+| `url` | string | required | URL to fetch (any scheme `lynx` supports). |
 | `max_chars` | number | `32000` | Clamped to `[500, 100000]`. Output is truncated with a trailing `…` if exceeded. |
 | `include_links` | boolean | `false` | When true, appends lynx's numbered link list at the end of the page text. Useful when the agent intends to follow links. |
 | `strip_chrome` | boolean | `true` | When true, removes leading/trailing blocks of short lines (navigation menus, footers) from the output. Set to false if content appears unexpectedly truncated or the page layout is unconventional. |
 
 The tool returns:
-- `content[0].text`: a header (`URL: ...`) plus the cleaned page text.
+- `content[0].text`: the cleaned page text.
 - `details.requested_url`, `details.content`, `details.truncated`, `details.original_length`.
 
 Cleanup applied to lynx's output:

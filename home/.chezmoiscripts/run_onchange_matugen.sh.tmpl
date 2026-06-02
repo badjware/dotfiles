@@ -11,8 +11,10 @@ cargo install matugen
 fi
 
 source_image="$(realpath "${HOME}/.local/share/wallpaper")"
-colors_hex_file="/tmp/chezmoi-colors-hex.json"
-background_rgb_file="/tmp/chezmoi-background-rgb.json"
+cache_dir="${HOME}/.cache/chezmoi"
+mkdir -p "$cache_dir"
+colors_hex_file="${cache_dir}/colors-hex.json"
+background_rgb_file="${cache_dir}/background-rgb.json"
 
 background_to_rgb() {
     hex="$(cat "$colors_hex_file" | jq -r '.colors.background.default.color')"

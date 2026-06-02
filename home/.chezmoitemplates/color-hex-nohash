@@ -1,1 +1,1 @@
-{{- include "/tmp/chezmoi-colors-hex.json" | fromJson | jq (cat ".colors" . "default.color" | replace " " ".") | first | trimPrefix "#" -}}
+{{- include (joinPath (env "HOME") ".cache/chezmoi/colors-hex.json") | fromJson | jq (cat ".colors" . "default.color" | replace " " ".") | first | trimPrefix "#" -}}

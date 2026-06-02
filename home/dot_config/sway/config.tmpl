@@ -1,4 +1,9 @@
 
+{{- $swayVersion := output "sway" "--version" | trim | regexFind "[0-9]+\\.[0-9]+(\\.[0-9]+)?" -}}
+{{- if not (regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+$" $swayVersion) -}}
+{{-   $swayVersion = printf "%s.0" $swayVersion -}}
+{{- end -}}
+
 ### Vars
 set $terminal alacritty
 
@@ -83,7 +88,9 @@ output "*" {
     background ~/.local/share/wallpaper fill
 
     adaptive_sync off
+    {{- if semverCompare ">=1.12.0" $swayVersion }}
     hdr off
+    {{- end }}
     allow_tearing no
     max_render_time off
 }

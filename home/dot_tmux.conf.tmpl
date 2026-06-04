@@ -39,7 +39,12 @@ set -g base-index 1
 
 # Pane
 setw -g pane-base-index 1
-setw -g allow-rename off
+# Mirror terminal title escape sequences into the tmux window name
+set-option -g allow-rename on
+set-option -g automatic-rename off
+# Propagate the window name to the outer terminal's title bar
+set-option -g set-titles on
+set-option -g set-titles-string '#W - #T'
 set -g pane-border-style fg='{{ template "color-hex" "on_surface_variant" }}'
 set -g pane-active-border-style fg='{{ template "color-hex" "primary" }},bold'
 

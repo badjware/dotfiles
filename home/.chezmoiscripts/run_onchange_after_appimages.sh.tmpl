@@ -5,7 +5,7 @@ set -o pipefail
 icon_folder="${HOME}/.local/share/icons"
 
 {{ if ne .chassisType "container" }}
-for appimage_path in $(find $HOME/applications -name '*.AppImage'); do 
+for appimage_path in $(find $HOME/applications -name '*.AppImage'); do
 
     tempdir=$(mktemp -d)
     appimage_filename=$(basename "$appimage_path")

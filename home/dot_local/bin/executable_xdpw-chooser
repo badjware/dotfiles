@@ -1,5 +1,4 @@
 #!/bin/sh
-sunshine_output_restore_cache="$XDG_RUNTIME_DIR/sunshine_output_restore_cache"
 sunshine_headless_timeout=10
 
 is_headless_active() {
@@ -7,16 +6,21 @@ is_headless_active() {
         | jq -e '.[] | select(.name == "HEADLESS-1" and .active == true)' > /dev/null 2>&1
 }
 
-if ! is_headless_active && [[ -f "$sunshine_output_restore_cache" ]]; then
+is_sunshine_requesting() {
+    busctl tree org.freedesktop.portal.Desktop 2>/dev/null | grep -q '/Sunshine'
+}
+
+if is_headless_active; then
+    printf 'Monitor: HEADLESS-1\n'
+elif is_sunshine_requesting; then
     elapsed=0
     while ! is_headless_active && [[ "$elapsed" -lt "$sunshine_headless_timeout" ]]; do
         sleep 1
         (( elapsed++ ))
     done
-    sleep 5
-    printf 'Monitor: HEADLESS-1\n'
-elif is_headless_active; then
-    printf 'Monitor: HEADLESS-1\n'
+    if is_headless_active; then
+        printf 'Monitor: HEADLESS-1\n'
+    fi
 else
     slurp -f 'Monitor: %o' -or
 fi

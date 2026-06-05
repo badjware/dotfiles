@@ -7,12 +7,17 @@ is_headless_active() {
 }
 
 is_sunshine_requesting() {
-    busctl tree org.freedesktop.portal.Desktop 2>/dev/null | grep -q '/Sunshine'
+    busctl --user tree org.freedesktop.portal.Desktop 2>/dev/null | grep -q '/Sunshine'
 }
 
 if is_headless_active; then
     printf 'Monitor: HEADLESS-1\n'
 elif is_sunshine_requesting; then
+
+    # the hook script seems to be invoked _after_ the capture is initiated
+    # so the HEADLESS-1 out is not activated yet. This feels like a sunshine bug (or at the very least it's very unintuitive)
+    swaymsg output enable HEADLESS-1
+
     elapsed=0
     while ! is_headless_active && [[ "$elapsed" -lt "$sunshine_headless_timeout" ]]; do
         sleep 1

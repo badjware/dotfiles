@@ -1,14 +1,14 @@
 #!/bin/bash
 
 selected_output="HEADLESS-1"
-output_restore_cache="$XDG_RUNTIME_DIR/output_restore_cache"
+sunshine_output_restore_cache="$XDG_RUNTIME_DIR/sunshine_sunshine_output_restore_cache"
 
 # steam deck is 16:10
 width="${SUNSHINE_CLIENT_WIDTH:-1920}"
 height="${SUNSHINE_CLIENT_HEIGHT:-1080}"
 fps="${SUNSHINE_CLIENT_FPS:-60}"
 
-if [[ ! -f "$output_restore_cache" ]]; then
+if [[ ! -f "$sunshine_output_restore_cache" ]]; then
     pkill --signal SIGUSR1 swaylock
     systemctl --user stop gammastep swayidle
     echo "Enabling output $selected_output"
@@ -18,7 +18,7 @@ if [[ ! -f "$output_restore_cache" ]]; then
     done
     for output in $(swaymsg -t get_outputs | jq -r '.[] | select(.active) | .name'); do
         if [[ "$output" != "$selected_output" ]]; then
-            echo "$output" >>"$output_restore_cache"
+            echo "$output" >>"$sunshine_output_restore_cache"
             echo "Disabling output $output"
             swaymsg output "$output" disable >/dev/null
         fi

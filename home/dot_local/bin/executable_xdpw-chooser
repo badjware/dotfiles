@@ -7,12 +7,13 @@ is_headless_active() {
         | jq -e '.[] | select(.name == "HEADLESS-1" and .active == true)' > /dev/null 2>&1
 }
 
-if [[ -f "$sunshine_output_restore_cache" ]]; then
+if ! is_headless_active && [[ -f "$sunshine_output_restore_cache" ]]; then
     elapsed=0
     while ! is_headless_active && [[ "$elapsed" -lt "$sunshine_headless_timeout" ]]; do
         sleep 1
         (( elapsed++ ))
     done
+    sleep 5
     printf 'Monitor: HEADLESS-1\n'
 elif is_headless_active; then
     printf 'Monitor: HEADLESS-1\n'

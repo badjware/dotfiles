@@ -1,7 +1,7 @@
 #!/bin/bash
 
 selected_output="HEADLESS-1"
-sunshine_output_restore_cache="$XDG_RUNTIME_DIR/sunshine_sunshine_output_restore_cache"
+sunshine_output_restore_cache="$XDG_RUNTIME_DIR/sunshine_output_restore_cache"
 
 # steam deck is 16:10
 width="${SUNSHINE_CLIENT_WIDTH:-1920}"

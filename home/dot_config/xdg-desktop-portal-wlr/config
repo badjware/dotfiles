@@ -1,4 +1,2 @@
 [screencast]
-chooser_type=simple
-chooser_cmd=/home/marchambault/.local/bin/xdpw-chooser
 max_fps=60

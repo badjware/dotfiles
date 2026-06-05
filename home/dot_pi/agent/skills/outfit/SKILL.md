@@ -9,10 +9,10 @@ A small mixed-role agent team under one lead. The user only ever talks to the le
 
 ## Roles
 
-- **lead** (this session, interactive): only user-facing agent. Runs discovery, planning, and execution phases. Sole writer of shared state (`plan.md`, `tasks.json`, `status.json`, `stories/`, `decisions.md`) and sole committer.
+- **lead** (this session, interactive): only user-facing agent. Runs discovery, planning, and execution phases. Sole writer of shared state (`plan.md`, `tasks.json`, `status.json`, `stories/`, `decisions.md`) and sole committer. Conducts human reviews interactively during task execution.
 - **programmer** (non-interactive worker): implements one task, writes to `.plan/work/<task-id>/` and to project source code. Does not commit. Maintains `.plan/codebase.md` with accumulated codebase knowledge.
-- **reviewer** (non-interactive worker, fresh context): reviews one completed task using `git diff` against the dispatch baseline. Returns `done` (with any minor issues logged) or `needs-changes` (blocker/major only).
-- **qa** (non-interactive worker, fresh context): verifies acceptance criteria from the outside.
+- **reviewer** (non-interactive worker, fresh context): reviews one completed task using `git diff` against the dispatch baseline. Returns `done` (with any minor issues logged) or `needs-changes` (blocker/major only). Runs concurrently with human review.
+- **qa** (non-interactive worker, fresh context): verifies milestone-level acceptance criteria from the outside, testing cumulative changes at the end of each milestone before gate approval.
 
 Workers never talk to the user. Within `.plan/`, workers write only inside their own `work/<task-id>/` directory. Source code writes elsewhere in the project are unrestricted (subject to per-role scope rules).
 
@@ -20,8 +20,8 @@ Workers never talk to the user. Within `.plan/`, workers write only inside their
 
 1. **Bootstrap.** Run `scripts/detect-project.py` to classify the cwd as `greenfield`, `existing`, or `in-progress`. For `existing` or `in-progress`, proceed directly. For `greenfield`, confirm with the user before proceeding (it is the surprising result and the point of no return for `git init`). Then follow `bootstrap/greenfield.md` or `bootstrap/existing.md` (the latter also covers resuming an `in-progress` run). `plan-init.py` ensures the project is a git repo (running `git init` if needed) and refuses to start if an existing repo has a dirty working tree.
 2. **Discovery phase.** Lead acts as product owner: asks the user what they want, why, for whom, what success looks like. Writes user stories to `.plan/stories/`. Forbidden in this phase: writing tasks, decomposing into implementation, touching `tasks.json`.
-3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. Lead also records technology and constraint decisions in `decisions.md`, flagging any that require user input (credentials, library choices, deployment targets, etc.) so they can be resolved before execution. **Gate 1 (user approval)**: present the plan and pending user-input items, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution` **and commits the plan**.
-4. **Execution phase.** For each task in dependency order, lead dispatches a programmer → reviewer → QA worker. Reviewer returns `done` (minors logged) or `needs-changes` (blocker/major); on `needs-changes` the programmer is re-dispatched once with the review as context and may reject issues it disagrees with in `review-response.md`. `set-status <id> done` auto-commits the task. **Gate 2 (user approval)**: at the end of every milestone, lead presents a summary with accumulated minor issues and any programmer rejections; user decides which to schedule as cleanup tasks. Approval auto-commits the milestone.
+3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. Lead also records technology and constraint decisions in `decisions.md`, flagging any that require user input (credentials, library choices, deployment targets, etc.) so they can be resolved before execution. Before Gate 1, the lead may offer to stress-test the plan with the user using the `grill-me` skill (particularly useful for non-trivial architectural choices, unfamiliar codebases, or fragile dependency graphs). **Gate 1 (user approval)**: present the plan and pending user-input items, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution` **and commits the plan**.
+4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then conducts concurrent agent + human review. Agent reviewer is dispatched via worker; human review happens interactively with the user (lead shows diff, records feedback in `.plan/work/<task-id>/human-review.md`). If either review returns `needs-changes`, programmer is re-dispatched once with combined feedback; programmer may reject issues it disagrees with in `review-response.md`. Task is committed when both reviews approve. **Milestone QA:** at the end of every milestone, lead dispatches the QA worker to verify cumulative changes against milestone acceptance criteria. **Gate 2 (user approval)**: lead presents a summary with QA findings, accumulated minor issues, and any programmer rejections; user decides which to schedule as cleanup tasks. Approval auto-commits the milestone.
 5. **Returning to discovery.** Allowed any time the user introduces new requirements: lead runs `scripts/status.py set-phase discovery` and re-enters discovery mode. Existing stories, plan, and tasks are preserved; the lead updates them as needed. There is no separate "re-discovery" phase, just discovery again.
 
 ## Phase discipline
@@ -50,17 +50,23 @@ Reviewers and QA workers see what changed via `git diff <baseline-sha>`, where t
 ├── decisions.md         # lead-owned: key decisions log (append-only)
 ├── codebase.md          # programmer-maintained: codebase map (≤150 lines)
 └── work/
-    └── T-007/                  # worker-owned scratch per task
-        ├── notes.md            # programmer scratch
-        ├── review-response.md  # programmer's accepted/rejected per review issue (on rework)
-        ├── review.md           # reviewer output
-        ├── qa.md               # qa output
-        ├── status-programmer.md  # done | blocked | needs-changes
-        ├── status-reviewer.md
+    ├── T-007/                   # task-level worker scratch
+    │   ├── notes.md             # programmer scratch
+    │   ├── review-response.md   # programmer's accepted/rejected per review issue (on rework)
+    │   ├── review.md            # agent reviewer output
+    │   ├── human-review.md      # lead-recorded human review feedback
+    │   ├── deferred-issues.md   # minor issues logged but not blocking (optional)
+    │   ├── status-programmer.md # done | blocked | needs-changes
+    │   ├── status-reviewer.md
+    │   ├── baseline-<role>.sha  # git HEAD at dispatch time, per role
+    │   ├── worker.log           # full transcript (gitignored)
+    │   └── session-*/           # pi session per dispatch (gitignored)
+    └── M1/                      # milestone-level QA scratch
+        ├── qa.md                # qa output
         ├── status-qa.md
-        ├── baseline-<role>.sha   # git HEAD at dispatch time, per role
-        ├── worker.log            # full transcript (gitignored)
-        └── session-*/            # pi session per dispatch (gitignored)
+        ├── baseline-qa.sha
+        ├── worker.log           # gitignored
+        └── session-*/           # gitignored
 ```
 
 The lead is the only writer of everything outside `work/`. Workers are the only writers inside `work/<their-task-id>/`.

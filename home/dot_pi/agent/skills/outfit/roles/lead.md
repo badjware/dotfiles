@@ -38,16 +38,9 @@ There are no manual commit operations in outfit. If the user explicitly asks for
 
 The state machine is enforced by `scripts/task.py set-status`. You request transitions; the script validates them.
 
-```
-todo ──► in_progress ──► in_review ──► in_qa ──► done
-            ▲   │            │           │
-            │   ▼            ▼           ▼
-            └──in_progress (rework on needs-changes from review or qa)
-```
+`blocked` and `cancelled` are reachable from any non-terminal state (`todo`, `in_progress`, `in_review`). When unblocked, return to `todo` (not yet started) or `in_progress` (was being worked). `done` and `cancelled` are terminal.
 
-`blocked` and `cancelled` are reachable from any non-terminal state (`todo`, `in_progress`, `in_review`, `in_qa`). When unblocked, return to `todo` (not yet started) or `in_progress` (was being worked). `done` and `cancelled` are terminal.
-
-When transitioning into `in_progress`, `in_review`, or `in_qa`, the script automatically clears the corresponding `status-<role>.md` so the next dispatch produces a fresh result. You do not need to delete it yourself.
+When transitioning into `in_progress` or `in_review`, the script automatically clears the corresponding `status-<role>.md` so the next dispatch produces a fresh result. You do not need to delete it yourself.
 
 Use `scripts/task.py update <id> ...` to change a task's editable fields (title, description, milestone, acceptance, depends) while it is non-terminal. Use `scripts/task.py set-status <id> cancelled --reason ...` to drop a task that is no longer needed; this is preferred over deleting it (history is preserved, `list` excludes cancelled by default).
 
@@ -104,6 +97,18 @@ Forbidden:
 - Writing code yourself.
 - Adding tasks that no story justifies. If you find yourself wanting to, return to `[phase: discovery]` and add or revise a story first.
 
+### Validating the plan
+
+Before presenting the plan at Gate 1, consider offering to stress-test it with the user using the `grill-me` skill. This is particularly valuable for:
+- Non-trivial architectural decisions with multiple viable approaches
+- Plans touching unfamiliar parts of the codebase
+- Dependency graphs that feel fragile or overly sequential
+- Technology choices where you lack domain expertise
+
+Say: "The plan is ready. Would you like me to grill you on it before Gate 1, or should I present it now?"
+
+If the user accepts, invoke `grill-me` with the plan as context. Use the resulting insights to refine `decisions.md` and task decomposition before the formal gate presentation.
+
 Exit criteria:
 - `plan.md` exists and lists milestones.
 - `scripts/task.py list` returns at least one task per milestone.
@@ -126,15 +131,14 @@ For each task in dependency order within the current milestone:
 3. **Read worker status.** Open `.plan/work/<task-id>/status-programmer.md`.
    - `done` → continue to review.
    - `blocked` → `scripts/task.py set-status <task-id> blocked --reason "..."`, surface to user at next status check, move on to next non-dependent task if any.
-   - `needs-changes` (only valid on a re-dispatch) → see step 7.
-4. **Review.** `scripts/task.py set-status <task-id> in_review`. Then `scripts/dispatch.py reviewer <task-id>`. Block. Read `.plan/work/<task-id>/status-reviewer.md` and `review.md`.
-   - `done` → continue to QA.
-   - `needs-changes` → go to step 7 with `review.md` as context.
-5. **QA.** `scripts/task.py set-status <task-id> in_qa`. Then `scripts/dispatch.py qa <task-id>`. Block. Read `.plan/work/<task-id>/status-qa.md` and `qa.md`.
-   - `done` → `scripts/task.py set-status <task-id> done` (this auto-commits). Next task.
-   - `needs-changes` → go to step 7 with `qa.md` as context.
-6. **Next task.**
-7. **Rework.** `scripts/task.py set-status <task-id> in_progress` (this clears `status-programmer.md`). Re-dispatch the programmer once with the review or qa output as `--context`. Then resume from step 3. If a second cycle still does not reach `done`, escalate to the user; do not loop further.
+   - `needs-changes` (only valid on a re-dispatch) → see step 6.
+4. **Concurrent review (agent + human).** `scripts/task.py set-status <task-id> in_review`.
+   - **Agent review:** `scripts/dispatch.py reviewer <task-id>`. Block. Read `.plan/work/<task-id>/status-reviewer.md` and `review.md`.
+   - **Human review:** Show the user the diff (`git diff <baseline-sha>` from `.plan/work/<task-id>/baseline-programmer.sha`) and ask for their review. Record their feedback in `.plan/work/<task-id>/human-review.md` with the same structure as agent review (blocking issues, minor issues, or approval).
+5. **Consolidate review outcomes.**
+   - If **either** review has blocking issues (`needs-changes`), go to step 6 with the combined feedback.
+   - If **both** approve (`done`), optionally log any minor issues to `.plan/work/<task-id>/deferred-issues.md`, then `scripts/task.py set-status <task-id> done` (this auto-commits). Next task.
+6. **Rework.** `scripts/task.py set-status <task-id> in_progress` (this clears `status-programmer.md`). Combine agent and human feedback into a single context document. Re-dispatch the programmer once with `--context`. Then resume from step 3. If a second cycle still does not reach `done`, escalate to the user; do not loop further.
 
 ### Dispatching workers
 
@@ -155,18 +159,21 @@ Worker invariants you can rely on:
 
 If a worker violates these, treat the run as failed and escalate to the user; do not silently fix it.
 
-### Milestone gate (Gate 2)
+### Milestone QA and Gate (Gate 2)
 
 When `scripts/task.py list --milestone <current> --status-not done` returns empty (or all remaining tasks are `cancelled`):
 
-1. **Scan accumulated minor issues and rejections.** For each task completed in this milestone read:
-   - `review.md` and `qa.md` — collect issues marked `minor`.
+1. **Milestone QA.** `scripts/dispatch.py qa <milestone>`. The QA worker verifies the cumulative changes against the milestone's acceptance criteria (aggregated from all stories in this milestone). QA runs against the full diff from the milestone baseline (the commit after the previous milestone was approved, or gate 1 for M1). Read `.plan/work/<milestone>/status-qa.md` and `qa.md`.
+   - If QA finds blocking issues, decide with the user whether to: (a) create follow-up tasks in this milestone and defer gate approval, (b) create tasks in the next milestone, or (c) accept the issues as known limitations (document in milestone summary).
+   - If QA approves or only has minor issues, proceed to step 2.
+2. **Scan accumulated deferred issues and rejections.** For each task completed in this milestone read:
+   - `review.md` and `human-review.md` — collect issues marked `minor`.
+   - `deferred-issues.md` (if present) — collect logged minor issues.
    - `review-response.md` (if present) — collect any issues the programmer marked `rejected`.
-   The reviewer's contract is that `done` may include minor issues; this is where they surface alongside any programmer rejections.
-2. **Write a milestone summary.** What shipped, what was deferred, decisions made during execution, open risks, and the **deferred-issues list** from step 1 (each with severity/category/file:line, grouped by task).
-3. **Present to the user. Stop. Wait for explicit approval.** The user decides per minor issue: add a cleanup task to a future milestone (`scripts/task.py add ...`), defer indefinitely, or accept as-is.
-4. On approval: `scripts/status.py approve-milestone <milestone>` (this commits the milestone), then `scripts/status.py set-milestone <next>`. Phase stays `execution`.
-5. On feedback that requires changes: if scoped within current milestone work, queue follow-up tasks via `scripts/task.py add`. If it changes requirements, return to `[phase: discovery]`.
+3. **Write a milestone summary.** What shipped, what was deferred, decisions made during execution, open risks, QA findings, and the **deferred-issues list** from step 2 (each with severity/category/file:line, grouped by task).
+4. **Present to the user. Stop. Wait for explicit approval.** The user decides per deferred issue: add a cleanup task to a future milestone (`scripts/task.py add ...`), defer indefinitely, or accept as-is.
+5. On approval: `scripts/status.py approve-milestone <milestone>` (this commits the milestone), then `scripts/status.py set-milestone <next>`. Phase stays `execution`.
+6. On feedback that requires changes: if scoped within current milestone work, queue follow-up tasks via `scripts/task.py add`. If it changes requirements, return to `[phase: discovery]`.
 
 ## Returning to discovery mid-project
 
@@ -179,11 +186,12 @@ There is no separate "re-discovery" phase. When new requirements surface during 
 If the lead session is restarted (you crashed, the user closed pi, etc.), do this **before** dispatching any new worker:
 
 1. Run `scripts/status.py show` to see current phase and any active tasks.
-2. For each task whose status is `in_progress`, `in_review`, or `in_qa`, inspect `.plan/work/<task-id>/`:
-   - The relevant role for the current task status is: `in_progress` → programmer, `in_review` → reviewer, `in_qa` → qa.
-   - If `status-<role>.md` exists with `done`, the previous worker completed; advance the task to the next phase per the lifecycle (do not re-dispatch).
-   - If `status-<role>.md` exists with `blocked` or `needs-changes`, handle as the lifecycle prescribes (block the task, or rework).
-   - If `status-<role>.md` is missing, the worker did not complete; re-dispatch the role.
+2. For each task whose status is `in_progress` or `in_review`, inspect `.plan/work/<task-id>/`:
+   - The relevant role for the current task status is: `in_progress` → programmer, `in_review` → reviewer (and check if human review was completed by looking for `human-review.md`).
+   - If `status-programmer.md` exists with `done`, the previous programmer completed; advance to review.
+   - For `in_review`: if `status-reviewer.md` exists with `done` and `human-review.md` exists, both reviews are complete; consolidate and advance per the lifecycle.
+   - If either status file shows `blocked` or `needs-changes`, handle as the lifecycle prescribes.
+   - If status files are missing, the worker(s) did not complete; re-dispatch as needed and re-request human review if missing.
 3. For tasks already `done` or `cancelled`, no action needed.
 4. If git working tree is dirty, the previous task was mid-flight when interrupted: do not start another task until the in-flight one resolves (the dirty tree belongs to it).
 

@@ -30,7 +30,7 @@ def cmd_show(args: argparse.Namespace) -> int:
         for m, st in gates.items():
             print(f"  {m}: {st}")
     print("task counts:")
-    for k in ("todo", "in_progress", "in_review", "in_qa", "done", "blocked", "cancelled"):
+    for k in ("todo", "in_progress", "in_review", "done", "blocked", "cancelled"):
         if k in counts:
             print(f"  {k}: {counts[k]}")
     if blocked:

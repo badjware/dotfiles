@@ -11,14 +11,13 @@ from pathlib import Path
 from typing import Any
 
 # State machine for task status. The lead requests transitions; we validate.
-TASK_STATUSES = {"todo", "in_progress", "in_review", "in_qa", "done", "blocked", "cancelled"}
+TASK_STATUSES = {"todo", "in_progress", "in_review", "done", "blocked", "cancelled"}
 TERMINAL_STATUSES = {"done", "cancelled"}
 # blocked and cancelled are reachable from any non-terminal state (including todo).
 TASK_TRANSITIONS: dict[str, set[str]] = {
     "todo": {"in_progress", "blocked", "cancelled"},
     "in_progress": {"in_review", "blocked", "cancelled"},
-    "in_review": {"in_qa", "in_progress", "blocked", "cancelled"},
-    "in_qa": {"done", "in_progress", "blocked", "cancelled"},
+    "in_review": {"done", "in_progress", "blocked", "cancelled"},
     "blocked": {"todo", "in_progress", "cancelled"},
     "done": set(),       # terminal
     "cancelled": set(),  # terminal

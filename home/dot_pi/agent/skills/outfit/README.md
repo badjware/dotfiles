@@ -19,8 +19,8 @@ pi
 The lead detects whether the directory is greenfield, an existing project, or an in-progress outfit run. For existing and in-progress projects it proceeds directly; for greenfield it asks you to confirm before initializing a new git repo. It then walks you through:
 
 1. **Discovery**: lead asks what you want and writes user stories to `.plan/stories/`.
-2. **Planning**: lead decomposes stories into tasks, records technology decisions, flags items that need your input. **Gate 1**: you approve the plan before any code is written.
-3. **Execution**: for each task, the lead dispatches a programmer → reviewer → QA worker. Reviewers return `done` (minor issues logged) or `needs-changes` (blocker/major only); on `needs-changes` the programmer is re-dispatched once and may reject issues it disagrees with. State transitions and commits are automatic. **Gate 2+**: at the end of every milestone, the lead presents a summary with accumulated minor issues and any programmer rejections; you decide which to schedule as cleanup tasks.
+2. **Planning**: lead decomposes stories into tasks, records technology decisions, flags items that need your input. Offers to stress-test the plan using the `grill-me` skill. **Gate 1**: you approve the plan before any code is written.
+3. **Execution**: for each task, the lead dispatches a programmer, then conducts concurrent agent + human review. The agent reviewer runs automatically; you review the diff interactively with the lead. Both reviews must approve (or have only minor issues) for the task to proceed. On `needs-changes` from either review, the programmer is re-dispatched once with combined feedback and may reject issues it disagrees with. State transitions and commits are automatic. **Milestone QA**: at the end of every milestone, the lead dispatches a QA worker to verify cumulative changes against milestone acceptance criteria. **Gate 2+**: the lead presents a summary with QA findings, accumulated deferred issues, and any programmer rejections; you decide which to schedule as cleanup tasks.
 
 You only ever talk to the lead. Workers run as separate non-interactive `pi` processes and write their findings to files; the lead reads them and decides what to do next.
 
@@ -66,17 +66,23 @@ Outfit creates and manages `.plan/` in the project:
 ├── decisions.md         # append-only decisions log
 ├── codebase.md          # programmer-maintained codebase map (≤150 lines)
 └── work/
-    └── T-007/
-        ├── notes.md              # programmer's notes
-        ├── review.md             # reviewer's findings
-        ├── review-response.md    # programmer's accepted/rejected per issue (on rework)
-        ├── qa.md                 # QA's results
-        ├── status-programmer.md  # done | blocked | needs-changes
-        ├── status-reviewer.md
+    ├── T-007/                   # per-task worker scratch
+    │   ├── notes.md             # programmer's notes
+    │   ├── review.md            # agent reviewer's findings
+    │   ├── human-review.md      # human review feedback (recorded by lead)
+    │   ├── review-response.md   # programmer's accepted/rejected per issue (on rework)
+    │   ├── deferred-issues.md   # minor issues logged but not blocking
+    │   ├── status-programmer.md # done | blocked | needs-changes
+    │   ├── status-reviewer.md
+    │   ├── baseline-<role>.sha  # git HEAD at dispatch
+    │   ├── worker.log           # full transcript (gitignored)
+    │   └── session-*/           # pi sessions per dispatch (gitignored)
+    └── M1/                      # per-milestone QA scratch
+        ├── qa.md                # QA's results
         ├── status-qa.md
-        ├── baseline-<role>.sha   # git HEAD at dispatch
-        ├── worker.log            # full transcript (gitignored)
-        └── session-*/            # pi sessions per dispatch (gitignored)
+        ├── baseline-qa.sha
+        ├── worker.log           # gitignored
+        └── session-*/           # gitignored
 ```
 
 Worker logs and session directories are excluded by an outfit-managed block in `.gitignore`. The curated artifacts (`notes.md`, `review.md`, `qa.md`, status files, baselines) are committed and serve as the project's audit trail.

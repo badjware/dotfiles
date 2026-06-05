@@ -20,7 +20,6 @@ from _state import (  # noqa: E402
 ROLE_FOR_STATUS = {
     "in_progress": "programmer",
     "in_review": "reviewer",
-    "in_qa": "qa",
 }
 
 

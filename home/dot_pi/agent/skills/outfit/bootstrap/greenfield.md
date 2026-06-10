@@ -11,7 +11,7 @@ Run `scripts/detect-project.py`. If the result is `greenfield`, **confirm with t
 1. **Initialize `.plan/` and git.** Run `scripts/plan-init.py`. This will:
    - run `git init` if cwd is not already a git repo
    - create `.plan/` (refuses if it already exists)
-   - add a `.gitignore` block excluding `.plan/work/*/worker.log` and `.plan/work/*/session-*/`
+   - add a `.gitignore` block excluding `.plan/work/*/session-*/`
    - make an initial commit `outfit: initialize .plan/`
 
    If the script does not exist, stop and tell the user.

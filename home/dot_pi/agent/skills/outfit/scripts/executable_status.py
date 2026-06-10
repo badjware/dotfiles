@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Global project status: phase, current milestone, gate approvals. Sole writer of .plan/status.json."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,9 +8,19 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import glob as _glob
+
 from _state import (  # noqa: E402
-    GitError, ID_MILESTONE_RE, PHASE_TRANSITIONS, PHASES, die, find_plan_dir,
-    git_commit_all, read_status, read_tasks, write_status,
+    ID_MILESTONE_RE,
+    PHASE_TRANSITIONS,
+    PHASES,
+    GitError,
+    die,
+    find_plan_dir,
+    git_commit_all,
+    read_status,
+    read_tasks,
+    write_status,
 )
 
 
@@ -20,7 +31,11 @@ def cmd_show(args: argparse.Namespace) -> int:
     counts: dict[str, int] = {}
     for t in tasks:
         counts[t["status"]] = counts.get(t["status"], 0) + 1
-    blocked = [(t["id"], t.get("blocked_reason", "")) for t in tasks if t["status"] == "blocked"]
+    blocked = [
+        (t["id"], t.get("blocked_reason", ""))
+        for t in tasks
+        if t["status"] == "blocked"
+    ]
     print(f"phase:             {s.get('phase')}")
     print(f"current_milestone: {s.get('current_milestone')}")
     print(f"gate_1_approved:   {s.get('gate_1_approved')}")
@@ -50,10 +65,17 @@ def cmd_set_phase(args: argparse.Namespace) -> int:
         die(f"phase is already {cur}")
     allowed = PHASE_TRANSITIONS.get(cur, set())
     if args.phase not in allowed:
-        # Special-case the most likely confusion: trying to enter execution from planning.
         if cur == "planning" and args.phase == "execution":
-            die("cannot enter execution from planning via set-phase; use approve-gate-1")
-        die(f"invalid phase transition {cur} -> {args.phase}; allowed: {sorted(allowed) or 'none'}")
+            die(
+                "cannot enter execution from planning via set-phase; use approve-gate-1"
+            )
+        if cur == "discovery" and args.phase == "planning":
+            die(
+                "cannot enter planning from discovery via set-phase; use approve-discovery"
+            )
+        die(
+            f"invalid phase transition {cur} -> {args.phase}; allowed: {sorted(allowed) or 'none'}"
+        )
     s["phase"] = args.phase
     note = ""
     # Returning to discovery means the plan may change; re-require gate 1.
@@ -80,13 +102,37 @@ def cmd_set_milestone(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_approve_discovery(args: argparse.Namespace) -> int:
+    plan = find_plan_dir()
+    s = read_status(plan)
+    if s.get("phase") != "discovery":
+        die(f"approve-discovery requires discovery phase (current: {s.get('phase')})")
+    story_files = list((plan / "stories").glob("S-*.md"))
+    if not story_files:
+        die(
+            "no stories found in .plan/stories/; write at least one story before approving discovery"
+        )
+    s["phase"] = "planning"
+    write_status(plan, s)
+    try:
+        git_commit_all(plan.parent, "outfit: discovery approved (gate 0)")
+    except GitError as e:
+        s["phase"] = "discovery"
+        write_status(plan, s)
+        die(f"commit failed (state reverted): {e}")
+    print("discovery approved; phase: planning")
+    return 0
+
+
 def cmd_approve_gate_1(args: argparse.Namespace) -> int:
     plan = find_plan_dir()
     s = read_status(plan)
     if s.get("gate_1_approved"):
         die("gate 1 already approved")
     if s.get("phase") != "planning":
-        die(f"gate 1 can only be approved during planning phase (current: {s.get('phase')})")
+        die(
+            f"gate 1 can only be approved during planning phase (current: {s.get('phase')})"
+        )
     tasks = read_tasks(plan)["tasks"]
     if not tasks:
         die("cannot approve gate 1: no tasks defined")
@@ -113,9 +159,9 @@ def cmd_approve_milestone(args: argparse.Namespace) -> int:
     ms_tasks = [t for t in tasks if t["milestone"] == args.milestone]
     if not ms_tasks:
         die(f"no tasks for milestone {args.milestone}")
-    not_done = [t["id"] for t in ms_tasks if t["status"] != "done"]
+    not_done = [t["id"] for t in ms_tasks if t["status"] not in ("done", "cancelled")]
     if not_done:
-        die(f"cannot approve {args.milestone}: tasks not done: {not_done}")
+        die(f"cannot approve {args.milestone}: tasks not done or cancelled: {not_done}")
     gates = s.setdefault("milestone_gates", {})
     prior = gates.get(args.milestone)
     gates[args.milestone] = "approved"
@@ -147,6 +193,12 @@ def main() -> int:
     p_ms = sub.add_parser("set-milestone", help="set current milestone")
     p_ms.add_argument("milestone")
     p_ms.set_defaults(func=cmd_set_milestone)
+
+    p_disc = sub.add_parser(
+        "approve-discovery",
+        help="commit stories, advance discovery -> planning (gate 0)",
+    )
+    p_disc.set_defaults(func=cmd_approve_discovery)
 
     p_g1 = sub.add_parser("approve-gate-1", help="record gate 1 approval")
     p_g1.set_defaults(func=cmd_approve_gate_1)

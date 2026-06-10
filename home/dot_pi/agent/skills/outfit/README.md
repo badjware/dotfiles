@@ -36,7 +36,7 @@ export OUTFIT_MODEL_REVIEWER=anthropic/claude-opus-4
 export OUTFIT_MODEL_QA=openai/gpt-4o-mini
 ```
 
-The selected model is recorded in each `worker.log` header.
+The selected model is recorded in each `session-<role>-<ts>/metadata.json`.
 
 ## Git workflow
 
@@ -44,9 +44,10 @@ The project lives in a git repo. **Clean up your working tree before running out
 
 The lead is the only committer. Commits happen automatically at three named events:
 
+- Discovery approval: `outfit: discovery approved (gate 0)`
 - Gate 1 approval: `outfit: plan approved (gate 1)`
-- Each task done: `outfit: <task-id> <task-title>`
-- Milestone approval: `outfit: milestone <M> approved`
+- Each task done: `outfit: <task-id>-<slug>` (slug derived from task title)
+- Milestone approval: `outfit: milestone <M-NNN> approved`
 
 Workers never commit. Code changes accumulate in the working tree until the lead commits the task atomically once review and QA pass. **Failed commits are fatal**: the lead surfaces the error and waits for you to untangle it (hooks rejecting changes, missing git identity, etc.).
 
@@ -64,10 +65,11 @@ Outfit creates and manages `.plan/` in the project:
 ├── tasks.json           # structured task state (managed by scripts/task.py)
 ├── status.json          # phase, milestone, gate approvals
 ├── decisions.md         # append-only decisions log
-├── codebase.md          # programmer-maintained codebase map (≤150 lines)
+├── codebase.md          # programmer-maintained codebase map
 └── work/
-    ├── T-007/                   # per-task worker scratch
+    ├── T-007-implement-login/   # per-task worker scratch (slug from title)
     │   ├── notes.md             # programmer's notes
+    │   ├── rework-context.md    # combined feedback for rework (written by dispatch.py)
     │   ├── review.md            # agent reviewer's findings
     │   ├── human-review.md      # human review feedback (recorded by lead)
     │   ├── review-response.md   # programmer's accepted/rejected per issue (on rework)
@@ -75,31 +77,35 @@ Outfit creates and manages `.plan/` in the project:
     │   ├── status-programmer.md # done | blocked | needs-changes
     │   ├── status-reviewer.md
     │   ├── baseline-<role>.sha  # git HEAD at dispatch
-    │   ├── worker.log           # full transcript (gitignored)
-    │   └── session-*/           # pi sessions per dispatch (gitignored)
-    └── M1/                      # per-milestone QA scratch
+    │   └── session-<role>-<ts>/ # pi session per dispatch (gitignored)
+    │       ├── output.log       # raw worker output
+    │       └── metadata.json    # role, model, baseline, timing, exit_code
+    └── M-001/                   # per-milestone QA scratch
         ├── qa.md                # QA's results
         ├── status-qa.md
         ├── baseline-qa.sha
-        ├── worker.log           # gitignored
-        └── session-*/           # gitignored
+        └── session-qa-<ts>/     # gitignored
 ```
 
-Worker logs and session directories are excluded by an outfit-managed block in `.gitignore`. The curated artifacts (`notes.md`, `review.md`, `qa.md`, status files, baselines) are committed and serve as the project's audit trail.
+Session directories are gitignored. The curated artifacts (`notes.md`, `review.md`, `qa.md`, status files, baselines, `rework-context.md`) are committed and serve as the project's audit trail.
 
 ## Observing what the workers are doing
 
-The lead is silent about the worker's transcripts on purpose (otherwise its context would bloat). To watch a worker live:
+The lead is silent about the worker's transcripts on purpose (otherwise its context would bloat). To inspect a past dispatch:
 
 ```sh
-tail -f .plan/work/<task-id>/worker.log
-```
+# find the session directory (slug-based task dir)
+task_dir=$(python3 scripts/task.py work-dir <task-id>)
+ls $task_dir/session-*/
 
-To inspect a past dispatch:
+# view output
+cat $task_dir/session-<role>-<ts>/output.log
 
-```sh
-ls .plan/work/<task-id>/session-*/
-pi --resume <session-path>
+# view dispatch metadata
+cat $task_dir/session-<role>-<ts>/metadata.json
+
+# resume session in pi
+pi --resume $task_dir/session-<role>-<ts>/<session-file>.jsonl
 ```
 
 ## Resuming after interruption
@@ -128,7 +134,8 @@ outfit/
 │   └── qa.md
 ├── bootstrap/
 │   ├── greenfield.md
-│   └── existing.md
+│   ├── existing.md
+│   └── resume.md
 ├── templates/
 │   ├── plan.md
 │   └── story.md

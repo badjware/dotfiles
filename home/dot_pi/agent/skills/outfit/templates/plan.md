@@ -9,7 +9,7 @@ One section per milestone. Keep milestones small enough that Gate 2 happens ofte
 A milestone is a coherent slice of value, not "phase 1 of the implementation".
 -->
 
-### M1: <name>
+### M-001: <name>
 
 **Goal.** <one sentence>
 
@@ -22,7 +22,7 @@ A milestone is a coherent slice of value, not "phase 1 of the implementation".
 **Out of scope.**
 - <...>
 
-### M2: <name>
+### M-002: <name>
 
 ...
 

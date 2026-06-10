@@ -1,10 +1,10 @@
 # Bootstrap: existing
 
-Use when `scripts/detect-project.py` reports `kind: existing`, or the user has confirmed existing after a different detection result.
+Use when `scripts/detect-project.py` reports `kind: existing`.
 
 ## Detection
 
-Run `scripts/detect-project.py`. For `existing` or `in-progress`, proceed without prompting. If the result is unexpectedly `greenfield`, confirm with the user before switching to `bootstrap/greenfield.md`. For `in-progress`, see "Resuming a prior outfit run" below.
+Run `scripts/detect-project.py`. If the result is `existing`, proceed. If the result is `in-progress`, use `bootstrap/resume.md` instead. If the result is unexpectedly `greenfield`, confirm with the user before switching to `bootstrap/greenfield.md`.
 
 ## Steps
 
@@ -22,13 +22,6 @@ Run `scripts/detect-project.py`. For `existing` or `in-progress`, proceed withou
 4. **Do not refactor or "tidy up" anything.** Existing-project bootstrap is read-only on the codebase.
 
 5. **Enter discovery phase.** Declare `[phase: discovery]` and ask the user about the feature: what it is, who it is for, how it fits with the existing product, what is explicitly out of scope, what existing behavior must not change.
-
-## Resuming a prior outfit run
-
-If `detect-project.py` reports `kind: in-progress` (i.e. `.plan/` already exists):
-
-- If the previous run is complete (all tasks `done` or `cancelled`, all gates approved per `scripts/status.py show` and `scripts/task.py list --include-cancelled`), ask the user whether to archive (`mv .plan .plan.archive-<date>`) and start fresh, or treat this as a new feature on top of the prior plan.
-- If it is mid-flight, follow the "Resuming after interruption" procedure in `roles/lead.md`. Do **not** run `plan-init.py`.
 
 ## Notes
 

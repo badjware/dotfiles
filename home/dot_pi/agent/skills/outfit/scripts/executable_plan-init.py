@@ -10,6 +10,7 @@ Behavior:
   - Ensures .gitignore excludes worker logs and pi session directories.
   - Makes an initial commit of the .plan/ scaffold (and .gitignore).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,11 +19,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _state import (  # noqa: E402
-    GitError, atomic_write_json, die, git_commit_all, git_head_sha, git_is_repo,
-    git_run, git_working_tree_dirty, skill_dir,
+    GitError,
+    atomic_write_json,
+    die,
+    git_commit_all,
+    git_head_sha,
+    git_is_repo,
+    git_run,
+    git_working_tree_dirty,
+    skill_dir,
 )
 
-GITIGNORE_BLOCK = "\n# outfit: keep curated artifacts, ignore verbose logs/sessions\n.plan/work/*/worker.log\n.plan/work/*/session-*/\n"
+GITIGNORE_BLOCK = "\n# outfit: keep curated artifacts, ignore session directories\n.plan/work/*/session-*/\n"
 
 
 def ensure_gitignore(root: Path) -> None:
@@ -38,8 +46,9 @@ def ensure_gitignore(root: Path) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--dir", default=".", help="project directory (default: cwd)")
     args = ap.parse_args()
 
@@ -59,7 +68,9 @@ def main() -> int:
         if head is not None:
             try:
                 if git_working_tree_dirty(root):
-                    die("working tree is dirty; clean it up before running outfit (commit, stash, reset, restore, etc. - the user's choice)")
+                    die(
+                        "working tree is dirty; clean it up before running outfit (commit, stash, reset, restore, etc. - the user's choice)"
+                    )
             except GitError as e:
                 die(str(e))
 
@@ -77,16 +88,19 @@ def main() -> int:
     (plan / "codebase.md").write_text(
         "# Codebase map\n\n"
         "<!-- Maintained by the programmer worker. Key modules, patterns, non-obvious conventions.\n"
-        "     Keep under 150 lines. Prune stale entries before adding new ones. -->\n"
+        "     Keep it short. Prune stale entries before adding new ones. -->\n"
     )
 
     atomic_write_json(plan / "tasks.json", {"tasks": []})
-    atomic_write_json(plan / "status.json", {
-        "phase": "discovery",
-        "current_milestone": None,
-        "gate_1_approved": False,
-        "milestone_gates": {},
-    })
+    atomic_write_json(
+        plan / "status.json",
+        {
+            "phase": "discovery",
+            "current_milestone": None,
+            "gate_1_approved": False,
+            "milestone_gates": {},
+        },
+    )
 
     ensure_gitignore(root)
 

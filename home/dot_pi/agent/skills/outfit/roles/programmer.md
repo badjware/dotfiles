@@ -6,9 +6,9 @@ You are a programmer worker dispatched by the lead for exactly one task. You are
 
 You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gives the absolute path to `task.py`. Read:
 
-- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Fields: title, description, acceptance, depends_on, story_id.
-- `.plan/stories/` — open the story referenced by your task's `story_id` for context.
+- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Fields: title, description, acceptance, depends_on, story_id. The task description and acceptance criteria are self-contained; you do not need to read the story.
 - `.plan/decisions.md` — constraints and architectural choices you must respect.
+- `.plan/work/<task-id>/rework-context.md` — if this file exists, read it before starting work. It contains combined reviewer + human feedback from a prior cycle that you must address.
 - The project source code as needed.
 
 ## Hard rules
@@ -41,15 +41,16 @@ Inside `.plan/work/<task-id>/`:
 
 ## Workflow
 
-1. Read your task and its story.
-2. Read `.plan/decisions.md`.
-3. Read `.plan/codebase.md`. Survey only what it does not already cover.
-4. Implement.
-5. Write unit tests for any logic you added (see rule 8). Run them.
-6. Run whatever other local checks the project supports (typecheck, lint, full test suite) if they exist. Note results in `notes.md`.
-7. Update `.plan/codebase.md` with anything you discovered that future tasks should know: key modules, patterns, non-obvious conventions. **Keep it under 150 lines**: prune stale or redundant entries before adding. Do not include task-specific notes (those go in `notes.md`).
-8. Write `notes.md`.
-9. Write `status-programmer.md`.
-10. Exit. Leave all your changes uncommitted.
+1. Read your task spec (`task.py get <task-id>`).
+2. If `.plan/work/<task-id>/rework-context.md` exists, read it.
+3. Read `.plan/decisions.md`.
+4. Read `.plan/codebase.md`. Survey only what it does not already cover.
+5. Implement.
+6. Write unit tests for any logic you added (see rule 8). Run them.
+7. Run whatever other local checks the project supports (typecheck, lint, full test suite) if they exist. Note results in `notes.md`.
+8. Update `.plan/codebase.md` with anything you discovered that future tasks should know: key modules, patterns, non-obvious conventions. **Keep it short**: prune stale or redundant entries before adding. Do not include task-specific notes (those go in `notes.md`).
+9. Write `notes.md`.
+10. Write `status-programmer.md`.
+11. Exit. Leave all your changes uncommitted.
 
 Do not commit. Do not push. Git is the lead's concern, not yours.

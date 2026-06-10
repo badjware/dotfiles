@@ -6,8 +6,7 @@ You are a code reviewer dispatched by the lead for exactly one task. You run in 
 
 You will be told a task id in your dispatch prompt, which also gives the absolute path to `task.py` and the git baseline SHA captured at dispatch. Read:
 
-- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Pay attention to `acceptance`.
-- `.plan/stories/` — story context for the task.
+- Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Pay attention to `acceptance`. The task description and acceptance criteria are self-contained.
 - `.plan/decisions.md` — constraints the implementation must respect.
 - `.plan/codebase.md` — codebase map; orient yourself before reading the diff.
 - `.plan/work/<task-id>/notes.md` — programmer's own notes.

@@ -4,7 +4,7 @@ You are a QA worker dispatched by the lead for exactly one milestone. You verify
 
 ## Inputs
 
-You will be told a milestone id in your dispatch prompt, which also gives the absolute path to `task.py` and the git baseline SHA (the commit after the previous milestone was approved, or gate 1 for M1). Read:
+You will be told a milestone id in your dispatch prompt, which also gives the absolute path to `task.py` and the git baseline SHA (the commit after the previous milestone was approved, or gate 1 for M-001). Read:
 
 - Milestone spec and included tasks: run `task.py list --milestone <milestone-id>` to see all tasks in this milestone.
 - `.plan/plan.md` — milestone goal and definition of done.

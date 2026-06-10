@@ -18,9 +18,9 @@ Workers never talk to the user. Within `.plan/`, workers write only inside their
 
 ## Workflow
 
-1. **Bootstrap.** Run `scripts/detect-project.py` to classify the cwd as `greenfield`, `existing`, or `in-progress`. For `existing` or `in-progress`, proceed directly. For `greenfield`, confirm with the user before proceeding (it is the surprising result and the point of no return for `git init`). Then follow `bootstrap/greenfield.md` or `bootstrap/existing.md` (the latter also covers resuming an `in-progress` run). `plan-init.py` ensures the project is a git repo (running `git init` if needed) and refuses to start if an existing repo has a dirty working tree.
-2. **Discovery phase.** Lead acts as product owner: asks the user what they want, why, for whom, what success looks like. Writes user stories to `.plan/stories/`. Forbidden in this phase: writing tasks, decomposing into implementation, touching `tasks.json`.
-3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. Lead also records technology and constraint decisions in `decisions.md`, flagging any that require user input (credentials, library choices, deployment targets, etc.) so they can be resolved before execution. Before Gate 1, the lead may offer to stress-test the plan with the user using the `grill-me` skill (particularly useful for non-trivial architectural choices, unfamiliar codebases, or fragile dependency graphs). **Gate 1 (user approval)**: present the plan and pending user-input items, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution` **and commits the plan**.
+1. **Bootstrap.** Run `scripts/detect-project.py` to classify the cwd as `greenfield`, `existing`, or `in-progress`. For `existing` or `in-progress`, proceed directly. For `greenfield`, confirm with the user before proceeding (it is the surprising result and the point of no return for `git init`). Follow the matching bootstrap file: `bootstrap/greenfield.md`, `bootstrap/existing.md`, or `bootstrap/resume.md`. `plan-init.py` ensures the project is a git repo (running `git init` if needed) and refuses to start if an existing repo has a dirty working tree.
+2. **Discovery phase.** Lead acts as product owner: asks the user what they want, why, for whom, what success looks like. Writes user stories to `.plan/stories/`. Forbidden in this phase: writing tasks, decomposing into implementation, touching `tasks.json`. **Gate 0 (discovery approval)**: once stories are confirmed by the user, run `scripts/status.py approve-discovery`, which commits stories and decisions.md and advances phase to `planning` atomically.
+3. **Planning phase.** Lead decomposes stories into milestones and tasks. Writes `plan.md` and populates `tasks.json` via `scripts/task.py add`. Milestone IDs follow the format `M-001`, `M-002`, etc. Lead also records technology and constraint decisions in `decisions.md`, flagging any that require user input (credentials, library choices, deployment targets, etc.) so they can be resolved before execution. Before Gate 1, the lead may offer to stress-test the plan with the user using the `grill-me` skill (particularly useful for non-trivial architectural choices, unfamiliar codebases, or fragile dependency graphs). **Gate 1 (user approval)**: present the plan and pending user-input items, wait for approval before any code is written. Approval is recorded via `scripts/status.py approve-gate-1`, which atomically advances the phase to `execution` **and commits the plan**.
 4. **Execution phase.** For each task in dependency order, lead dispatches a programmer, then conducts concurrent agent + human review. Agent reviewer is dispatched via worker; human review happens interactively with the user (lead shows diff, records feedback in `.plan/work/<task-id>/human-review.md`). If either review returns `needs-changes`, programmer is re-dispatched once with combined feedback; programmer may reject issues it disagrees with in `review-response.md`. Task is committed when both reviews approve. **Milestone QA:** at the end of every milestone, lead dispatches the QA worker to verify cumulative changes against milestone acceptance criteria. **Gate 2 (user approval)**: lead presents a summary with QA findings, accumulated minor issues, and any programmer rejections; user decides which to schedule as cleanup tasks. Approval auto-commits the milestone.
 5. **Returning to discovery.** Allowed any time the user introduces new requirements: lead runs `scripts/status.py set-phase discovery` and re-enters discovery mode. Existing stories, plan, and tasks are preserved; the lead updates them as needed. There is no separate "re-discovery" phase, just discovery again.
 
@@ -48,10 +48,11 @@ Reviewers and QA workers see what changed via `git diff <baseline-sha>`, where t
 ├── tasks.json           # lead-owned: structured task state (managed by scripts/task.py)
 ├── status.json          # lead-owned: current phase, milestone, gate status
 ├── decisions.md         # lead-owned: key decisions log (append-only)
-├── codebase.md          # programmer-maintained: codebase map (≤150 lines)
+├── codebase.md          # programmer-maintained: codebase map
 └── work/
-    ├── T-007/                   # task-level worker scratch
+    ├── T-007-implement-login/   # task-level worker scratch (slug derived from title)
     │   ├── notes.md             # programmer scratch
+    │   ├── rework-context.md    # combined reviewer+human feedback written by dispatch.py (on rework)
     │   ├── review-response.md   # programmer's accepted/rejected per review issue (on rework)
     │   ├── review.md            # agent reviewer output
     │   ├── human-review.md      # lead-recorded human review feedback
@@ -59,19 +60,18 @@ Reviewers and QA workers see what changed via `git diff <baseline-sha>`, where t
     │   ├── status-programmer.md # done | blocked | needs-changes
     │   ├── status-reviewer.md
     │   ├── baseline-<role>.sha  # git HEAD at dispatch time, per role
-    │   ├── worker.log           # full transcript (gitignored)
-    │   └── session-*/           # pi session per dispatch (gitignored)
-    └── M1/                      # milestone-level QA scratch
+    │   └── session-<role>-<ts>/ # pi session per dispatch (gitignored)
+    │       ├── output.log       # raw worker output
+    │       └── metadata.json    # role, model, baseline, timing, exit_code
+    └── M-001/                   # milestone-level QA scratch
         ├── qa.md                # qa output
         ├── status-qa.md
         ├── baseline-qa.sha
-        ├── worker.log           # gitignored
-        └── session-*/           # gitignored
+        └── session-qa-<ts>/     # gitignored
 ```
 
 The lead is the only writer of everything outside `work/`. Workers are the only writers inside `work/<their-task-id>/`.
 
 ## Entry point
 
-Read `roles/lead.md` for the full lead instructions. Run `scripts/detect-project.py`, confirm with the user if `greenfield`, then follow `bootstrap/greenfield.md` or `bootstrap/existing.md`.
-
+Read `roles/lead.md` for the full lead instructions. Run `scripts/detect-project.py`, confirm with the user if `greenfield`, then follow the matching bootstrap file: `bootstrap/greenfield.md`, `bootstrap/existing.md`, or `bootstrap/resume.md`.

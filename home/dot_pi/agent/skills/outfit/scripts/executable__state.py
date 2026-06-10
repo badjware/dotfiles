@@ -1,4 +1,5 @@
 """Shared helpers for outfit scripts. Stdlib only."""
+
 from __future__ import annotations
 
 import json
@@ -19,23 +20,25 @@ TASK_TRANSITIONS: dict[str, set[str]] = {
     "in_progress": {"in_review", "blocked", "cancelled"},
     "in_review": {"done", "in_progress", "blocked", "cancelled"},
     "blocked": {"todo", "in_progress", "cancelled"},
-    "done": set(),       # terminal
+    "done": set(),  # terminal
     "cancelled": set(),  # terminal
 }
 
 PHASES = {"discovery", "planning", "execution"}
-# Phase transition guards. `execution` is reachable only via approve-gate-1, not set-phase.
+# Phase transition guards.
+# `execution` is reachable only via approve-gate-1, not set-phase.
+# `planning` is reachable from `discovery` only via approve-discovery, not set-phase.
 # `discovery` is reachable from any phase: it is also the way to revisit requirements
 # mid-project.
 PHASE_TRANSITIONS: dict[str, set[str]] = {
-    "discovery": {"planning"},
+    "discovery": set(),  # use approve-discovery to advance to planning
     "planning": {"discovery"},
     "execution": {"discovery"},
 }
 
 ID_TASK_RE = re.compile(r"^T-\d{3,}$")
 ID_STORY_RE = re.compile(r"^S-\d{3,}$")
-ID_MILESTONE_RE = re.compile(r"^M\d+$")
+ID_MILESTONE_RE = re.compile(r"^M-\d{3,}$")
 
 
 def die(msg: str, code: int = 1) -> None:
@@ -81,8 +84,12 @@ def read_json(path: Path) -> Any:
 
 def read_tasks(plan: Path) -> dict:
     data = read_json(plan / "tasks.json")
-    if not isinstance(data, dict) or "tasks" not in data or not isinstance(data["tasks"], list):
-        die("tasks.json malformed: expected {\"tasks\": [...]}")
+    if (
+        not isinstance(data, dict)
+        or "tasks" not in data
+        or not isinstance(data["tasks"], list)
+    ):
+        die('tasks.json malformed: expected {"tasks": [...]}')
     return data
 
 
@@ -110,8 +117,16 @@ def task_by_id(tasks: list[dict], task_id: str) -> dict | None:
 
 def validate_task_shape(t: dict) -> None:
     """Validate task structure: id formats, required fields, types."""
-    required = {"id", "story_id", "milestone", "title", "description",
-                "acceptance", "status", "depends_on"}
+    required = {
+        "id",
+        "story_id",
+        "milestone",
+        "title",
+        "description",
+        "acceptance",
+        "status",
+        "depends_on",
+    }
     missing = required - t.keys()
     if missing:
         die(f"task missing fields: {sorted(missing)}")
@@ -149,7 +164,7 @@ def check_acyclic(tasks: list[dict], new_task: dict | None = None) -> None:
     def visit(node: str, path: list[str]) -> None:
         c = color.get(node, 0)
         if c == 1:
-            cycle = path[path.index(node):] + [node]
+            cycle = path[path.index(node) :] + [node]
             die(f"dependency cycle: {' -> '.join(cycle)}")
         if c == 2:
             return
@@ -162,6 +177,38 @@ def check_acyclic(tasks: list[dict], new_task: dict | None = None) -> None:
 
     for tid in by_id:
         visit(tid, [])
+
+
+def make_slug(text: str, max_len: int = 40) -> str:
+    """Convert text to a lowercase hyphenated slug, at most max_len chars."""
+    s = text.lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = s.strip("-")
+    if len(s) > max_len:
+        s = s[:max_len].rstrip("-")
+    return s
+
+
+def make_work_dir_name(task_id: str, title: str) -> str:
+    """Create a work directory name with slug, e.g. T-007-implement-login."""
+    slug = make_slug(title)
+    if slug:
+        return f"{task_id}-{slug}"
+    return task_id
+
+
+def work_dir_for_task(plan: Path, task_id: str) -> Path:
+    """Find the work directory for a task, handling slug-based names.
+
+    Scans for `<task_id>-*/` first (created by dispatch with a slug), then
+    falls back to the plain `<task_id>/` directory.
+    """
+    work_base = plan / "work"
+    if work_base.is_dir():
+        candidates = sorted(work_base.glob(f"{task_id}-*/"))
+        if candidates:
+            return candidates[0]
+    return work_base / task_id
 
 
 def next_task_id(tasks: list[dict]) -> str:
@@ -177,15 +224,19 @@ def skill_dir() -> Path:
 
 # --- git helpers ---
 
+
 class GitError(Exception):
     pass
 
 
 def git_run(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["git", *args], cwd=cwd,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        text=True, check=False,
+        ["git", *args],
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
     )
 
 

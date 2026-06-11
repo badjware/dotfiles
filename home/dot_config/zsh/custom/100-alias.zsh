@@ -12,8 +12,8 @@ alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
 fpath=(~/develop/github.com/badjware/pibox/completions $fpath)
-alias pibox="~/develop/github.com/badjware/pibox/launch.sh"
-alias claudebox="~/develop/github.com/badjware/pibox/launch.sh --harness claude"
+alias pibox="~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience"
+alias claudebox="~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --harness claude"
 
 # ls
 alias ls='lsd --group-dirs=first'

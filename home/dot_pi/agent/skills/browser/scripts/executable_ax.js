@@ -1,13 +1,7 @@
 #!/usr/bin/env node
-// Usage: node type.js <selector> <text>
+// Usage: node ax.js
+// Returns the page accessibility tree as JSON, for selector discovery.
 const { chromium } = require("playwright");
-
-const selector = process.argv[2];
-const text = process.argv[3];
-if (!selector || text === undefined) {
-  console.error("Usage: type.js <selector> <text>");
-  process.exit(1);
-}
 
 (async () => {
   const browser = await chromium.connectOverCDP("http://localhost:9222");
@@ -17,8 +11,8 @@ if (!selector || text === undefined) {
     console.error("no open page");
     process.exit(1);
   }
-  await page.locator(selector).fill(text, { timeout: 10000 });
-  console.log("OK");
+  const snapshot = await page.ariaSnapshot();
+  console.log(snapshot);
   process.exit(0);
 })().catch((err) => {
   console.error("Error:", err.message);

@@ -12,7 +12,10 @@ if (!url) {
   const browser = await chromium.connectOverCDP("http://localhost:9222");
   const ctx = browser.contexts()[0];
   const page = ctx.pages()[0] ?? (await ctx.newPage());
-  await page.goto(url, { waitUntil: "domcontentloaded" });
-  console.log("navigated to", page.url());
+  await page.goto(url, { waitUntil: "load" });
+  console.log("OK");
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

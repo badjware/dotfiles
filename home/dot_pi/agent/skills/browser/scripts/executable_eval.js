@@ -19,4 +19,7 @@ if (!expr) {
   const result = await page.evaluate(expr);
   console.log(JSON.stringify(result, null, 2));
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

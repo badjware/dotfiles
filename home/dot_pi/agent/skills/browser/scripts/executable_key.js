@@ -24,6 +24,9 @@ if (!key) {
   } else {
     await page.keyboard.press(key);
   }
-  console.log(`pressed ${key}`);
+  console.log("OK");
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

@@ -17,6 +17,9 @@ if (!selector) {
     process.exit(1);
   }
   await page.locator(selector).click({ timeout: 10000 });
-  console.log("clicked", selector);
+  console.log("OK");
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

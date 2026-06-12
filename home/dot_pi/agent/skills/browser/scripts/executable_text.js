@@ -16,4 +16,7 @@ const selector = process.argv[2] ?? "body";
   const text = await page.locator(selector).innerText({ timeout: 10000 });
   console.log(text);
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

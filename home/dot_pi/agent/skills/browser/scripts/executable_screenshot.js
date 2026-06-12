@@ -20,4 +20,7 @@ const out = "/tmp/browser-screenshot.png";
   }
   console.log(out);
   process.exit(0);
-})();
+})().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

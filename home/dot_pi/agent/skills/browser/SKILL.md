@@ -13,103 +13,110 @@ All scripts live in the skill directory at `scripts/`.
 Run once per session (or if Chrome is not responding):
 
 ```bash
-bash <skill-dir>/scripts/setup.sh
+./scripts/setup.sh
 ```
 
-Verify Chrome is ready:
+Running the setup script will kill any existing chrome instance, so never run it in the middle of a task unless you encounter issues.
+
+## Selector discovery
+
+Once on a page, you can discover selectors for elements of interest using the Accessibility Tree:
 
 ```bash
-curl -sf http://localhost:9222/json/version | jq .
+./scripts/ax.js     # accessibility tree (compact, semantic, visibility-aware)
 ```
+
+The AX tree only includes visible, interactable elements and exposes their role, name, and state (e.g. `expanded: false`). Use it as the default for selector discovery. If a collapsed element shows `expanded: false`, look for a toggler or expand button and click it first if you need to interact with it.
+
+Fall back to `html.js` only when the AX tree lacks enough detail (e.g. two elements with the same name that need disambiguation by CSS class or ID).
 
 ## Read page content
 
-Prefer text over screenshots.
+**Never take a screenshot unless the user explicitly asks for one, or the task is inherently visual (e.g. inspecting a chart or image).** Do not use screenshots to verify navigation, check page state, or read text.
 
-First, get the full body text:
+Always use a selector if possible to limit the scope of what you read. Use `ax.js` to discover selectors.
+
+Use `text.js` to read page content:
 
 ```bash
-node <skill-dir>/scripts/text.js
+./scripts/text.js "body"
+./scripts/text.js "#content"
+./scripts/text.js        # entire visible text
 ```
 
-If the output is noisy or too large, inspect the page structure to find a tighter selector:
+Screenshots are a last resort:
 
 ```bash
-node <skill-dir>/scripts/html.js   # stripped HTML (no scripts/styles)
-```
-
-Then scope `text.js` to a specific element:
-
-```bash
-node <skill-dir>/scripts/text.js "main"
-node <skill-dir>/scripts/text.js "#content"
-```
-
-Fall back to a screenshot only when visual layout matters or text extraction is insufficient:
-
-```bash
-node <skill-dir>/scripts/screenshot.js              # full page
-node <skill-dir>/scripts/screenshot.js "#chart"    # specific element
+./scripts/screenshot.js              # full page
+./scripts/screenshot.js "#chart"    # specific element
 ```
 
 Then use the `read` tool on `/tmp/browser-screenshot.png` to see the result.
 
-## Navigate
+## Navigation
+
+Your primarly mean of navigation is clicking around on the page. The script accepts any Playwright-compatible selector (CSS, text, role, etc.). The selector must match exactly one element. If it matches multiple, the script will error. Use a more specific selector to disambiguate:
 
 ```bash
-node <skill-dir>/scripts/navigate.js <url>
+./scripts/click.js "button:has-text('Submit')"
+./scripts/click.js "#login-btn"
+./scripts/click.js "a:has-text('Title') >> nth=0"
 ```
 
-## Click
-
-Accepts any Playwright-compatible selector (CSS, text, role, etc.):
+If you need to jump to a given URL:
 
 ```bash
-node <skill-dir>/scripts/click.js "button:has-text('Submit')"
-node <skill-dir>/scripts/click.js "#login-btn"
+./scripts/navigate.js <url>
 ```
 
-## Type
+Prefer clicking elements on the page rather than using `navigate.js`. This is because clicking simulates interactions and allows the page to update its state accordingly (e.g. setting cookies, updating the AX tree, etc.). Use `navigate.js` only when you need to jump to a specific URL that is not possible to reach via clicking (e.g. deep link).
 
-Clears the field and types the given text:
+## Keyboard interactions
+
+To clears a field and types the given text:
 
 ```bash
-node <skill-dir>/scripts/type.js "input[name='q']" "search query"
+./scripts/type.js "input[name='q']" "search query"
 ```
 
-## Press a key
-
-Useful for submitting forms, dismissing dialogs, navigating dropdowns:
+To press a key:
 
 ```bash
-node <skill-dir>/scripts/key.js Enter
-node <skill-dir>/scripts/key.js Enter "input[name='q']"   # focused on element
-node <skill-dir>/scripts/key.js Escape
-node <skill-dir>/scripts/key.js Tab
+./scripts/key.js Enter
+./scripts/key.js Enter "input[name='q']"   # focused on element
+./scripts/key.js Escape
+./scripts/key.js Tab
 ```
+
+Useful for submitting forms, dismissing dialogs, navigating dropdowns, etc.
 
 ## Evaluate JavaScript
 
-Returns JSON-serialized result:
+Returns a JSON-serialized result:
 
 ```bash
-node <skill-dir>/scripts/eval.js "document.title"
-node <skill-dir>/scripts/eval.js "document.querySelector('h1')?.textContent"
+./scripts/eval.js "document.title"
+./scripts/eval.js "document.querySelector('h1')?.textContent"
 ```
 
-## Workflow pattern
+This must only be used as a last resort when other commands are insufficient.
 
-1. `bash <skill-dir>/scripts/setup.sh` (if not already running)
-2. `node <skill-dir>/scripts/navigate.js <url>`
-3. `node <skill-dir>/scripts/text.js` to read the page; use `html.js` if you need to discover selectors
-4. Act: `click.js`, `type.js`, `eval.js`
-5. `text.js` again to verify the result
-6. Fall back to `screenshot.js` → `read /tmp/browser-screenshot.png` only when text is not enough
-7. Repeat steps 4-5 until done
+## Typical workflow pattern
+
+1. `./scripts/setup.sh` (if not already running)
+2. `./scripts/navigate.js <url>`
+3. `./scripts/text.js` to read the page; `./scripts/ax.js` to discover selectors. Do not take a screenshot to verify the result of an action.
+4. Act: `click.js`, `type.js`, `key.js`
+5. Repeat steps 3-4 until done
 
 ## Troubleshooting
 
-- **Connection refused**: Chrome is not running or crashed. Re-run `setup.sh`.
-- **Element not found**: The selector may be wrong or the page is still loading. Try `eval.js "document.readyState"` and `html.js` to inspect the current DOM.
-- **Chrome logs**: `cat /tmp/browser-skill-chrome.log`
-- **Authentication required**: Stop and ask the user to log in manually.
+- **Connection refused**: Chrome is not running or crashed. Offer to the user to either investigate the crash or to run `./scripts/setup.sh` to start a new instance.
+  - Chrome logs are at `/tmp/browser-skill-chrome.log`
+- **Element not found**: The selector may be wrong or the page is still loading. Try `eval.js "document.readyState"` and/or `ax.js` to inspect the current DOM.
+- **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (eg.: append `>> nth=0` to target the first match).
+- **User intervention required**: If you encouter one of the following, stop and ask the user to resolve it manually:
+  - Captcha
+  - Login prompt
+  - 2FA prompt
+  - SSL or other security issue

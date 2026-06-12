@@ -8,9 +8,8 @@ PORT=9222
 PROFILE_DIR="/tmp/browser-skill-profile"
 
 # Kill any existing instance bound to this port
-if fuser "${PORT}/tcp" &>/dev/null 2>&1; then
+if pkill -f -- "--remote-debugging-port=${PORT}" &>/dev/null 2>&1; then
   echo "killing existing Chrome on port ${PORT}"
-  fuser -k "${PORT}/tcp" || true
   sleep 1
 fi
 
@@ -21,6 +20,8 @@ google-chrome \
   --user-data-dir="${PROFILE_DIR}" \
   --no-first-run \
   --no-default-browser-check \
+  --disable-features=PasswordManager,Geolocation \
+  --disable-notifications \
   &>/tmp/browser-skill-chrome.log &
 
 echo "waiting for Chrome to be ready..."

@@ -55,7 +55,7 @@ Then use the `read` tool on `/tmp/browser-screenshot.png` to see the result.
 
 ## Navigation
 
-Your primarly mean of navigation is clicking around on the page. The script accepts any Playwright-compatible selector (CSS, text, role, etc.). The selector must match exactly one element. If it matches multiple, the script will error. Use a more specific selector to disambiguate:
+Your primary means of navigation is clicking around on the page. Use `click.js` to click elements. The script accepts any Playwright-compatible selector (CSS, text, role, etc.). The selector must match exactly one element. If it matches multiple, the script will error. Use a more specific selector to disambiguate:
 
 ```bash
 ./scripts/click.js "button:has-text('Submit')"
@@ -69,11 +69,11 @@ If you need to jump to a given URL:
 ./scripts/navigate.js <url>
 ```
 
-Prefer clicking elements on the page rather than using `navigate.js`. This is because clicking simulates interactions and allows the page to update its state accordingly (e.g. setting cookies, updating the AX tree, etc.). Use `navigate.js` only when you need to jump to a specific URL that is not possible to reach via clicking (e.g. deep link).
+Prefer clicking elements on the page rather than using `navigate.js`. This is because clicking simulates interactions and allows the page to update its state accordingly (e.g. setting cookies, updating the AX tree, etc.). Use `navigate.js` only when you need to jump to a specific URL that cannot be reached via clicking (e.g. deep link).
 
 ## Keyboard interactions
 
-To clears a field and types the given text:
+To clear a field and type the given text:
 
 ```bash
 ./scripts/type.js "input[name='q']" "search query"
@@ -103,19 +103,19 @@ This must only be used as a last resort when other commands are insufficient.
 
 ## Typical workflow pattern
 
-1. `./scripts/setup.sh` (if not already running)
-2. `./scripts/navigate.js <url>`
+1. `./scripts/setup.sh` (if not already running).
+2. `./scripts/navigate.js <url>` for the initial landing page.
 3. `./scripts/text.js` to read the page; `./scripts/ax.js` to discover selectors. Do not take a screenshot to verify the result of an action.
-4. Act: `click.js`, `type.js`, `key.js`
-5. Repeat steps 3-4 until done
+4. Act: `click.js`, `type.js`, `key.js`.
+5. Repeat steps 3-4 until done.
 
 ## Troubleshooting
 
 - **Connection refused**: Chrome is not running or crashed. Offer to the user to either investigate the crash or to run `./scripts/setup.sh` to start a new instance.
   - Chrome logs are at `/tmp/browser-skill-chrome.log`
 - **Element not found**: The selector may be wrong or the page is still loading. Try `eval.js "document.readyState"` and/or `ax.js` to inspect the current DOM.
-- **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (eg.: append `>> nth=0` to target the first match).
-- **User intervention required**: If you encouter one of the following, stop and ask the user to resolve it manually:
+- **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (e.g.: append `>> nth=0` to target the first match).
+- **User intervention required**: If you encounter one of the following, stop and ask the user to resolve it manually:
   - Captcha
   - Login prompt
   - 2FA prompt

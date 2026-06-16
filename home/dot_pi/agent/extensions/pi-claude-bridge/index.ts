@@ -1,5 +1,5 @@
 /**
- * pi-claude-interop
+ * pi-claude-bridge
  *
  * Bridges Claude Code assets to pi so they interoperate automatically:
  *
@@ -9,10 +9,13 @@
  *  - Skills (.claude/skills/, ~/.claude/skills/)
  *      → registered as pi skill paths
  *
- *  - Rules (.claude/rules/)
+ *  - CLAUDE.md (CLAUDE.md, ~/.claude/CLAUDE.md)
+ *      → injected eagerly into the system prompt
+ *
+ *  - Rules (.claude/rules/, ~/.claude/rules/)
  *      → injected into the system prompt with read-on-demand links
  *
- *  - /claude-interop command → show a status report
+ *  - /claude-bridge command → show a status report
  */
 
 import * as fs from "node:fs";
@@ -48,26 +51,44 @@ function findMarkdownFiles(dir: string, rel = ""): string[] {
 // Extension
 // ---------------------------------------------------------------------------
 
-export default async function claudeInteropExtension(pi: ExtensionAPI) {
+export default function claudeBridgeExtension(pi: ExtensionAPI) {
 	const home = os.homedir();
-	let cwd = process.cwd();
 
-	// Populated during resources_discover / before_agent_start; reused by /claude-interop
+	// Populated during resources_discover; reused by /claude-bridge
 	let discoveredSkillPaths: string[] = [];
 	let discoveredCommandFiles: string[] = [];
-	let discoveredRuleFiles: string[] = [];
 
-	// ---------------------------------------------------------------------------
-	// session_start — capture working directory
-	// ---------------------------------------------------------------------------
-	pi.on("session_start", (_event, ctx) => {
-		cwd = ctx.cwd;
-	});
+	function discoverClaudeMd(cwd: string) {
+		const globalAgentsMd = path.join(home, ".pi", "agent", "AGENTS.md");
+		const globalClaudeMd = path.join(home, ".claude", "CLAUDE.md");
+		const piAgentsMdExists = fs.existsSync(globalAgentsMd);
+		return {
+			skipped: piAgentsMdExists && fs.existsSync(globalClaudeMd) ? globalClaudeMd : null,
+			files: [
+				...(!piAgentsMdExists ? [globalClaudeMd] : []),
+				path.join(cwd, "CLAUDE.md"),
+			].filter((p) => fs.existsSync(p)),
+		};
+	}
+
+	function discoverRules(cwd: string) {
+		const entries: string[] = [];
+		for (const [rulesDir, prefix] of [
+			[path.join(home, ".claude", "rules"), "~/.claude/rules"],
+			[path.join(cwd, ".claude", "rules"), ".claude/rules"],
+		] as [string, string][]) {
+			for (const rel of findMarkdownFiles(rulesDir)) {
+				entries.push(`${prefix}/${rel}`);
+			}
+		}
+		return entries;
+	}
 
 	// ---------------------------------------------------------------------------
 	// resources_discover — register skills and commands (as prompt templates)
 	// ---------------------------------------------------------------------------
-	pi.on("resources_discover", (_event) => {
+	pi.on("resources_discover", (event) => {
+		const { cwd } = event;
 		const skillPaths: string[] = [];
 		const promptPaths: string[] = [];
 
@@ -99,33 +120,42 @@ export default async function claudeInteropExtension(pi: ExtensionAPI) {
 	});
 
 	// ---------------------------------------------------------------------------
-	// before_agent_start — inject .claude/rules/ into the system prompt
+	// before_agent_start — inject CLAUDE.md files and rules into the system prompt
 	// ---------------------------------------------------------------------------
-	pi.on("before_agent_start", (event, _ctx) => {
-		const rulesDir = path.join(cwd, ".claude", "rules");
-		discoveredRuleFiles = findMarkdownFiles(rulesDir);
+	pi.on("before_agent_start", (event, ctx) => {
+		const { cwd } = ctx;
+		const additions: string[] = [];
 
-		if (discoveredRuleFiles.length === 0) return;
+		// ── CLAUDE.md — eager injection ──────────────────────────────────────────
+		const { files: claudeMdFiles } = discoverClaudeMd(cwd);
+		for (const p of claudeMdFiles) {
+			const label = p.startsWith(home) ? `~${p.slice(home.length)}` : path.relative(cwd, p);
+			const content = fs.readFileSync(p, "utf-8").trim();
+			additions.push(`## Instructions from ${label}\n\n${content}`);
+		}
 
-		const list = discoveredRuleFiles.map((f) => `- .claude/rules/${f}`).join("\n");
+		// ── Rules — lazy (list paths, load on demand) ────────────────────────────
+		const ruleEntries = discoverRules(cwd);
+		if (ruleEntries.length > 0) {
+			const list = ruleEntries.map((f) => `- ${f}`).join("\n");
+			additions.push(
+				`## Project Rules (Claude Code)\n\n` +
+				`The following rules are available:\n\n${list}\n\n` +
+				`When working on tasks that relate to these rules, use the read tool to load the relevant file(s) before proceeding.`,
+			);
+		}
 
-		return {
-			systemPrompt:
-				event.systemPrompt +
-				`\n\n## Project Rules (Claude Code)\n\n` +
-				`The following project rules are available in \`.claude/rules/\`:\n\n` +
-				`${list}\n\n` +
-				`When working on tasks that relate to these rules, use the read tool ` +
-				`to load the relevant file(s) before proceeding.`,
-		};
+		if (additions.length === 0) return;
+		return { systemPrompt: event.systemPrompt + "\n\n" + additions.join("\n\n") };
 	});
 
 	// ---------------------------------------------------------------------------
-	// /claude-interop command — show a status report
+	// /claude-bridge command — show a status report
 	// ---------------------------------------------------------------------------
-	pi.registerCommand("claude-interop", {
-		description: "Show Claude Code interop status (commands, skills, rules)",
+	pi.registerCommand("claude-bridge", {
+		description: "Show Claude Code bridge status (commands, skills, rules)",
 		handler: (_args, ctx) => {
+			const { cwd } = ctx;
 			const lines: string[] = ["── Claude Code Interop Status ──────────────────────────"];
 
 			// Commands / Prompt templates
@@ -151,13 +181,29 @@ export default async function claudeInteropExtension(pi: ExtensionAPI) {
 				}
 			}
 
-			// Rules
+			// CLAUDE.md
+			const { files: claudeMdFiles, skipped: skippedClaudeMd } = discoverClaudeMd(cwd);
 			lines.push("");
-			lines.push(`Rules injected into system prompt (${discoveredRuleFiles.length}):`);
-			if (discoveredRuleFiles.length === 0) {
-				lines.push("  (none — create .md files in .claude/rules/)");
+			lines.push(`CLAUDE.md files injected (${claudeMdFiles.length}):`);
+			if (claudeMdFiles.length === 0 && !skippedClaudeMd) {
+				lines.push("  (none — create CLAUDE.md or ~/.claude/CLAUDE.md)");
 			} else {
-				for (const f of discoveredRuleFiles) lines.push(`  .claude/rules/${f}`);
+				for (const p of claudeMdFiles) {
+					lines.push(`  ${p.startsWith(home) ? `~${p.slice(home.length)}` : path.relative(cwd, p)}`);
+				}
+				if (skippedClaudeMd) {
+					lines.push("  ~/.claude/CLAUDE.md  (skipped — ~/.pi/agent/AGENTS.md takes precedence)");
+				}
+			}
+
+			// Rules
+			const ruleFiles = discoverRules(cwd);
+			lines.push("");
+			lines.push(`Rules (${ruleFiles.length}):`);
+			if (ruleFiles.length === 0) {
+				lines.push("  (none — create .md files in .claude/rules/ or ~/.claude/rules/)");
+			} else {
+				for (const f of ruleFiles) lines.push(`  ${f}`);
 			}
 
 			lines.push("");

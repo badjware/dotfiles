@@ -1,202 +1,231 @@
 import { spawn } from "node:child_process";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import http from "node:http";
+import https from "node:https";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { defineTool, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import {
+  DEFAULT_MAX_BYTES,
+  DEFAULT_MAX_LINES,
+  defineTool,
+  type ExtensionAPI,
+  formatSize,
+  truncateHead,
+  type TruncationResult,
+} from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 const TIMEOUT_S = Number(process.env.PI_FETCH_TIMEOUT_S || "20");
-const WIDTH = Number(process.env.PI_FETCH_WIDTH || "1024");
-const DEFAULT_MAX_CHARS = Number(process.env.PI_FETCH_DEFAULT_MAX_CHARS || "32000");
-const LONG_LINE_THRESHOLD = Number(process.env.PI_FETCH_LONG_LINE_THRESHOLD || "60");
+const USER_AGENT =
+  process.env.PI_FETCH_USER_AGENT ||
+  "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
+const MAX_REDIRECTS = 5;
 
-interface LynxResult {
-	stdout: string;
-	stderr: string;
-	code: number | null;
+// We use http/https instead of fetch to evade bot detection
+function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const visit = (current: string, redirectsLeft: number) => {
+      let parsed: URL;
+      try {
+        parsed = new URL(current);
+      } catch {
+        reject(new Error(`Invalid URL: ${current}`));
+        return;
+      }
+      const lib =
+        parsed.protocol === "https:"
+          ? https
+          : parsed.protocol === "http:"
+            ? http
+            : null;
+      if (!lib) {
+        reject(new Error(`Unsupported URL scheme: ${parsed.protocol}`));
+        return;
+      }
+
+      const req = lib.request(
+        parsed,
+        {
+          method: "GET",
+          headers: { "User-Agent": USER_AGENT, Accept: "*/*" },
+          signal,
+          timeout: TIMEOUT_S * 1000,
+        },
+        (res) => {
+          const status = res.statusCode ?? 0;
+          if (status >= 300 && status < 400 && res.headers.location) {
+            res.resume();
+            if (redirectsLeft <= 0) {
+              reject(new Error("Too many redirects"));
+              return;
+            }
+            visit(
+              new URL(res.headers.location, current).toString(),
+              redirectsLeft - 1,
+            );
+            return;
+          }
+          if (status >= 400) {
+            res.resume();
+            reject(
+              new Error(`HTTP ${status} ${res.statusMessage ?? ""}`.trim()),
+            );
+            return;
+          }
+          res.setEncoding("utf-8");
+          let body = "";
+          res.on("data", (chunk) => {
+            body += chunk;
+          });
+          res.on("end", () => resolve(body));
+          res.on("error", reject);
+        },
+      );
+      req.on("error", reject);
+      req.on("timeout", () =>
+        req.destroy(new Error(`Request timed out after ${TIMEOUT_S}s`)),
+      );
+      req.end();
+    };
+    visit(url, MAX_REDIRECTS);
+  });
 }
 
-/**
- * Strips leading and trailing "chrome" blocks from lynx text output.
- *
- * Strategy: split the output into blank-line-separated blocks and remove
- * any all-short-line blocks at the head and tail of the document.  Blocks
- * that contain at least one line whose trimmed length meets LONG_LINE_THRESHOLD
- * are considered content and anchor the kept region.
- *
- * Known limitation: very long URLs or legal notices in page footers may
- * extend the kept region slightly into footer territory — acceptable without
- * site-specific keyword matching.
- */
-function stripChrome(text: string): string {
-	const blocks = text.split(/\n\n+/);
-
-	const hasLongLine = (block: string): boolean =>
-		block.split("\n").some((line) => line.trimEnd().length >= LONG_LINE_THRESHOLD);
-
-	let start = 0;
-	while (start < blocks.length && !hasLongLine(blocks[start])) start++;
-
-	let end = blocks.length - 1;
-	while (end > start && !hasLongLine(blocks[end])) end--;
-
-	// No content blocks found — return as-is rather than an empty string.
-	if (start > end) return text;
-
-	return blocks.slice(start, end + 1).join("\n\n");
-}
-
-function runLynx(url: string, includeLinks: boolean, signal?: AbortSignal): Promise<LynxResult> {
-	return new Promise((resolve, reject) => {
-		const args = [
-			"-dump",
-			"-nostatus",
-			"-noreferer",
-			`-width=${WIDTH}`,
-			"-display_charset=utf-8",
-			"-assume_charset=utf-8",
-			`-connect_timeout=${TIMEOUT_S}`,
-			`-read_timeout=${TIMEOUT_S}`,
-		];
-		if (!includeLinks) args.push("-nolist");
-		args.push(url);
-
-		let proc;
-		try {
-			proc = spawn("lynx", args, { signal });
-		} catch (error) {
-			reject(error);
-			return;
-		}
-		let stdout = "";
-		let stderr = "";
-		proc.stdout.on("data", (chunk) => {
-			stdout += chunk.toString("utf-8");
-		});
-		proc.stderr.on("data", (chunk) => {
-			stderr += chunk.toString("utf-8");
-		});
-		proc.on("error", (error) => {
-			const err = error as NodeJS.ErrnoException;
-			if (err.code === "ENOENT") {
-				reject(
-					new Error(
-						"lynx not found on PATH. Install it (e.g. `apt install lynx` or `brew install lynx`).",
-					),
-				);
-				return;
-			}
-			reject(error);
-		});
-		proc.on("close", (code) => resolve({ stdout, stderr, code }));
-	});
+function runTrafilatura(
+  html: string,
+  signal?: AbortSignal,
+): Promise<{ stdout: string; stderr: string; code: number | null }> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(
+      "trafilatura",
+      ["--output-format", "markdown", "--formatting"],
+      { signal },
+    );
+    let stdout = "";
+    let stderr = "";
+    proc.stdout.setEncoding("utf-8");
+    proc.stderr.setEncoding("utf-8");
+    proc.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    proc.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    proc.on("error", (error) => {
+      const err = error as NodeJS.ErrnoException;
+      if (err.code === "ENOENT") {
+        reject(
+          new Error(
+            "trafilatura not found on PATH. Install it (e.g. `pipx install trafilatura`).",
+          ),
+        );
+        return;
+      }
+      reject(error);
+    });
+    proc.on("close", (code) => resolve({ stdout, stderr, code }));
+    proc.stdin.end(html);
+  });
 }
 
 export default function (pi: ExtensionAPI) {
-	pi.registerTool(
-		defineTool({
-			name: "fetch_url",
-			label: "Fetch URL",
-			description: "Fetch a web page and extract readable text content. Not suitable for structured data (e.g. API responses).",
-			promptSnippet: "Fetch a URL and extract readable page text.",
-			promptGuidelines: [
-				"Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
-				"Do not use fetch_url to retrieve structured data such as API responses; use bash with curl instead.",
-			],
-			parameters: Type.Object({
-				url: Type.String({ description: "URL to fetch" }),
-				max_chars: Type.Optional(
-					Type.Number({
-						description: `Maximum number of extracted characters to return (default ${DEFAULT_MAX_CHARS})`,
-					}),
-				),
-				include_links: Type.Optional(
-					Type.Boolean({
-						description:
-							"Append the numbered list of page links at the end (default false). Enable when you intend to follow links.",
-					}),
-				),
-				strip_chrome: Type.Optional(
-					Type.Boolean({
-						description:
-							"Remove navigation menus and other short-line boilerplate from the top and bottom of the page (default true). Set to false if the content is unexpectedly truncated or the page layout is unconventional.",
-					}),
-				),
-			}),
-			renderCall(args, theme, _context) {
-				return new Text(
-					theme.fg("toolTitle", theme.bold("fetch_url ")) + theme.fg("muted", args.url),
-					0,
-					0,
-				);
-			},
+  pi.registerTool(
+    defineTool({
+      name: "fetch_url",
+      label: "Fetch URL",
+      description: `Fetch a web page and extract readable text content. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first). If truncated, full output is saved to a temp file. Not suitable for structured data (e.g. API responses).`,
+      promptSnippet: "Fetch a URL and extract readable page text as Markdown.",
+      promptGuidelines: [
+        "Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
+        "Do not use fetch_url to retrieve structured data such as API responses; use bash with curl instead.",
+        "fetch_url runs no JavaScript and keeps no session; it returns near-empty text for JavaScript-rendered or login-walled pages. Best for static articles, docs, and READMEs.",
+      ],
+      parameters: Type.Object({
+        url: Type.String({ description: "URL to fetch" }),
+      }),
+      renderCall(args, theme, _context) {
+        return new Text(
+          theme.fg("toolTitle", theme.bold("fetch_url ")) +
+            theme.fg("muted", args.url),
+          0,
+          0,
+        );
+      },
 
-			async execute(_toolCallId, params, signal, onUpdate) {
-				const rawUrl = (params.url || "").trim();
-				if (!rawUrl) {
-					return {
-						content: [{ type: "text", text: "fetch_url requires a non-empty url." }],
-						details: {},
-						isError: true,
-					};
-				}
-				let maxChars = Math.floor(params.max_chars ?? DEFAULT_MAX_CHARS);
-				if (!Number.isFinite(maxChars)) maxChars = DEFAULT_MAX_CHARS;
-				maxChars = Math.max(500, Math.min(100000, maxChars));
-				const includeLinks = params.include_links ?? false;
-				const shouldStripChrome = params.strip_chrome ?? true;
+      async execute(_toolCallId, params, signal) {
+        const rawUrl = params.url.trim();
+        try {
+          const html = await fetchHtml(rawUrl, signal);
+          const traf = await runTrafilatura(html, signal);
+          if (traf.code !== 0 && !traf.stdout.trim()) {
+            const message =
+              traf.stderr.trim() || `trafilatura exited with code ${traf.code}`;
+            return {
+              content: [{ type: "text", text: message }],
+              details: { requested_url: rawUrl, exit_code: traf.code },
+              isError: true,
+            };
+          }
 
-				onUpdate?.({ content: [{ type: "text", text: `Fetching URL: ${rawUrl}` }] });
+          const text = traf.stdout
+            .replace(/\r\n/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+          if (!text) {
+            return {
+              content: [{ type: "text", text: "No readable text extracted." }],
+              details: { requested_url: rawUrl },
+              isError: true,
+            };
+          }
 
-				try {
-					const { stdout, stderr, code } = await runLynx(rawUrl, includeLinks, signal);
-					if (code !== 0 && !stdout.trim()) {
-						const message = stderr.trim() || `lynx exited with code ${code}`;
-						return {
-							content: [{ type: "text", text: message }],
-							details: { requested_url: rawUrl, exit_code: code },
-							isError: true,
-						};
-					}
+          const truncation = truncateHead(text, {
+            maxLines: DEFAULT_MAX_LINES,
+            maxBytes: DEFAULT_MAX_BYTES,
+          });
 
-					let text = stdout
-						.replace(/\r\n/g, "\n")
-						// Lynx artifacts: <link>/<a name> rendered as "#word word…" lines
-						.replace(/^\s*#\w[^\n]*/gm, "")
-						// Lynx artifacts: <button> and <input type="checkbox"> markers
-						.replace(/\(BUTTON\) ?/g, "")
-						.replace(/\[ ?[Xx]? ?\]/g, "")
-						// Lynx artifacts: <input type="text"> and <img> with no alt text
-						.replace(/_{4,}/g, "")
-						.replace(/\[INLINE\]|\[IMG\]/g, "")
-						.replace(/^[ \t]+$/gm, "")
-						.replace(/\n{3,}/g, "\n\n")
-						.trim();
-					if (shouldStripChrome) text = stripChrome(text);
-					const originalLength = text.length;
-					const truncated = originalLength > maxChars;
-					if (truncated) text = `${text.slice(0, maxChars - 1).replace(/\s+$/, "")}…`;
+          const details: {
+            requested_url: string;
+            truncated: boolean;
+            truncation?: TruncationResult;
+            fullOutputPath?: string;
+          } = {
+            requested_url: rawUrl,
+            truncated: truncation.truncated,
+          };
 
-					const summary = text || "No readable text extracted.";
+          let resultText = truncation.content;
+          if (truncation.truncated) {
+            const tempDir = await mkdtemp(join(tmpdir(), "pi-fetch-"));
+            const tempFile = join(tempDir, "content.md");
+            await writeFile(tempFile, text, "utf8");
+            details.truncation = truncation;
+            details.fullOutputPath = tempFile;
 
-					return {
-						content: [{ type: "text", text: summary }],
-						details: {
-							requested_url: rawUrl,
-							content: text,
-							truncated,
-							original_length: originalLength,
-						},
-						isError: false,
-					};
-				} catch (error) {
-					const message = error instanceof Error ? error.message : String(error);
-					return {
-						content: [{ type: "text", text: message }],
-						details: { requested_url: rawUrl },
-						isError: true,
-					};
-				}
-			},
-		}),
-	);
+            const omittedLines = truncation.totalLines - truncation.outputLines;
+            resultText += `\n\n[Output truncated: showing ${truncation.outputLines} of ${truncation.totalLines} lines`;
+            resultText += ` (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}).`;
+            resultText += ` ${omittedLines} lines omitted.`;
+            resultText += ` Full output saved to: ${tempFile}]`;
+          }
+
+          return {
+            content: [{ type: "text", text: resultText }],
+            details,
+            isError: false,
+          };
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          return {
+            content: [{ type: "text", text: message }],
+            details: { requested_url: rawUrl },
+            isError: true,
+          };
+        }
+      },
+    }),
+  );
 }

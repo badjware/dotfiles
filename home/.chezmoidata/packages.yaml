@@ -28,7 +28,6 @@ packages:
       - less
       - lm_sensors
       - lsd
-      - lynx # for pi fetch_url
       - neovim
       - openssh
       - pass
@@ -163,7 +162,6 @@ packages:
       - lm_sensors
       - lpf
       - lsd
-      - lynx # for pi fetch_url
       - neovim
       - openssh
       - pass

@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { getAgentDir, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { getAgentDir, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { appendHistory, loadHistory, type HistoryEntry } from "./history-store.js";
 import { HistorySearchOverlay } from "./search-overlay.js";
 

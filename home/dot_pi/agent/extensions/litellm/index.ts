@@ -1,5 +1,5 @@
 import { streamSimpleOpenAICompletions, type Model } from "@mariozechner/pi-ai";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 type LiteLLMModel = {
   id: string;

@@ -1,4 +1,4 @@
-import { CustomEditor } from "@mariozechner/pi-coding-agent";
+import { CustomEditor } from "@earendil-works/pi-coding-agent";
 import { getKeybindings } from "@mariozechner/pi-tui";
 import type { HistoryEntry } from "./history-store.js";
 

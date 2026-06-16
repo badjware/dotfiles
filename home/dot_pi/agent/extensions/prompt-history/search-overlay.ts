@@ -1,4 +1,4 @@
-import { DynamicBorder } from "@mariozechner/pi-coding-agent";
+import { DynamicBorder } from "@earendil-works/pi-coding-agent";
 import { Container, fuzzyFilter, getKeybindings, Input, Spacer, TruncatedText } from "@mariozechner/pi-tui";
 import type { HistoryEntry } from "./history-store.js";
 

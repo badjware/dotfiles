@@ -2,40 +2,29 @@
 set -e
 set -o pipefail
 
+# Applications: {{ output "ls" (joinPath .chezmoi.homeDir "Applications") | replace "\n" " " }}
+
 icon_folder="${HOME}/.local/share/icons"
 
 {{ if ne .chassisType "container" }}
-for appimage_path in $(find $HOME/applications -name '*.AppImage'); do
+for appimage_path in $(find $HOME/Applications -name '*.AppImage'); do
 
-    tempdir=$(mktemp -d)
     appimage_filename=$(basename "$appimage_path")
     app_name="${appimage_filename%.*}"
     desktop_path="${HOME}/.local/share/applications/$app_name.desktop"
 
-    if [ "$2" == "--remove" ]; then
-        rm -f "$desktop_path"
-        find "${icon_folder}" -maxdepth 1 -type f -name "$app_name.*" -delete
-        echo "Removed"
-        exit 0
-    fi
+    # skip if desktop entry already exists
+    [ -f "$desktop_path" ] && continue
+
+    tempdir=$(mktemp -d)
 
     pushd $tempdir >/dev/null
     "$appimage_path" --appimage-extract > /dev/null
     cd squashfs-root/
 
-    #echo "Choose icon: "
     mapfile -t filenames < <(find -L . -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.svg' \))
-    #i=1
-    #for filename in "${filenames[@]}"
-    #do
-    #    printf " %d) %s\n" "$i" "$filename"
-    #    i=$((i + 1))
-    #done
 
-    #read -r selected_index
-    selected_index=1
-
-    icon_src=${filenames[$((selected_index - 1))]}
+    icon_src=${filenames[0]}
     icon_ext="${icon_src##*.}"
     icon_dst="${icon_folder}/$app_name.$icon_ext"
     cp "$icon_src" "$icon_dst"
@@ -51,8 +40,9 @@ Terminal=false
 EOT
 
     popd >/dev/null
-
     rm -rf $tempdir
+
+    echo "Created desktop entry for $app_name"
 
 done
 {{ end }}

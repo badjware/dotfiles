@@ -8,7 +8,7 @@ compatibility: Requires python3 (stdlib only). Plain-text files; git-friendly. O
 
 Structured, git-friendly storywriting project. Outline → scene specs → scene drafts → compiled chapters → manuscript. Each scene is a Markdown file with YAML frontmatter so the agent can load, edit, and revise it in isolation.
 
-**Scope:** This skill owns story artifacts (outlines, scenes, chapters, manuscript, style). It **does not define world canon** — characters, locations, factions, lore all live in a world managed by the `worldbuilding` skill. This skill reads the world for context but never edits it.
+**Scope:** This skill owns story artifacts (outlines, scenes, chapters, manuscript, style). It **does not define world canon**: characters, locations, factions, lore all live in a world managed by the `worldbuilding` skill. This skill reads the world for context but never edits it.
 
 ## When to use
 
@@ -43,7 +43,7 @@ stories/<story-name>/
   index.json            # generated; committed for diffs
 ```
 
-Chapters and manuscript are **compiled artifacts** — regenerate, do not hand-edit.
+Chapters and manuscript are **compiled artifacts**: regenerate, do not hand-edit.
 
 ## Relationship to the worldbuilding skill
 
@@ -110,7 +110,7 @@ sw.py new-outline <story> --scope chapter --chapter N
 sw.py new-scene <story> --chapter N --order K --pov <id> [--where <id>] [--characters a,b] [--summary "..."]
 sw.py set-status <story> <scene-id> <outline|draft|revised|final>
 
-# Write / revise (returns JSON prompt package — agent writes the prose)
+# Write / revise (returns JSON prompt package: agent writes the prose)
 sw.py draft   <story> <scene-id>
 sw.py revise  <story> <scene-id> --goal "tighten pacing"
 
@@ -138,13 +138,13 @@ sw.py expand <story> --text "Meet @char-jane-doe at @loc-precinct-12"
 2. **Plan, don't pounce**: when the user asks for a story or scene, the default first response is a proposal (premise, arc beats, or scene spec) and a request for confirmation. Drafting prose is opt-in, never the first action. Do not call `sw.py draft` until the user has explicitly approved an outline or scene spec.
 3. **Outline gate (hard)**: before calling `sw.py draft` for a scene, verify (a) an arc outline exists, (b) the relevant chapter outline exists, (c) the scene's frontmatter (summary, POV, where, characters) has been shown to the user and approved. If any is missing, stop and resolve it first. The CLI's `warnings` are not enough: the agent must enforce this gate itself.
 4. **Always load the prompt package**: do not write prose from memory. Call `sw.py draft` (or `revise`) and write strictly against the returned package.
-5. **POV discipline**: the package specifies POV character, POV mode, and tense — obey them. If the user asks to break them for a single scene, overwrite that scene's frontmatter (`pov`, `pov_mode_override`) first.
+5. **POV discipline**: the package specifies POV character, POV mode, and tense; obey them. If the user asks to break them for a single scene, overwrite that scene's frontmatter (`pov`, `pov_mode_override`) first.
 6. **Canon respect**: if the prompt package's `warnings` includes broken `@id` references or missing world, stop and confirm with the user before inventing facts.
 7. **One-off by default**: assume the story is a one-off unless `story.md` has a `world:` path set **and** the user has indicated entities should persist beyond this story. Invented names go into `notes/todo.md`. Do **not** suggest invoking the `worldbuilding` skill, do not propose `wb.py new`, and do not edit the world.
 8. **Persisting to a world (only when attached)**: if a world is attached and a newly-invented named entity recurs across scenes or the user signals it matters beyond this story, mention it once and ask whether to persist it via the `worldbuilding` skill. Otherwise stay silent. Never edit the world from this skill.
 9. **Save prose into the scene file body**, keep frontmatter intact, then run `sw.py index` to refresh word counts and index.
 10. **Continuity pass**: after drafting, run `sw.py continuity` and surface any broken or unknown `@id`s.
-11. **Compile is write-only on artifacts**: never edit `chapters/*.md` or `manuscript.md` by hand — regenerate with `sw.py compile`.
+11. **Compile is write-only on artifacts**: never edit `chapters/*.md` or `manuscript.md` by hand; regenerate with `sw.py compile`.
 12. **Git**: suggest commits at meaningful milestones (outline done, scene drafted, chapter compiled); never commit automatically.
 
 ## Style guide

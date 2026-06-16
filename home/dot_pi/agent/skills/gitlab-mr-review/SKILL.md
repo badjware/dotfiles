@@ -13,7 +13,7 @@ If auth fails, tell the user to set:
 - `export GITLAB_TOKEN=<personal-access-token>`
 - `export GITLAB_HOST=<host>` (only needed for self-hosted instances)
 
-## Phase 1 — Fetch and analyze
+## Phase 1: Fetch and analyze
 
 If the user provided an MR URL (as a command argument or in their message), use it. Otherwise ask for it.
 
@@ -24,9 +24,9 @@ python3 ./scripts/fetch_mr.py <mr-url>
 ```
 
 The script outputs JSON with three keys:
-- `mr` — metadata (title, description, branches, draft, pipeline, conflicts, reviewers)
-- `changes` — list of file diffs (`old_path`, `new_path`, `diff`, flags)
-- `discussions` — existing comment threads (`resolvable`, `resolved`, `file`, `line`, notes)
+- `mr`: metadata (title, description, branches, draft, pipeline, conflicts, reviewers)
+- `changes`: list of file diffs (`old_path`, `new_path`, `diff`, flags)
+- `discussions`: existing comment threads (`resolvable`, `resolved`, `file`, `line`, notes)
 
 If `skipped_binary_files` is present, mention it briefly.
 
@@ -34,11 +34,11 @@ If `skipped_binary_files` is present, mention it briefly.
 
 **Do not** report things the user can see for themselves (author, pipeline status, conflict status, file sizes). Focus on understanding.
 
-Read [references/overview-template.md](references/overview-template.md) and fill it in. Follow it exactly — omit sections that do not apply, do not add sections that are not in the template.
+Read [references/overview-template.md](references/overview-template.md) and fill it in. Follow it exactly: omit sections that do not apply, do not add sections that are not in the template.
 
 ---
 
-## Phase 2 — Q&A
+## Phase 2: Q&A
 
 Answer questions about the MR. Reference specific files, functions, or diff lines when relevant.
 
@@ -46,7 +46,7 @@ If something the user asks about cannot be answered from the current context (e.
 
 ---
 
-## Phase 3 — Notes proofreading
+## Phase 3: Notes proofreading
 
 When the user asks to review their draft notes, fetch them from the GitLab API:
 
@@ -58,9 +58,9 @@ If no draft notes are found, tell the user.
 
 Review the notes on two dimensions:
 
-1. **Grammar and clarity** — fix typos, awkward phrasing, unclear references. Suggest reworded versions where helpful.
+1. **Grammar and clarity**: fix typos, awkward phrasing, unclear references. Suggest reworded versions where helpful.
 
-2. **Correctness** — verify every factual claim against the diff:
+2. **Correctness**: verify every factual claim against the diff:
    - Does the code actually do what the user says it does?
    - Is the user's suggested fix or advice technically sound given the full context of the changes?
    - Are there any contradictions with other parts of the diff the user may have missed?

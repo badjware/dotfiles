@@ -77,13 +77,13 @@ updated: 2026-05-12
 ## Notes files
 
 Plain Markdown, no frontmatter required:
-- `notes/continuity.md` — running continuity notes the agent or user maintains by hand.
-- `notes/todo.md` — open threads, unresolved promises, invented names that need worldbuilding entries.
+- `notes/continuity.md`: running continuity notes the agent or user maintains by hand.
+- `notes/todo.md`: open threads, unresolved promises, invented names that need worldbuilding entries.
 
-## Compiled artifacts (generated — do not edit)
+## Compiled artifacts (generated: do not edit)
 
-- `chapters/ch-NN.md` — scenes of chapter N concatenated in `order`, frontmatter stripped, separated by blank lines.
-- `manuscript.md` — all chapters concatenated in order.
+- `chapters/ch-NN.md`: scenes of chapter N concatenated in `order`, frontmatter stripped, separated by blank lines.
+- `manuscript.md`: all chapters concatenated in order.
 
 Both are rebuilt by `sw.py compile`. Hand edits will be overwritten.
 

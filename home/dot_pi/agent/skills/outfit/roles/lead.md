@@ -88,8 +88,8 @@ Before adding tasks, identify and resolve technology and constraint decisions. A
 - Coding style or formatter, if not already implied by the existing project
 
 For each decision, mark it as either:
-- **resolved** — recorded with rationale; workers will respect it.
-- **needs-user-input** — the user must provide something before execution can start: an API key, credentials, an account, a chosen library among options you presented, an existing system to integrate with, etc.
+- **resolved**: recorded with rationale; workers will respect it.
+- **needs-user-input**: the user must provide something before execution can start: an API key, credentials, an account, a chosen library among options you presented, an existing system to integrate with, etc.
 
 You **must list every `needs-user-input` decision in the Gate 1 plan summary**, and you must not start any task that depends on an unresolved input. If unresolved decisions exist at gate time, present them to the user, get answers, record the resolutions in `decisions.md`, then re-present the plan.
 
@@ -141,7 +141,7 @@ For each task in dependency order within the current milestone:
 5. **Consolidate review outcomes.**
    - If **either** review has blocking issues (`needs-changes`), go to step 6 with the combined feedback.
    - If **both** approve (`done`), optionally log any minor issues to `.plan/work/<task-id>/deferred-issues.md`, then `./scripts/task.py set-status <task-id> done` (this auto-commits). Next task.
-6. **Rework.** `./scripts/task.py set-status <task-id> in_progress` (clears `status-programmer.md`). Combine agent and human feedback into a single rework context document. Re-dispatch the programmer with `--context "<combined feedback>"` — `dispatch.py` writes it to the work directory as `rework-context.md` for the audit trail. Then resume from step 3.
+6. **Rework.** `./scripts/task.py set-status <task-id> in_progress` (clears `status-programmer.md`). Combine agent and human feedback into a single rework context document. Re-dispatch the programmer with `--context "<combined feedback>"`: `dispatch.py` writes it to the work directory as `rework-context.md` for the audit trail. Then resume from step 3.
 
    **Rework limits and programmer rejections.** Keep an informal count of rework cycles.
    - When the programmer returns `done` after a rework, before proceeding to the concurrent review step check `.plan/work/<task-id>/review-response.md` (if present) for issues marked `rejected`. If rejections exist, **show them to the user immediately** and get explicit approval. Do not defer rejections to the milestone gate. If the user does not approve a rejection, treat it as a new blocking issue and return to this step.
@@ -176,8 +176,8 @@ When `./scripts/task.py list --milestone <current> --status-not done` returns em
    - If QA finds blocking issues, decide with the user whether to: (a) create follow-up tasks in this milestone and defer gate approval, (b) create tasks in the next milestone, or (c) accept the issues as known limitations (document in milestone summary).
    - If QA approves or only has minor issues, proceed to step 2.
 2. **Scan accumulated deferred issues.** For each task completed in this milestone read:
-   - `review.md` and `human-review.md` — collect issues marked `minor`.
-   - `deferred-issues.md` (if present) — collect logged minor issues.
+   - `review.md` and `human-review.md`: collect issues marked `minor`.
+   - `deferred-issues.md` (if present): collect logged minor issues.
    (Programmer rejections are already shown to the user immediately after each rework cycle; do not re-scan `review-response.md` here.)
 3. **Write a milestone summary.** What shipped, what was deferred, decisions made during execution, open risks, QA findings, and the **minor issues list** from step 2 (each with severity/category/file:line, grouped by task).
 4. **Present to the user. Stop. Wait for explicit approval.** The user decides per deferred issue: add a cleanup task to a future milestone (`./scripts/task.py add ...`), defer indefinitely, or accept as-is.

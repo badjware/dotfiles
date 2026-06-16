@@ -2,7 +2,7 @@
 
 `sw.py draft` and `sw.py revise` produce a deterministic JSON "prompt package" that the agent then uses to write prose. The skill itself does not call an LLM.
 
-The package is designed so the agent has everything it needs — POV, tense, style, outline context, adjacent scenes, and world canon — without reading any additional files.
+The package is designed so the agent has everything it needs (POV, tense, style, outline context, adjacent scenes, and world canon) without reading any additional files.
 
 ## Shape
 
@@ -72,7 +72,7 @@ The package is designed so the agent has everything it needs — POV, tense, sty
 | `world_context.pov_character` / `where` | full world entry (frontmatter + body) |
 | `world_context.characters` | full entries for every character listed on the scene (body-level notes like voice/mannerisms stay intact) |
 | `world_context.mentioned` | summaries for `@id`s found in outlines, scene summary, goal, and (revise) existing prose |
-| `world_context.goal_focus` | **revise only** — full entries for any `@id` mentioned in `--goal`. Primary subjects of the revision. |
+| `world_context.goal_focus` | **revise only**: full entries for any `@id` mentioned in `--goal`. Primary subjects of the revision. |
 | `warnings`             | computed: missing outline, broken `@id`, missing world, etc. |
 
 ## Agent usage
@@ -92,4 +92,4 @@ The package is designed so the agent has everything it needs — POV, tense, sty
 - `goal`: the user-supplied revision objective.
 - `world_context.goal_focus`: full entries for any `@id` mentioned in the goal (e.g. a character whose dialogue you are polishing). The agent should prioritize the body-level notes in these entries (voice, mannerisms, speech patterns).
 
-The agent should return a full rewritten body (not a diff), preserving frontmatter. Do **not** re-introduce the `# sc-...` placeholder heading — the compile step expects it absent.
+The agent should return a full rewritten body (not a diff), preserving frontmatter. Do **not** re-introduce the `# sc-...` placeholder heading; the compile step expects it absent.

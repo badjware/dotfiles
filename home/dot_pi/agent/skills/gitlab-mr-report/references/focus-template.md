@@ -1,11 +1,11 @@
-# Focus Section — Rendering Rules & Template
+# Focus Section: Rendering Rules & Template
 
 Load this file after running the script. It specifies how to render the
 final `## 🎯 Focus` section from the 🧩 Data JSON block the script emits.
 
 ## Rendering rules (important)
 
-- Present the script's Snapshot section to the user **verbatim** — it
+- Present the script's Snapshot section to the user **verbatim**: it
   already contains a clickable `[ref](url)` link for every MR.
 - The 🧩 Data section is machine-readable scaffolding. **Do not render it
   to the user.** Parse it internally to drive Focus, then drop it.
@@ -13,12 +13,12 @@ final `## 🎯 Focus` section from the 🧩 Data JSON block the script emits.
   `focus.<category>` list in the order the script emits it.** Look up each
   `ref` in `mrs` only to fetch the contextual fields you're going to
   display. You must not re-filter, re-sort, or second-guess the script's
-  membership — if an MR is absent from `focus.review_queue`, it does not
+  membership: if an MR is absent from `focus.review_queue`, it does not
   belong there, full stop.
 - **Always** emit the Focus section at the end. Never skip it, even if every
   category is empty (use `_(none)_` for empties).
-- **Every MR you mention anywhere** — in the verbatim sections, in Focus,
-  or in any ad-hoc commentary — must be a Markdown link (`[ref](url)`).
+- **Every MR you mention anywhere**: in the verbatim sections, in Focus,
+  or in any ad-hoc commentary, must be a Markdown link (`[ref](url)`).
   Never collapse to a bare code span like `` `!123` ``.
 - When grouping or repeating an MR across sections, repeat the full link
   each time rather than linking only on first mention.
@@ -27,13 +27,13 @@ final `## 🎯 Focus` section from the 🧩 Data JSON block the script emits.
 
 ## Focus rules
 
-- Every MR reference is a Markdown link: `[ref](web_url)` — look up `url`
+- Every MR reference is a Markdown link: `[ref](web_url)`: look up `url`
   in `mrs` by `ref`.
 - An MR may appear in multiple categories (e.g. stale + needs rebase).
-  **Repetition is expected — do not dedupe across categories.** The
+  **Repetition is expected; do not dedupe across categories.** The
   script already places an MR in every category it qualifies for.
 - Preserve the script's ordering within each category. Do not re-sort.
-- Category headings and their order are **fixed** — do not rename, reorder,
+- Category headings and their order are **fixed**: do not rename, reorder,
   merge, or add categories. Propose additions after the section instead.
 - Empty categories (`focus.<name>` is `[]`): keep the heading, write
   `_(none)_` as the sole body line. Never drop a category.
@@ -49,7 +49,7 @@ final `## 🎯 Focus` section from the 🧩 Data JSON block the script emits.
   🟠 for `age_days >= stale_days` applies to **every** Focus category
   that lists an MR where age is relevant (Review queue, Thumbed up,
   Conversations waiting on you, Commented awaiting response, Awaiting
-  approvals, Candidates to close) — not just Review queue. If multiple markers
+  approvals, Candidates to close), not just Review queue. If multiple markers
   apply, concatenate them in that same leading slot with no space
   between them (e.g. `⭐🟠`). The age value itself may still appear in
   the trailing context fields as plain text (e.g. `81d old`), but
@@ -68,9 +68,9 @@ Source: `focus.merge_ready`. Include approvals and pipeline status.
 ### 👀 Review queue (waiting on you)
 Source: `focus.review_queue`. In addition to the global 🟠-stale rule,
 prefix the first 1–2 entries with ⭐ (the script has already sorted by
-quickest wins — fewest files, then smallest total diff). ⭐ is unique
+quickest wins: fewest files, then smallest total diff). ⭐ is unique
 to this category. The script excludes MRs where your latest unresolved
-comment is awaiting a response (those appear under **Commented — awaiting
+comment is awaiting a response (those appear under **Commented: awaiting
 response**) and MRs where you have given a 👍 (those appear under
 **Thumbed up**).
 
@@ -96,9 +96,9 @@ reviewing-only entries (in their original order). Include `waiting` as
 the thread count, the role(s) from `mrs[].roles` (e.g. `author`,
 `reviewer`, `author/reviewer`), and flag any with `conflict == true`.
 
-### 💬 Commented — awaiting response
+### 💬 Commented: awaiting response
 Source: `focus.commented_awaiting_response`. Include role and
-`commented_awaiting` as the thread count. (Applies regardless of role —
+`commented_awaiting` as the thread count. (Applies regardless of role,
 author or reviewer.)
 
 **Direction:** in every MR in this category, **you** wrote the last note
@@ -109,7 +109,7 @@ describe these as threads where someone is waiting on you.
 ### 🛠 Needs rebase (yours)
 Source: `focus.needs_rebase` (each entry is `{ref, reason}`). Render
 `reason == "conflicts"` as **conflicts** and
-`reason == "ready-needs-merging"` as **"ready — needs merging"**.
+`reason == "ready-needs-merging"` as **"ready, needs merging"**.
 
 ### 📣 Awaiting approvals (yours)
 Source: `focus.awaiting_approvals`. Include approvals (got/required)
@@ -117,23 +117,23 @@ and age.
 
 ### 🗑 Candidates to close
 Source: `focus.candidates_to_close`. Authored MRs only. Just the link +
-age — triage candidates, not reviews.
+age. Triage candidates, not reviews.
 
 ## 💡 Suggestions (free-form, after Focus)
 
-After the Focus section, append a short **Suggestions** block —
-separated from Focus by a `---` horizontal rule — calling out 1–3 MRs
+After the Focus section, append a short **Suggestions** block,
+separated from Focus by a `---` horizontal rule, calling out 1–3 MRs
 that stand out as the user's highest-leverage next actions. This is the
 one place where you are allowed (and expected) to exercise judgment
 beyond the script's precomputed buckets. It is advisory prose, **not** a
-new Focus category — never rename, reorder, or add to the fixed Focus
+new Focus category; never rename, reorder, or add to the fixed Focus
 categories above.
 
 Rules:
 
 - **Zero to three bullets**, no more. Omit the whole block (including
-  the `---` rule and heading) if nothing is genuinely worth surfacing —
-  don't pad it.
+  the `---` rule and heading) if nothing is genuinely worth surfacing.
+  Don't pad it.
 - Each bullet is free-form prose, but must still reference MRs as
   Markdown links (`[ref](url)`), same as everywhere else.
 - Lead with the **heading line** `**Suggestions:**` so the section is
@@ -142,17 +142,17 @@ Rules:
   - An MR that is simultaneously **stale + draft + has waiting threads**
     ("push to completion or close?").
   - The **oldest** entry in `commented_awaiting_response` with a high
-    thread count (likely the highest-leverage followup — remember: you
+    thread count (likely the highest-leverage followup; remember: you
     are waiting on the other party here; the suggested action is to ping
     them, not to reply yourself).
   - A **large** MR (high `files` or `+N/-M`) that's also stale,
     conflicted, or has a failing pipeline (🛑), where rebasing/fixing will
     only get harder.
-  - An MR flagged in **several** Focus categories at once — repetition
+  - An MR flagged in **several** Focus categories at once: repetition
     across buckets is a real signal worth naming explicitly.
 - Do **not** just restate a single Focus bullet. Each suggestion should
   add a recommendation or combine signals the reader would otherwise
   have to synthesize themselves.
-- Never invent a new named category here — keep it prose bullets. If a
+- Never invent a new named category here; keep it prose bullets. If a
   pattern recurs run-over-run, raise it with the user instead of
   codifying it silently.

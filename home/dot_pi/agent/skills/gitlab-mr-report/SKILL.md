@@ -10,12 +10,12 @@ Generates a Markdown report of open merge requests where the current user is the
 
 ## What gets flagged
 
-- 🔴 **Awaiting your reply** — unresolved discussion threads on MRs you authored, or threads where you commented, when the last note is not from you
-- 🟠 **Stale** — no activity in the last 7 days
+- 🔴 **Awaiting your reply**: unresolved discussion threads on MRs you authored, or threads where you commented, when the last note is not from you
+- 🟠 **Stale**: no activity in the last 7 days
 - 🟡 **Draft** / WIP
 - 🔀 **Merge conflicts**
 - 🛑 **Failing pipeline**
-- 📋 **Snapshot table** — per-MR overview: role, approvals (got/required), pipeline status, conflicts, draft, files changed, +/- lines, age. Approvals/pipeline reflect the author's POV even for MRs you're only reviewing.
+- 📋 **Snapshot table**: per-MR overview: role, approvals (got/required), pipeline status, conflicts, draft, files changed, +/- lines, age. Approvals/pipeline reflect the author's POV even for MRs you're only reviewing.
 
 MRs belonging to **archived projects** are filtered out before any of the
 flags or the snapshot are computed. The report header notes how many were
@@ -23,8 +23,7 @@ hidden when this happens.
 
 ## Setup
 
-Full configuration details are in [README.md](README.md) — point the user there on any
-auth/setup error. Provide the user with a full path to the README.md, but do not read its content.
+Full configuration details are in [README.md](README.md); point the user there on any auth/setup error. Provide the user with a full path to the README.md, but do not read its content.
 
 ## Usage
 
@@ -49,19 +48,19 @@ If it fails with an auth error, tell the user to either:
 
 The script prints a Markdown report to stdout with two sections:
 
-1. **Snapshot** — per-MR table (title, role, approvals, pipeline, conflicts, draft, files, +/-, age). A ✅ appended to the `Role` cell indicates that the *current user* has approved the MR; a 👍 indicates they gave a thumbs-up reaction without formally approving (shown regardless of whether they're formally tagged as a reviewer).
-2. **🧩 Data (for Focus generation)** — a fenced JSON block with:
-   - `stale_days` — the staleness threshold (mirrors the header).
-   - `focus` — an object keyed by Focus category name (`merge_ready`,
+1. **Snapshot**: per-MR table (title, role, approvals, pipeline, conflicts, draft, files, +/-, age). A ✅ appended to the `Role` cell indicates that the *current user* has approved the MR; a 👍 indicates they gave a thumbs-up reaction without formally approving (shown regardless of whether they're formally tagged as a reviewer).
+2. **🧩 Data (for Focus generation)**: a fenced JSON block with:
+   - `stale_days`: the staleness threshold (mirrors the header).
+   - `focus`: an object keyed by Focus category name (`merge_ready`,
      `review_queue`, `thumbs_upped`, `authored_conversations_waiting`,
      `reviewing_replies_waiting`, `commented_awaiting_response`,
      `needs_rebase`, `awaiting_approvals`, `candidates_to_close`).
      Each value is a pre-sorted list of `ref` strings (or, for
      `needs_rebase`, `{ref, reason}` objects where `reason` is
      `"conflicts"` or `"ready-needs-merging"`). **The script is the
-     authoritative implementation of the inclusion rules — the LLM
+     authoritative implementation of the inclusion rules; the LLM
      must not re-filter.**
-   - `mrs` — an array of every MR with every `MRRow` field (`ref`, `url`,
+   - `mrs`: an array of every MR with every `MRRow` field (`ref`, `url`,
      `roles`, `age_days`, `draft`, `conflict`, `pipeline`, `pipeline_bad`,
      `waiting`, `commented_awaiting`, `files`, `added`, `removed`,
      `approvals_got`, `approvals_required`, `approved_by_me`,
@@ -70,7 +69,7 @@ The script prints a Markdown report to stdout with two sections:
 
 ## Rendering the Focus section
 
-You **must** then append a third section — `## 🎯 Focus` — plus an
+You **must** then append a third section, `## 🎯 Focus`, plus an
 optional **Suggestions** block. The full rendering rules, marker
 conventions, category template, and Suggestions guidelines live in
 [references/focus-template.md](references/focus-template.md).
@@ -78,4 +77,4 @@ conventions, category template, and Suggestions guidelines live in
 **Read that file now before generating the Focus section.** It is the
 authoritative spec for everything below the 🧩 Data block; do not
 improvise. The Focus section carries all the "needs attention" signal
-that used to live in a dedicated bucket list — don't reintroduce one.
+that used to live in a dedicated bucket list; don't reintroduce one.

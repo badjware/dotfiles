@@ -49,5 +49,5 @@
 
 > Omit if there are no open threads.
 
-- **{file}:{line}** — {first note excerpt}
+- **{file}:{line}**: {first note excerpt}
 - ...

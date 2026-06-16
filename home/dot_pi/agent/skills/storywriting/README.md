@@ -39,16 +39,16 @@ S=./stories/cold-case
 
 ## Capabilities
 
-1. **Outlining** — arc + per-chapter beat files.
-2. **Scene drafting** — prompt package with world context + style + adjacent scenes.
-3. **Revision passes** — `revise --goal "..."` produces a package with the existing prose attached.
-4. **Dialogue polishing** — use `revise` with a goal like `"polish @char-mark-lin's dialogue to sound clipped and tired"`.
-5. **Continuity checking** — `continuity` validates every `@id` reference against the attached world.
-6. **Manuscript compilation** — `compile` stitches scenes → `chapters/ch-NN.md` → `manuscript.md` (Markdown only).
+1. **Outlining**: arc + per-chapter beat files.
+2. **Scene drafting**: prompt package with world context + style + adjacent scenes.
+3. **Revision passes**: `revise --goal "..."` produces a package with the existing prose attached.
+4. **Dialogue polishing**: use `revise` with a goal like `"polish @char-mark-lin's dialogue to sound clipped and tired"`.
+5. **Continuity checking**: `continuity` validates every `@id` reference against the attached world.
+6. **Manuscript compilation**: `compile` stitches scenes → `chapters/ch-NN.md` → `manuscript.md` (Markdown only).
 
 ## Git
 
-Everything is plain text; scenes are one-file-per-scene for clean diffs. `chapters/*.md` and `manuscript.md` are **generated** — rebuild with `sw.py compile`, don't hand-edit. Commit freely.
+Everything is plain text; scenes are one-file-per-scene for clean diffs. `chapters/*.md` and `manuscript.md` are **generated**: rebuild with `sw.py compile`, don't hand-edit. Commit freely.
 
 ## Requirements
 

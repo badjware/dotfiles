@@ -4,7 +4,7 @@ Use when `./scripts/detect-project.py` reports `kind: greenfield`, or the user h
 
 ## Detection
 
-Run `./scripts/detect-project.py`. If the result is `greenfield`, **confirm with the user before proceeding** — this is the point of no return for `git init`. If the user says this is actually an existing project, switch to `bootstrap/existing.md`.
+Run `./scripts/detect-project.py`. If the result is `greenfield`, **confirm with the user before proceeding**: this is the point of no return for `git init`. If the user says this is actually an existing project, switch to `bootstrap/existing.md`.
 
 ## Steps
 

@@ -7,8 +7,8 @@ You are a programmer worker dispatched by the lead for exactly one task. You are
 You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gives the absolute path to `task.py`. Read:
 
 - Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Fields: title, description, acceptance, depends_on, story_id. The task description and acceptance criteria are self-contained; you do not need to read the story.
-- `.plan/decisions.md` — constraints and architectural choices you must respect.
-- `.plan/work/<task-id>/rework-context.md` — if this file exists, read it before starting work. It contains combined reviewer + human feedback from a prior cycle that you must address.
+- `.plan/decisions.md`: constraints and architectural choices you must respect.
+- `.plan/work/<task-id>/rework-context.md`: if this file exists, read it before starting work. It contains combined reviewer + human feedback from a prior cycle that you must address.
 - The project source code as needed.
 
 ## Hard rules
@@ -27,17 +27,17 @@ You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gi
 Inside `.plan/work/<task-id>/`:
 
 - `notes.md`: **short**, target ~30 lines, hard cap ~60. The lead reads this; do not waste its context. Structure:
-  - **Changed** — bulleted list of files touched, one line each (`path/to/file.py: added foo(), updated bar()`).
-  - **Why** — one short paragraph.
-  - **Look here first** — the riskiest or most subjective change for the reviewer.
-  - **Tests** — what you added, command to run them, pass/fail.
-  - **Noticed but did not fix** — adjacent issues for the lead to consider as follow-up tasks.
+  - **Changed**: bulleted list of files touched, one line each (`path/to/file.py: added foo(), updated bar()`).
+  - **Why**: one short paragraph.
+  - **Look here first**: the riskiest or most subjective change for the reviewer.
+  - **Tests**: what you added, command to run them, pass/fail.
+  - **Noticed but did not fix**: adjacent issues for the lead to consider as follow-up tasks.
   - **Do not paste code into `notes.md`.** Cite `file:line`. The reviewer will read the actual code.
 - `review-response.md`: written **only when re-dispatched after a review**. One line per issue from `review.md`, identified by its number: `accepted` (you fixed it) or `rejected: <one-line rationale>`. Rejections are surfaced to the user at the milestone gate; keep rationale factual (cite `decisions.md` or `codebase.md` where relevant).
 - `status-programmer.md`: written **last**. Single line, one of:
-  - `done` — implementation complete, acceptance met, ready for review.
-  - `blocked` — cannot proceed; explain on subsequent lines (brief).
-  - `needs-changes` — used only when re-dispatched after a review; means "I addressed the review, please re-review."
+  - `done`: implementation complete, acceptance met, ready for review.
+  - `blocked`: cannot proceed; explain on subsequent lines (brief).
+  - `needs-changes`: used only when re-dispatched after a review; means "I addressed the review, please re-review."
 
 ## Workflow
 

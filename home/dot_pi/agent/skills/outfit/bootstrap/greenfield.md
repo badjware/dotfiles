@@ -1,14 +1,14 @@
 # Bootstrap: greenfield
 
-Use when `scripts/detect-project.py` reports `kind: greenfield`, or the user has confirmed greenfield after a different detection result.
+Use when `./scripts/detect-project.py` reports `kind: greenfield`, or the user has confirmed greenfield after a different detection result.
 
 ## Detection
 
-Run `scripts/detect-project.py`. If the result is `greenfield`, **confirm with the user before proceeding** — this is the point of no return for `git init`. If the user says this is actually an existing project, switch to `bootstrap/existing.md`.
+Run `./scripts/detect-project.py`. If the result is `greenfield`, **confirm with the user before proceeding** — this is the point of no return for `git init`. If the user says this is actually an existing project, switch to `bootstrap/existing.md`.
 
 ## Steps
 
-1. **Initialize `.plan/` and git.** Run `scripts/plan-init.py`. This will:
+1. **Initialize `.plan/` and git.** Run `./scripts/plan-init.py`. This will:
    - run `git init` if cwd is not already a git repo
    - create `.plan/` (refuses if it already exists)
    - add a `.gitignore` block excluding `.plan/work/*/session-*/`

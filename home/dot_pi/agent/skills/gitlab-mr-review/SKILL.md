@@ -17,10 +17,10 @@ If auth fails, tell the user to set:
 
 If the user provided an MR URL (as a command argument or in their message), use it. Otherwise ask for it.
 
-Run the fetch script from the skill directory:
+Run the fetch script:
 
 ```bash
-(cd <skill-dir> && python3 ./scripts/fetch_mr.py <mr-url>)
+python3 ./scripts/fetch_mr.py <mr-url>
 ```
 
 The script outputs JSON with three keys:
@@ -51,7 +51,7 @@ If something the user asks about cannot be answered from the current context (e.
 When the user asks to review their draft notes, fetch them from the GitLab API:
 
 ```bash
-(cd <skill-dir> && python3 ./scripts/fetch_draft_notes.py <mr-url>)
+python3 ./scripts/fetch_draft_notes.py <mr-url>
 ```
 
 If no draft notes are found, tell the user.

@@ -62,7 +62,7 @@ Outfit creates and manages `.plan/` in the project:
 ├── plan.md              # high-level plan, milestones
 ├── stories/
 │   └── S-001-<slug>.md  # user stories
-├── tasks.json           # structured task state (managed by scripts/task.py)
+├── tasks.json           # structured task state (managed by ./scripts/task.py)
 ├── status.json          # phase, milestone, gate approvals
 ├── decisions.md         # append-only decisions log
 ├── codebase.md          # programmer-maintained codebase map
@@ -95,7 +95,7 @@ The lead is silent about the worker's transcripts on purpose (otherwise its cont
 
 ```sh
 # find the session directory (slug-based task dir)
-task_dir=$(python3 scripts/task.py work-dir <task-id>)
+task_dir=$(python3 ./scripts/task.py work-dir <task-id>)
 ls $task_dir/session-*/
 
 # view output

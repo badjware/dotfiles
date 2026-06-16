@@ -1,16 +1,16 @@
 # Bootstrap: existing
 
-Use when `scripts/detect-project.py` reports `kind: existing`.
+Use when `./scripts/detect-project.py` reports `kind: existing`.
 
 ## Detection
 
-Run `scripts/detect-project.py`. If the result is `existing`, proceed. If the result is `in-progress`, use `bootstrap/resume.md` instead. If the result is unexpectedly `greenfield`, confirm with the user before switching to `bootstrap/greenfield.md`.
+Run `./scripts/detect-project.py`. If the result is `existing`, proceed. If the result is `in-progress`, use `bootstrap/resume.md` instead. If the result is unexpectedly `greenfield`, confirm with the user before switching to `bootstrap/greenfield.md`.
 
 ## Steps
 
 1. **Survey the project.** Quick read: top-level files, `README.md`, package manifest, primary source layout, presence of a test suite. (`AGENTS.md` and `CLAUDE.md` are loaded automatically by pi; you do not need to read them.) Goal: enough to ask informed discovery questions, not a full audit. Do not write findings anywhere yet; this is for your own context.
 
-2. **Initialize `.plan/` and git.** Run `scripts/plan-init.py`. The script will:
+2. **Initialize `.plan/` and git.** Run `./scripts/plan-init.py`. The script will:
    - refuse if the working tree is dirty
    - create `.plan/` and the `.gitignore` block
    - make an initial commit `outfit: initialize .plan/`

@@ -28,19 +28,13 @@ auth/setup error. Provide the user with a full path to the README.md, but do not
 
 ## Usage
 
-Run the script from the skill directory and show its Markdown output to
-the user. Invoke it with the skill directory as the working directory so
-the relative path resolves regardless of where the skill is installed
-(user-level skills dir, project-level skills dir, a plugin/package, or an
-ad-hoc path supplied by the host agent):
+Run the script and show its Markdown output to the user:
 
 ```bash
-(cd <skill-dir> && python3 ./scripts/mr_report.py)
+python3 ./scripts/mr_report.py
 ```
 
-This is the **only** supported invocation — do not call the script any
-other way (no direct absolute paths, no re-implementation, no piping
-through another wrapper).
+Do not re-implement or wrap the script.
 
 If it fails with an auth error, tell the user to either:
 - `export GITLAB_TOKEN=<personal-access-token>` (and `export GITLAB_HOST=<host>` for self-hosted), or

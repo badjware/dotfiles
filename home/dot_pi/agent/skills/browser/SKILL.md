@@ -1,6 +1,6 @@
 ---
 name: browser
-description: "Control a Chrome browser: navigate pages, click elements, type text, read page content as text, and take screenshots. Use when the task requires interacting with a web page or inspecting page content."
+description: "Control a Chrome browser: navigate pages, click elements, type text, read page content as text, and take screenshots. Use when the task requires interacting with a web page or inspecting page content. Do NOT use this skill if no Wayland display is available (i.e. `$WAYLAND_DISPLAY` is unset)."
 ---
 
 # Browser Skill

@@ -4,6 +4,12 @@
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  echo "ERROR: WAYLAND_DISPLAY is unset." >&2
+  exit 1
+fi
+
 PORT=9222
 PROFILE_DIR="/tmp/browser-skill-profile"
 

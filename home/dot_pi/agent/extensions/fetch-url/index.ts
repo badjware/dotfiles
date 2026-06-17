@@ -19,7 +19,7 @@ import { Type } from "typebox";
 
 const TIMEOUT_S = Number(process.env.PI_FETCH_TIMEOUT_S || "20");
 const USER_AGENT =
-  process.env.PI_FETCH_USER_AGENT ||
+  process.env.AGENT_USER_AGENT ||
   "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
 const MAX_REDIRECTS = 5;
 

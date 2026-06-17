@@ -72,32 +72,8 @@ if ! which mpvpaper &>/dev/null; then
     sudo ninja -C build install
     popd
 fi
-
-# linux-wallpaperengine
-#if ! which linux-wallpaperengine &>/dev/null; then
-#    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
-#    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
-#    pushd /tmp/linux-wallpaperengine
-#    mkdir build && cd build
-#    cmake -DCMAKE_BUILD_TYPE='Release' ..
-#    make
-#    sudo mv output/ /opt/linux-wallpaperengine
-#    popd
-#fi
 {{ end }}
 
-if ! which pyenv &>/dev/null; then
-    bash ~/.cache/install/pyenv.sh
-fi
-if ! which pay-respects &>/dev/null; then
-    bash ~/.cache/install/pay-respects.sh
-fi
-if ! which starship &>/dev/null; then
-    bash ~/.cache/install/starship.sh
-fi
-if ! which mirrord &>/dev/null; then
-    bash ~/.cache/install/mirrord.sh
-fi
 #if ! dnf info msttcore-fonts-installer.noarch &>/dev/null; then
 #    # https://mscorefonts2.sourceforge.net/
 #    sudo dnf -y curl cabextract xorg-x11-font-utils fontconfig
@@ -114,7 +90,33 @@ fi
 
 go install github.com/badjware/gitforgefs@latest
 
+if ! which pyenv &>/dev/null; then
+    bash ~/.cache/install/pyenv.sh
+fi
+if ! which pay-respects &>/dev/null; then
+    bash ~/.cache/install/pay-respects.sh
+fi
+if ! which starship &>/dev/null; then
+    bash ~/.cache/install/starship.sh
+fi
+if ! which mirrord &>/dev/null; then
+    bash ~/.cache/install/mirrord.sh
+fi
+
 {{ if ne .chassisType "container" }}
+
+# linux-wallpaperengine
+#if ! which linux-wallpaperengine &>/dev/null; then
+#    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
+#    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
+#    pushd /tmp/linux-wallpaperengine
+#    mkdir build && cd build
+#    cmake -DCMAKE_BUILD_TYPE='Release' ..
+#    make
+#    sudo mv output/ /opt/linux-wallpaperengine
+#    popd
+#fi
+
 if [[ ! -d "$HOME/.themes/Orchis" ]]; then
     git clone --depth 1 https://github.com/vinceliuice/Orchis-theme.git /tmp/orchis
     pushd /tmp/orchis

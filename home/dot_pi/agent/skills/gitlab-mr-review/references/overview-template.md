@@ -42,12 +42,3 @@
 
 ### Sensitive Paths
 {Config files, infrastructure, deployment scripts, secret management.}
-
----
-
-## Existing Threads
-
-> Omit if there are no open threads.
-
-- **{file}:{line}**: {first note excerpt}
-- ...

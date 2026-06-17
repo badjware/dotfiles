@@ -23,10 +23,9 @@ Run the fetch script:
 python3 ./scripts/fetch_mr.py <mr-url>
 ```
 
-The script outputs JSON with three keys:
+The script outputs JSON with two keys:
 - `mr`: metadata (title, description, branches, draft, pipeline, conflicts, reviewers)
 - `changes`: list of file diffs (`old_path`, `new_path`, `diff`, flags)
-- `discussions`: existing comment threads (`resolvable`, `resolved`, `file`, `line`, notes)
 
 If `skipped_binary_files` is present, mention it briefly.
 
@@ -55,6 +54,8 @@ python3 ./scripts/fetch_draft_notes.py <mr-url>
 ```
 
 If no draft notes are found, tell the user.
+
+The script also returns `discussions` (existing comment threads). Check each draft note against them and call out any that duplicate or closely overlap an existing thread so the user can decide whether to post it.
 
 Review the notes on two dimensions:
 

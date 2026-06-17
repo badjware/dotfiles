@@ -9,7 +9,7 @@ Auth resolution order:
   1. GITLAB_TOKEN env var (GITLAB_HOST for the host)
   2. ~/.config/glab-cli/config.yml
 
-Output: JSON to stdout with keys: mr, changes, discussions
+Output: JSON to stdout with keys: mr, changes
 """
 from __future__ import annotations
 
@@ -120,9 +120,6 @@ def main() -> None:
     # in newer GitLab versions via the diffs endpoint
     changes_raw = _api_paged(host, token, f"{base}/diffs")
 
-    # Fetch discussions (inline comments + general notes)
-    discussions_raw = _api_paged(host, token, f"{base}/discussions")
-
     # --- Build output ---
 
     result: dict[str, Any] = {
@@ -133,7 +130,6 @@ def main() -> None:
             "target_branch": mr["target_branch"],
         },
         "changes": [],
-        "discussions": [],
     }
 
     # Changes: skip binaries, keep full diff
@@ -155,33 +151,6 @@ def main() -> None:
 
     if skipped_binary:
         result["skipped_binary_files"] = skipped_binary
-
-    # Discussions: flatten into something readable
-    for disc in discussions_raw:
-        notes = [n for n in disc.get("notes", []) if not n.get("system", False)]
-        if not notes:
-            continue
-
-        first = notes[0]
-        position = first.get("position")  # present for inline comments
-        resolvable = first.get("resolvable", False)
-
-        result["discussions"].append({
-            "id": disc["id"],
-            "resolvable": resolvable,
-            "resolved": first.get("resolved", False) if resolvable else None,
-            # Inline position: file path + line for context
-            "file": position.get("new_path") if position else None,
-            "line": position.get("new_line") if position else None,
-            "notes": [
-                {
-                    "author": n["author"]["name"],
-                    "body": n["body"],
-                    "created_at": n["created_at"],
-                }
-                for n in notes
-            ],
-        })
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
 

@@ -5,7 +5,7 @@ Fetch the current user's draft notes on a GitLab MR.
 Usage: fetch_draft_notes.py <mr-url>
   e.g. fetch_draft_notes.py https://gitlab.com/mygroup/myproject/-/merge_requests/42
 
-Output: JSON to stdout — list of draft notes with text and inline position if applicable.
+Output: JSON to stdout with keys: draft_notes, discussions
 """
 from __future__ import annotations
 
@@ -107,6 +107,7 @@ def main() -> None:
 
     project_id = urllib.parse.quote(project_path, safe="")
     notes_raw = _api_paged(host, token, f"/projects/{project_id}/merge_requests/{mr_iid}/draft_notes")
+    discussions_raw = _api_paged(host, token, f"/projects/{project_id}/merge_requests/{mr_iid}/discussions")
 
     notes = []
     for n in notes_raw:
@@ -115,16 +116,35 @@ def main() -> None:
             "id": n["id"],
             "note": n["note"],
             "resolve_discussion": n.get("resolve_discussion", False),
-            # Inline position if present
             "file": position.get("new_path") if position else None,
             "line": position.get("new_line") if position else None,
         })
 
-    if not notes:
-        print(json.dumps({"draft_notes": [], "message": "No draft notes found for this MR."}))
-        return
+    discussions = []
+    for disc in discussions_raw:
+        thread_notes = [n for n in disc.get("notes", []) if not n.get("system", False)]
+        if not thread_notes:
+            continue
+        first = thread_notes[0]
+        position = first.get("position")
+        resolvable = first.get("resolvable", False)
+        discussions.append({
+            "id": disc["id"],
+            "resolvable": resolvable,
+            "resolved": first.get("resolved", False) if resolvable else None,
+            "file": position.get("new_path") if position else None,
+            "line": position.get("new_line") if position else None,
+            "notes": [
+                {"author": n["author"]["name"], "body": n["body"]}
+                for n in thread_notes
+            ],
+        })
 
-    print(json.dumps({"draft_notes": notes}, indent=2, ensure_ascii=False))
+    result: dict[str, Any] = {"draft_notes": notes, "discussions": discussions}
+    if not notes:
+        result["message"] = "No draft notes found for this MR."
+
+    print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

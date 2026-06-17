@@ -116,6 +116,9 @@ output $output2 {
 set $output3 "Sony SONY TV  *30 0x01010101"
 output $output3 {
     mode 3840x2160@120Hz
+    {{- if semverCompare ">=1.12.0" $swayVersion }}
+    hdr on
+    {{- end }}
     scale 2
     disable
 }
@@ -299,7 +302,7 @@ bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
 # toggle
-bindsym $mod+Alt+0 exec "swaymsg output DP-1 toggle; swaymsg output DP-2 toggle; swaymsg output HDMI-A-2 toggle;"
+bindsym $mod+Alt+0 exec "swaymsg output DP-1 toggle; swaymsg output DP-2 toggle; swaymsg output HDMI-A-1 toggle;"
 
 # Assignation
 assign {

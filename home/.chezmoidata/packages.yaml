@@ -32,7 +32,7 @@ packages:
       - nodejs
       - openssh
       - pass
-      - pay-respects
+      # - pay-respects
       - pv
       - ripgrep
       - rocm-smi-lib
@@ -46,15 +46,13 @@ packages:
 
       # devops
       - ansible
-      - aws-cli-bin
       - docker
-      - github-cli
       - helm
       - k9s
       - kubecolor
       - kubectl
       - kustomize
-      - mirrord-bin
+      # - mirrord-bin
       - terraform
 
       # language / runtimes
@@ -81,14 +79,14 @@ packages:
       - grim
       - libappindicator-gtk3
       - mako
-      - mpvpaper
+      # - mpvpaper
       - qt5-wayland
       - qt6-wayland
       - rofi-wayland
       - sway
       - swayidle
       - swaylock
-      - swaylock-plugin
+      # - swaylock-plugin
       - thunar
       - thunar-archive-plugin
       - waybar
@@ -99,7 +97,6 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
-      - zed
       # - linux-wallpaperengine-git
 
       # pipewire
@@ -114,14 +111,14 @@ packages:
       # - ttf-google-fonts-git
       - ttf-hack
       - ttf-liberation
-      - ttf-material-design-icons-git
+      # - ttf-material-design-icons-git
       - ttf-ms-win10-auto
 
       # theming
-      - gnome-themes-extra
-      - gtk-engine-murrine
-      - sassc
       - breeze-cursors
+      # - gnome-themes-extra # for Orchis
+      # - gtk-engine-murrine # for Orchis
+      - sassc # for Orchis
 
       # xorg
       - xorg-xauth
@@ -179,11 +176,9 @@ packages:
       # devops
       # TODO: add kustomize, terraform
       - ansible
-      - awscli
       - docker-buildx
       - docker-cli
       - docker-compose
-      - gh
       - helm
       - k9s
       - kubecolor
@@ -226,7 +221,6 @@ packages:
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
       - ydotool
-      - zed
 
       # pipewire
       - pavucontrol
@@ -246,9 +240,9 @@ packages:
 
       # theming
       - breeze-cursor-theme
-      # - gnome-themes-extra
-      - gtk-murrine-engine
-      - sassc
+      # - gnome-themes-extra # for Orchis
+      # - gtk-murrine-engine # for Orchis
+      - sassc # for orchis
 
       # xorg
       - xorg-x11-xauth

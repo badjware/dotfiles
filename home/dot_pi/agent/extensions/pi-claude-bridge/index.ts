@@ -54,9 +54,11 @@ function findMarkdownFiles(dir: string, rel = ""): string[] {
 export default function claudeBridgeExtension(pi: ExtensionAPI) {
 	const home = os.homedir();
 
-	// Populated during resources_discover; reused by /claude-bridge
+	// Populated during resources_discover / before_agent_start; reused by /claude-bridge
 	let discoveredSkillPaths: string[] = [];
+	let discoveredSkills: { name: string; file: string }[] = [];
 	let discoveredCommandFiles: string[] = [];
+	let lastInjection: { sections: string[]; chars: number } | null = null;
 
 	function discoverClaudeMd(cwd: string) {
 		const globalAgentsMd = path.join(home, ".pi", "agent", "AGENTS.md");
@@ -93,11 +95,18 @@ export default function claudeBridgeExtension(pi: ExtensionAPI) {
 		const promptPaths: string[] = [];
 
 		// ── Skills ──────────────────────────────────────────────────────────────
+		const skills: { name: string; file: string }[] = [];
 		for (const dir of [
 			path.join(home, ".claude", "skills"),
 			path.join(cwd, ".claude", "skills"),
 		]) {
-			if (fs.existsSync(dir)) skillPaths.push(dir);
+			if (!fs.existsSync(dir)) continue;
+			skillPaths.push(dir);
+			for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+				if (!entry.isDirectory()) continue;
+				const skillFile = path.join(dir, entry.name, "SKILL.md");
+				if (fs.existsSync(skillFile)) skills.push({ name: entry.name, file: skillFile });
+			}
 		}
 
 		// ── Commands → Prompt templates ──────────────────────────────────────────
@@ -114,6 +123,7 @@ export default function claudeBridgeExtension(pi: ExtensionAPI) {
 		}
 
 		discoveredSkillPaths = skillPaths;
+		discoveredSkills = skills;
 		discoveredCommandFiles = commandFiles;
 
 		return { skillPaths, promptPaths };
@@ -145,8 +155,17 @@ export default function claudeBridgeExtension(pi: ExtensionAPI) {
 			);
 		}
 
-		if (additions.length === 0) return;
-		return { systemPrompt: event.systemPrompt + "\n\n" + additions.join("\n\n") };
+		if (additions.length === 0) {
+			lastInjection = { sections: [], chars: 0 };
+			return;
+		}
+		const joined = additions.join("\n\n");
+		const sections = additions.map((a) => {
+			const firstLine = a.split("\n", 1)[0];
+			return firstLine.replace(/^##\s+/, "");
+		});
+		lastInjection = { sections, chars: joined.length };
+		return { systemPrompt: event.systemPrompt + "\n\n" + joined };
 	});
 
 	// ---------------------------------------------------------------------------
@@ -172,12 +191,13 @@ export default function claudeBridgeExtension(pi: ExtensionAPI) {
 
 			// Skills
 			lines.push("");
-			lines.push(`Skill paths (${discoveredSkillPaths.length}):`);
-			if (discoveredSkillPaths.length === 0) {
+			lines.push(`Skills (${discoveredSkills.length}) from ${discoveredSkillPaths.length} path(s):`);
+			if (discoveredSkills.length === 0) {
 				lines.push("  (none — create skills in .claude/skills/ or ~/.claude/skills/)");
 			} else {
-				for (const p of discoveredSkillPaths) {
-					lines.push(`  ${p.startsWith(home) ? `~${p.slice(home.length)}` : p}`);
+				for (const s of discoveredSkills) {
+					const rel = s.file.startsWith(home) ? `~${s.file.slice(home.length)}` : path.relative(cwd, s.file);
+					lines.push(`  ${s.name}  ← ${rel}`);
 				}
 			}
 
@@ -204,6 +224,17 @@ export default function claudeBridgeExtension(pi: ExtensionAPI) {
 				lines.push("  (none — create .md files in .claude/rules/ or ~/.claude/rules/)");
 			} else {
 				for (const f of ruleFiles) lines.push(`  ${f}`);
+			}
+
+			// System prompt injection
+			lines.push("");
+			if (lastInjection === null) {
+				lines.push("System prompt injection: (agent not started yet)");
+			} else if (lastInjection.sections.length === 0) {
+				lines.push("System prompt injection: (nothing injected)");
+			} else {
+				lines.push(`System prompt injection (${lastInjection.chars} chars, ${lastInjection.sections.length} section(s)):`);
+				for (const s of lastInjection.sections) lines.push(`  ${s}`);
 			}
 
 			lines.push("");

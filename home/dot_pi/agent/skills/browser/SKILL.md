@@ -51,14 +51,17 @@ Screenshots are a last resort:
 ./scripts/screenshot.js "#chart"    # specific element
 ```
 
-Then use the `read` tool on `/tmp/browser-screenshot.png` to see the result.
+Then use the `read` tool on `/tmp/browser-skill/screenshot.png` to see the result.
 
 ## Navigation
 
-Your primary means of navigation is clicking around on the page. Use `click.js` to click elements. The script accepts any Playwright-compatible selector (CSS, text, role, etc.). The selector must match exactly one element. If it matches multiple, the script will error. Use a more specific selector to disambiguate:
+Your primary means of navigation is clicking around on the page. Use `click.js` to click elements. The script accepts any Playwright-compatible selector (CSS, text, role, etc.). The selector must match exactly one element. If it matches multiple, the script will error. Use a more specific selector to disambiguate.
+
+Prefer role-based selectors derived from the AX tree output, as they are more reliable than text-based ones:
 
 ```bash
-./scripts/click.js "button:has-text('Submit')"
+./scripts/click.js "role=button[name='Submit']"
+./scripts/click.js "role=link[name='Grafana']"
 ./scripts/click.js "#login-btn"
 ./scripts/click.js "a:has-text('Title') >> nth=0"
 ```
@@ -112,8 +115,8 @@ This must only be used as a last resort when other commands are insufficient.
 ## Troubleshooting
 
 - **Connection refused**: Chrome is not running or crashed. Offer to the user to either investigate the crash or to run `./scripts/setup.sh` to start a new instance.
-  - Chrome logs are at `/tmp/browser-skill-chrome.log`
-- **Element not found**: The selector may be wrong or the page is still loading. Try `eval.js "document.readyState"` and/or `ax.js` to inspect the current DOM.
+  - Chrome logs are at `/tmp/browser-skill/chrome.log`
+- **Element not found / timeout**: Re-run `ax.js` to get a fresh view of the DOM and derive a new selector from it.
 - **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (e.g.: append `>> nth=0` to target the first match).
 - **User intervention required**: If you encounter one of the following, stop and ask the user to resolve it manually:
   - Captcha

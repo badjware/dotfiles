@@ -12,7 +12,7 @@ if (!key) {
 }
 
 (async () => {
-  const browser = await chromium.connectOverCDP("http://localhost:9222");
+  const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });
   const ctx = browser.contexts()[0];
   const page = ctx.pages()[0];
   if (!page) {
@@ -20,7 +20,7 @@ if (!key) {
     process.exit(1);
   }
   if (selector) {
-    await page.locator(selector).press(key, { timeout: 10000 });
+    await page.locator(selector).press(key, { timeout: 3000 });
   } else {
     await page.keyboard.press(key);
   }

@@ -11,7 +11,8 @@ if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
 fi
 
 PORT=9222
-PROFILE_DIR="/tmp/browser-skill-profile"
+BASE_DIR="/tmp/browser-skill"
+PROFILE_DIR="${BASE_DIR}/profile"
 
 # Kill any existing instance bound to this port
 if pkill -f -- "--remote-debugging-port=${PORT}" &>/dev/null 2>&1; then
@@ -28,16 +29,17 @@ google-chrome \
   --no-default-browser-check \
   --disable-features=PasswordManager,Geolocation \
   --disable-notifications \
-  &>/tmp/browser-skill-chrome.log &
+  &>"${BASE_DIR}/chrome.log" &
 
 echo "waiting for Chrome to be ready..."
 for i in $(seq 1 20); do
   if curl -sf "http://localhost:${PORT}/json/version" &>/dev/null; then
     echo "Chrome is ready on port ${PORT}"
+    node "${SKILL_DIR}/scripts/dialog-handler.js" >>${BASE_DIR}/chrome.log 2>&1 &
     exit 0
   fi
   sleep 0.5
 done
 
-echo "ERROR: Chrome did not start in time. Check /tmp/browser-skill-chrome.log" >&2
+echo "ERROR: Chrome did not start in time. Check ${BASE_DIR}/chrome.log" >&2
 exit 1

@@ -9,7 +9,7 @@ if (!url) {
 }
 
 (async () => {
-  const browser = await chromium.connectOverCDP("http://localhost:9222");
+  const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });
   const ctx = browser.contexts()[0];
   const page = ctx.pages()[0] ?? (await ctx.newPage());
   await page.goto(url, { waitUntil: "load" });

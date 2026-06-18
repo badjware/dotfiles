@@ -3,10 +3,10 @@
 const { chromium } = require("playwright");
 
 const selector = process.argv[2];
-const out = "/tmp/browser-screenshot.png";
+const out = "/tmp/browser-skill/screenshot.png";
 
 (async () => {
-  const browser = await chromium.connectOverCDP("http://localhost:9222");
+  const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });
   const ctx = browser.contexts()[0];
   const page = ctx.pages()[0];
   if (!page) {
@@ -14,7 +14,7 @@ const out = "/tmp/browser-screenshot.png";
     process.exit(1);
   }
   if (selector) {
-    await page.locator(selector).screenshot({ path: out, timeout: 10000 });
+    await page.locator(selector).screenshot({ path: out, timeout: 3000 });
   } else {
     await page.screenshot({ path: out, fullPage: false });
   }

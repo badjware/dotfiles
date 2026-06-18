@@ -2,9 +2,10 @@
 // Usage: node html.js
 // Returns the page HTML stripped of script/style tags, for selector discovery.
 const { chromium } = require("playwright");
+const { truncate } = require("./truncate");
 
 (async () => {
-  const browser = await chromium.connectOverCDP("http://localhost:9222");
+  const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });
   const ctx = browser.contexts()[0];
   const page = ctx.pages()[0];
   if (!page) {
@@ -18,7 +19,7 @@ const { chromium } = require("playwright");
       .forEach((el) => el.remove());
     return clone.outerHTML;
   });
-  console.log(html);
+  console.log(truncate(html, "/tmp/browser-skill/html.txt"));
   process.exit(0);
 })().catch((err) => {
   console.error("Error:", err.message);

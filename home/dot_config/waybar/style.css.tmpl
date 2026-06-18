@@ -42,15 +42,15 @@ label, button {
 }
 
 #workspaces button.urgent {
-    color: {{ template "color-hex" "error" }};
+    color: {{ template "color-hex" "tertiary" }};
 
     animation: blink 1s linear infinite;
 }
 
 #workspaces button.urgent.focused {
-    border-color: {{ template "color-hex" "error_container" }};
-    background: {{ template "color-hex" "error" }};
-    color: {{ template "color-hex" "on_error" }};
+    border-color: {{ template "color-hex" "tertiary_container" }};
+    background: {{ template "color-hex" "tertiary" }};
+    color: {{ template "color-hex" "on_tertiary" }};
 }
 
 #mode, #clock, #battery, #network, #cpu, #memory, #temperature, #backlight, #wireplumber, #custom-gpu, #custom-vpn {

@@ -18,6 +18,8 @@ export default function (pi: ExtensionAPI) {
 	// ── Capture every submitted prompt ────────────────────────────────────
 	pi.on("input", async (event, _ctx) => {
 		if (event.source === "interactive") {
+			// Reload from disk before appending so concurrent sessions don't create duplicates.
+			history = loadHistory(historyFile);
 			history = appendHistory(historyFile, history, event.text);
 		}
 		return { action: "continue" };

@@ -184,7 +184,7 @@ function warnIfLoosePermissions(path: string): void {
 	}
 }
 
-function loadEnvFile(path: string): LoadResult {
+function loadEnvFile(path: string, force = false): LoadResult {
 	let content: string;
 	try {
 		content = readFileSync(path, "utf8");
@@ -201,7 +201,7 @@ function loadEnvFile(path: string): LoadResult {
 	const loaded: string[] = [];
 	const skipped: string[] = [];
 	for (const [key, value] of Object.entries(parseEnvFile(content))) {
-		if (override || process.env[key] === undefined) {
+		if (force || override || process.env[key] === undefined) {
 			process.env[key] = value;
 			loaded.push(key);
 		} else {
@@ -221,7 +221,7 @@ export default function (pi: ExtensionAPI): void {
 			// Re-read the file on demand so users can edit and re-check without
 			// restarting pi. New vars are applied; already-applied vars are
 			// reported as skipped (since they're now set in process.env).
-			const result = loadEnvFile(configPath);
+			const result = loadEnvFile(configPath, true);
 			const parts: string[] = [];
 			if (result.loaded.length > 0) {
 				parts.push(`loaded ${result.loaded.length}: ${result.loaded.join(", ")}`);

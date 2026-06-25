@@ -2,7 +2,7 @@
 // Usage: node key.js <key> [selector]
 // Presses a key, optionally focused on a selector first.
 // Key examples: Enter, Tab, Escape, ArrowDown, Backspace
-const { chromium } = require("playwright");
+const { chromium } = require("patchright");
 
 const key = process.argv[2];
 const selector = process.argv[3];

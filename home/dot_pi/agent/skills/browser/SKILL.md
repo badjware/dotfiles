@@ -6,17 +6,21 @@ description: "Control a Chrome browser: navigate, click, type, submit forms, and
 # Browser Skill
 
 Controls a persistent Chrome instance via CDP (Chrome DevTools Protocol) on `localhost:9222`.
-All scripts live in the skill directory at `scripts/`.
+All scripts live in the skill directory at `scripts/`. Never chain scripts together with `&&` or `;` in the same `bash` call.
 
 ## Setup
 
-Run once per session (or if Chrome is not responding):
+Run **once per session**:
 
 ```bash
 ./scripts/setup.sh
 ```
 
-Running the setup script will kill any existing chrome instance, so never run it in the middle of a task unless you encounter issues.
+If `setup.sh` exits with a non-zero code, **stop immediately** and report the error to the user. Do not proceed with any further browser commands.
+
+Running the setup script will kill any existing chrome instance. Never run `setup.sh` more than once per session, unless the user **explicitly requests the browser to be restarted**. If a user tells you that an issue has been resolved, do not run `setup.sh` again since this will reset the browser state and revert the resolution.
+
+**Never launch Chrome manually.** Always use `setup.sh`, even if you need to work around an issue. If `setup.sh` cannot be made to work, stop and ask the user for help.
 
 ## Selector discovery
 
@@ -74,6 +78,8 @@ If you need to jump to a given URL:
 
 Prefer clicking elements on the page rather than using `navigate.js`. This is because clicking simulates interactions and allows the page to update its state accordingly (e.g. setting cookies, updating the AX tree, etc.). Use `navigate.js` only when you need to jump to a specific URL that cannot be reached via clicking (e.g. deep link).
 
+**Always run `navigate.js` as a standalone command, never chained with `&&` or `;` after another command or before another command in the same `bash` call.** After `navigate.js` returns, verify the result with `text.js` or `ax.js` in a separate call before proceeding.
+
 ## Keyboard interactions
 
 To clear a field and type the given text:
@@ -112,14 +118,24 @@ This must only be used as a last resort when other commands are insufficient.
 4. Act: `click.js`, `type.js`, `key.js`.
 5. Repeat steps 3-4 until done.
 
+## Cleanup
+
+To kill Chrome and wipe all browsing state (cookies, cache, login sessions):
+
+```bash
+./scripts/cleanup.sh
+```
+
+Only run this at the request of the user.
+
 ## Troubleshooting
 
-- **Connection refused**: Chrome is not running or crashed. Offer to the user to either investigate the crash or to run `./scripts/setup.sh` to start a new instance.
-  - Chrome logs are at `/tmp/browser-skill/chrome.log`
+- Chrome logs are at `/tmp/browser-skill/chrome.log`
 - **Element not found / timeout**: Re-run `ax.js` to get a fresh view of the DOM and derive a new selector from it.
 - **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (e.g.: append `>> nth=0` to target the first match).
-- **User intervention required**: If you encounter one of the following, stop and ask the user to resolve it manually:
+- If you encounter one of the following, stop and ask the user to resolve it manually:
   - Captcha
   - Login prompt
   - 2FA prompt
+  - HTTP auth challenge, or proxy authentication issue (eg: `ERR_INVALID_AUTH_CREDENTIALS`)
   - SSL or other security issue

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Persistent background script started by setup.sh.
 // Auto-dismisses any JS dialog (alert/confirm/prompt) so they never block CDP.
-const { chromium } = require("playwright");
+const { chromium } = require("patchright");
 
 (async () => {
   const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });

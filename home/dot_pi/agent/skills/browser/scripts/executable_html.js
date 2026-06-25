@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node html.js
 // Returns the page HTML stripped of script/style tags, for selector discovery.
-const { chromium } = require("playwright");
+const { chromium } = require("patchright");
 const { truncate } = require("./truncate");
 
 (async () => {

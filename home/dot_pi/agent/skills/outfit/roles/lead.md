@@ -136,8 +136,9 @@ For each task in dependency order within the current milestone:
    - `blocked` → `./scripts/task.py set-status <task-id> blocked --reason "..."`, surface to user at next status check, move on to next non-dependent task if any.
    - `needs-changes` (only valid on a re-dispatch) → see step 6.
 4. **Concurrent review (agent + human).** `./scripts/task.py set-status <task-id> in_review`.
+   - **Invite human review up-front (before blocking on the agent reviewer).** Eagerly invite the user to review the task in parallel with the agent reviewer. Give them the baseline SHA (from `.plan/work/<task-id>/baseline-programmer.sha`) so they can `git diff` at their convenience. Make clear they can start now and that you will formally collect their feedback once the agent reviewer returns.
    - **Agent review:** `./scripts/dispatch.py reviewer <task-id>`. Block. Read `.plan/work/<task-id>/status-reviewer.md` and `review.md`.
-   - **Human review:** Show the user the diff (`git diff <baseline-sha>` from `.plan/work/<task-id>/baseline-programmer.sha`) and ask for their review. Record their feedback in `.plan/work/<task-id>/human-review.md` with the same structure as agent review (blocking issues, minor issues, or approval).
+   - **Collect human review:** once the agent reviewer is done, if the user has not already given you their review, ask for it now; otherwise do not block on them again. Record their feedback in `.plan/work/<task-id>/human-review.md` with the same structure as agent review (blocking issues, minor issues, or approval).
 5. **Consolidate review outcomes.**
    - If **either** review has blocking issues (`needs-changes`), go to step 6 with the combined feedback.
    - If **both** approve (`done`), optionally log any minor issues to `.plan/work/<task-id>/deferred-issues.md`, then `./scripts/task.py set-status <task-id> done` (this auto-commits). Next task.

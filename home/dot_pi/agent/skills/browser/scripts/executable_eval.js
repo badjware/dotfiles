@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node eval.js <js-expression>
-const { chromium } = require("playwright");
+const { chromium } = require("patchright");
 
 const expr = process.argv[2];
 if (!expr) {

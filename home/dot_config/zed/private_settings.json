@@ -8,7 +8,7 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "debugger": {
-    "dock": "right"
+    "dock": "bottom"
   },
   "project_panel": {
     "dock": "left",

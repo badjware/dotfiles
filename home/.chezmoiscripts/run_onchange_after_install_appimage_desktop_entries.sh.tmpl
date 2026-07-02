@@ -8,6 +8,7 @@ icon_folder="${HOME}/.local/share/icons"
 
 {{ if ne .chassisType "container" }}
 for appimage_path in $(find $HOME/Applications -name '*.AppImage'); do
+    chmod +x "$appimage_path"
 
     appimage_filename=$(basename "$appimage_path")
     app_name="${appimage_filename%.*}"

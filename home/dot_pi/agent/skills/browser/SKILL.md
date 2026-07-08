@@ -101,14 +101,20 @@ Useful for submitting forms, dismissing dialogs, navigating dropdowns, etc.
 
 ## Evaluate JavaScript
 
-Returns a JSON-serialized result:
+**Last resort only.** The user is watching the browser and wants to see the interaction happen on the page. Executing JavaScript bypasses the visible UI, so the user cannot follow what is going on. Prefer `click.js`, `type.js`, `key.js`, and `navigate.js` even when `eval.js` would be shorter or more convenient.
+
+Do not use `eval.js` to:
+- Read text or attributes (use `text.js`, `ax.js`, or `html.js`).
+- Click, focus, submit, or otherwise trigger interactions (use `click.js` / `key.js`).
+- Set input values (use `type.js`).
+- Scroll, hover, or navigate (use the corresponding scripts, or click a real element).
+
+Only acceptable uses are things with no UI equivalent, for example extracting a value from a non-visible DOM node for debugging, extracting structured data like JSON, or probing `window.__STATE__` when the page exposes no other affordance. Before using it, ask the user for explicit permission and briefly justify why no interaction-based script would work.
 
 ```bash
 ./scripts/eval.js "document.title"
 ./scripts/eval.js "document.querySelector('h1')?.textContent"
 ```
-
-This must only be used as a last resort when other commands are insufficient.
 
 ## Typical workflow pattern
 

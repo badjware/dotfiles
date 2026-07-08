@@ -68,7 +68,7 @@ setw -g window-status-current-format ' #I:#W '
 setw -g window-status-activity-style fg='{{ template "color-hex" "error" }}',bold
 setw -g window-status-bell-style fg='{{ template "color-hex" "tertiary" }}',bold
 set -g bell-action any
-set -g visual-bell both
+set -g visual-bell off
 
 # Left: empty (window list pinned to left)
 set -g status-left ''

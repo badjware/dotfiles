@@ -18,9 +18,9 @@ Run **once per session**:
 
 If `setup.sh` exits with a non-zero code, **stop immediately** and report the error to the user. Do not proceed with any further browser commands. Do not re-run `setup.sh` to retry after a failure; re-running is only for starting Chrome when it is not already running.
 
-`setup.sh` is idempotent: if Chrome is already running on the debugging port, it is a no-op and leaves the existing instance (and its state) untouched. It only launches/relaunches Chrome when no instance is currently listening on the port. To force a restart of an already-running Chrome, use `cleanup.sh` first, then `setup.sh`, and only do so when the user **explicitly requests the browser to be restarted**.
+`setup.sh` is idempotent: if Chrome is already running on the debugging port, it is a no-op and leaves the existing instance (and its state) untouched. It only launches Chrome when no instance is currently listening on the port. Ask the user to restart the browser if required.
 
-**Never launch Chrome manually.** Always use `setup.sh`, even if you need to work around an issue. If `setup.sh` cannot be made to work, stop and ask the user for help.
+**Never launch Chrome manually.** Always use `setup.sh`, even if you need to work around an issue. If `setup.sh` doesn't work, stop and ask the user for help.
 
 ## Selector discovery
 
@@ -124,7 +124,7 @@ This must only be used as a last resort when other commands are insufficient.
 1. `./scripts/setup.sh` (if not already running).
 2. `./scripts/navigate.js <url>` for the initial landing page.
 3. `./scripts/text.js` to read the page; `./scripts/ax.js` to discover selectors. Do not take a screenshot to verify the result of an action.
-4. Act: `click.js`, `type.js`, `key.js`.
+4. Act: `click.js`, `type.js`, `key.js`, `wait.js`.
 5. Repeat steps 3-4 until done.
 
 ## Cleanup
@@ -139,12 +139,23 @@ Only run this at the request of the user.
 
 ## Troubleshooting
 
-- Chrome logs are at `/tmp/browser-skill/chrome.log`
-- **Element not found / timeout**: Re-run `ax.js` to get a fresh view of the DOM and derive a new selector from it.
-- **Strict mode violation (resolved to N elements)**: The selector matched more than one element. Use a more specific selector (e.g.: append `>> nth=0` to target the first match).
-- If you encounter one of the following, stop and ask the user to resolve it manually:
-  - Captcha
-  - Login prompt
-  - 2FA prompt
-  - HTTP auth challenge, or proxy authentication issue (eg: `ERR_INVALID_AUTH_CREDENTIALS`)
-  - SSL or other security issue
+Chrome logs are at `/tmp/browser-skill/chrome.log`.
+
+### Element not found / timeout
+
+Re-run `ax.js` to get a fresh view of the DOM and derive a new selector from it.
+
+### Strict mode violation (resolved to N elements)
+
+The selector matched more than one element. Use a more specific selector (e.g.: append `>> nth=0` to target the first match).
+
+### User prompts
+
+If you encounter one of:
+- Captcha
+- Login prompt
+- 2FA prompt
+- HTTP auth challenge or proxy authentication issue (e.g. `ERR_INVALID_AUTH_CREDENTIALS`)
+- SSL or other security issue
+
+If there is a "login with sso" or similar button, you can try clicking it to see if it resolves the issue. Otherwise, stop and ask the user to resolve it manually.

@@ -2,10 +2,24 @@ import { DynamicBorder } from "@earendil-works/pi-coding-agent";
 import { Container, fuzzyFilter, getKeybindings, Input, Spacer, TruncatedText } from "@mariozechner/pi-tui";
 import type { HistoryEntry } from "./history-store.js";
 
-const MAX_VISIBLE = 25;
+// Non-list chrome: top border, spacer, input, spacer, bottom border.
+const CHROME_ROWS = 5;
+// Must match the overlayOptions used to open this component (index.ts): maxHeight "90%", offsetY -2.
+const OVERLAY_MAX_HEIGHT_RATIO = 0.9;
+const OVERLAY_OFFSET_Y = 2;
 
 type Theme = { fg(color: string, text: string): string };
-type Tui = { requestRender(): void };
+type Tui = { requestRender(): void; terminal: { rows: number } };
+
+/**
+ * List rows must fit within the overlay's actual maxHeight, or the overlay-level
+ * slice(0, maxHeight) truncation cuts off the bottom chrome (the search input)
+ * instead of the list, hiding the cursor on short terminals.
+ */
+function computeMaxVisible(terminalRows: number): number {
+	const availableRows = Math.floor(terminalRows * OVERLAY_MAX_HEIGHT_RATIO) - OVERLAY_OFFSET_Y;
+	return Math.max(1, availableRows - CHROME_ROWS);
+}
 
 /**
  * Ctrl+R history search overlay.
@@ -34,6 +48,7 @@ export class HistorySearchOverlay extends Container {
 	private filtered: HistoryEntry[];
 	private selectedIndex = 0;
 	private viewTop = 0; // highest (oldest) index currently shown at the top row
+	private maxVisible: number;
 	private tui: Tui;
 	private theme: Theme;
 	private onDone: (result: string | null) => void;
@@ -53,6 +68,7 @@ export class HistorySearchOverlay extends Container {
 		this.tui = tui;
 		this.theme = theme;
 		this.onDone = done;
+		this.maxVisible = computeMaxVisible(tui.terminal.rows);
 		this.allItems = [...entries].reverse(); // show newest first
 		this.filtered = this.allItems;
 		this.resetView();
@@ -81,7 +97,7 @@ export class HistorySearchOverlay extends Container {
 	/** Reset pointer and window to the newest entry. Clamps so viewTop is never -1. */
 	private resetView() {
 		this.selectedIndex = 0;
-		this.viewTop = Math.max(0, Math.min(this.filtered.length - 1, MAX_VISIBLE - 1));
+		this.viewTop = Math.max(0, Math.min(this.filtered.length - 1, this.maxVisible - 1));
 	}
 
 	private filterEntries(query: string) {
@@ -95,8 +111,8 @@ export class HistorySearchOverlay extends Container {
 		// Shift the window by exactly 1 only when the pointer leaves the visible range
 		if (this.selectedIndex > this.viewTop) {
 			this.viewTop = this.selectedIndex;
-		} else if (this.selectedIndex < this.viewTop - MAX_VISIBLE + 1) {
-			this.viewTop = this.selectedIndex + MAX_VISIBLE - 1;
+		} else if (this.selectedIndex < this.viewTop - this.maxVisible + 1) {
+			this.viewTop = this.selectedIndex + this.maxVisible - 1;
 		}
 		this.updateList();
 	}
@@ -110,9 +126,9 @@ export class HistorySearchOverlay extends Container {
 			return;
 		}
 
-		// Render a fixed window: viewTop (top/oldest) down to viewTop-MAX_VISIBLE+1 (bottom/newest).
+		// Render a fixed window: viewTop (top/oldest) down to viewTop-maxVisible+1 (bottom/newest).
 		// The window only shifts by 1 when the pointer hits an edge (see updateSelection).
-		const viewBottom = Math.max(0, this.viewTop - MAX_VISIBLE + 1);
+		const viewBottom = Math.max(0, this.viewTop - this.maxVisible + 1);
 
 		// Render from viewTop (top/oldest) down to viewBottom (bottom/newest)
 		for (let i = this.viewTop; i >= viewBottom; i--) {

@@ -1,0 +1,10 @@
+#!/bin/bash -xe
+
+installed=$(pi list 2>/dev/null || true)
+{{ range $ext := .pi.extensions }}
+if ! grep -qF "{{ $ext }}" <<<"$installed"; then
+    pi install "{{ $ext }}"
+fi
+{{ end }}
+
+# code: language=bash

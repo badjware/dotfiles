@@ -1,0 +1,3 @@
+pi:
+  extensions:
+    - git:github.com/badjware/mem0-pi-agent-plugin-oss

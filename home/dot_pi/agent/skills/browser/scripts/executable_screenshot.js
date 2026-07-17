@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node screenshot.js [selector]
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const selector = process.argv[2];
 const out = "/tmp/browser-skill/screenshot.png";

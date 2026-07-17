@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node wait.js [timeout_seconds]
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const timeoutSec = process.argv[2] ? Number(process.argv[2]) : 5;
 if (Number.isNaN(timeoutSec) || timeoutSec <= 0) {

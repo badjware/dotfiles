@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node text.js [selector]
 // Extracts visible text from the page (or a specific element).
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 const { truncate } = require("./truncate");
 
 const selector = process.argv[2] ?? "body";

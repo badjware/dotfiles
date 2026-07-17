@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node eval.js <js-expression>
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const expr = process.argv[2];
 if (!expr) {

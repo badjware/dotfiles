@@ -4,7 +4,7 @@
 // loading, then idles. Any scroll it performs is reversed once 'load' fires
 // so the page comes to rest at its natural position.
 // Disable with BROWSER_SKILL_HUMANIZER=0.
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 if (process.env.BROWSER_SKILL_HUMANIZER === "0") {
   process.exit(0);

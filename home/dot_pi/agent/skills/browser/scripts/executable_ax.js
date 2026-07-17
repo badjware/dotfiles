@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node ax.js
 // Returns the page accessibility tree as JSON, for selector discovery.
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 const { truncate } = require("./truncate");
 
 (async () => {

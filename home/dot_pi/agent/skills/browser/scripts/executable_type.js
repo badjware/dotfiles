@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node type.js <selector> <text>
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const selector = process.argv[2];
 const text = process.argv[3];

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node click.js <selector>
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const selector = process.argv[2];
 if (!selector) {

@@ -4,7 +4,7 @@ set -euo pipefail
 
 PROFILE_DIR="${HOME}/.cache/browser-skill/profile"
 
-if pkill -9 -f 'chrome' &>/dev/null 2>&1; then
+if pkill -9 -f -- "--user-data-dir=${PROFILE_DIR}" &>/dev/null 2>&1; then
   echo "killed Chrome"
 fi
 

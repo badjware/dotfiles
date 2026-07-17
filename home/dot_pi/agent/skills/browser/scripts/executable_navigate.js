@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node navigate.js <url>
-const { chromium } = require("patchright");
+const { chromium } = require("./browser-lib");
 
 const url = process.argv[2];
 if (!url) {

@@ -21,6 +21,7 @@ tmux() {
         internal_name="home"
     else
         display_name="${PWD:t}"
+        display_name="${display_name//./_}"
         internal_name="$display_name"
     fi
 

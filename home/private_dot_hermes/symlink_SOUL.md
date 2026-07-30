@@ -1,0 +1,1 @@
+../.pi/agent/SOUL.md

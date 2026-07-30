@@ -39,8 +39,13 @@ from _state import (  # noqa: E402
     die,
     find_plan_dir,
     git_head_sha,
+    git_is_ancestor,
+    latest_review_cycle,
+    parse_worker_status,
     make_work_dir_name,
+    read_status,
     read_tasks,
+    resolve_task_repo,
     skill_dir,
     task_by_id,
 )
@@ -92,13 +97,21 @@ def main() -> int:
     project_root = plan.parent
     tasks = read_tasks(plan)["tasks"]
 
-    # For QA, target_id is a milestone; for programmer/reviewer, it's a task
+    # For QA, target_id is a milestone ID or the literal "project"; for
+    # programmer/reviewer, it's a task.
     is_milestone_dispatch = args.role == "qa"
+    qa_scope = None
     if is_milestone_dispatch:
-        if not ID_MILESTONE_RE.match(args.target_id):
-            die(f"QA dispatch requires milestone ID (M-NNN): {args.target_id!r}")
-        target_display = f"milestone {args.target_id}"
-        work_id = args.target_id
+        if args.target_id == "project":
+            qa_scope = "project"
+            target_display = "project"
+            work_id = "project"
+        elif ID_MILESTONE_RE.match(args.target_id):
+            qa_scope = "milestone"
+            target_display = f"milestone {args.target_id}"
+            work_id = args.target_id
+        else:
+            die(f"QA dispatch requires a milestone ID (M-NNN) or 'project': {args.target_id!r}")
     else:
         task = task_by_id(tasks, args.target_id)
         if not task:
@@ -132,12 +145,61 @@ def main() -> int:
     # Per-role model
     model = os.environ.get(f"OUTFIT_MODEL_{args.role.upper()}")
 
-    # Baseline (HEAD at dispatch time) for diff-based review
-    baseline = git_head_sha(project_root)
+    # Baseline for diff-based review. For programmer/reviewer it is HEAD at
+    # dispatch. For QA it is the recorded milestone/project start baseline
+    # (T-011/T-012), never HEAD at QA time, so QA sees the full scope diff.
+    if is_milestone_dispatch:
+        status = read_status(plan)
+        if qa_scope == "project":
+            baseline = status.get("project_baseline") or status.get(
+                "milestone_baselines", {}
+            ).get("M-001")
+            src = "project_baseline"
+        else:
+            baseline = status.get("milestone_baselines", {}).get(args.target_id)
+            src = f"milestone_baselines[{args.target_id}]"
+        if not baseline:
+            die(
+                f"no recorded {src}; run status.py set-milestone / approve-gate-1 first",
+                category="state",
+            )
+        head = git_head_sha(project_root)
+        if head and not git_is_ancestor(project_root, baseline, head):
+            die(
+                f"recorded QA baseline {baseline[:12]} is not an ancestor of HEAD; "
+                "the milestone history was rewritten",
+                category="state",
+            )
+        task_repo_name, task_repo_path = None, project_root
+    else:
+        # A task's baseline is HEAD of its declared repository (T-016).
+        task_repo_name, task_repo_path, _ = resolve_task_repo(plan, task)
+        baseline = git_head_sha(task_repo_path)
     baseline_file = work_dir / f"baseline-{args.role}.sha"
     baseline_file.write_text((baseline or "") + "\n")
 
-    if is_milestone_dispatch:
+    if is_milestone_dispatch and qa_scope == "project":
+        prompt = (
+            f"Project-level QA (all milestones).\n"
+            f"You are a {args.role} worker. Your role specification is in your system prompt.\n"
+            f"State directory: .plan/ (in your cwd).\n"
+            f"\n"
+            f"This is the whole-project release QA, distinct from per-milestone QA.\n"
+            f"Verify every story across all milestones and cross-milestone integration:\n"
+            f"  {task_script} list            (all tasks)\n"
+            f"Read .plan/plan.md, all .plan/stories/, .plan/decisions.md, .plan/codebase.md.\n"
+            f"Check the open issue registry: {sd / 'scripts' / 'issue.py'} list\n"
+            f"Run the project's full test, build, and vet/lint commands and record results.\n"
+            f"Assess release readiness: temporary dependency replacements, dirty linked\n"
+            f"repositories, and unreleased prerequisites.\n"
+            f"If .plan/workspace.json exists, verify every declared repository builds and\n"
+            f"tests, and that cross-repository dependency versions are compatible.\n"
+            f"\n"
+            f"Your scratch directory (the only place you write inside .plan/): "
+            f".plan/work/{work_id}/\n"
+            f"Write status-{args.role}.md last with one of: done | needs-changes.\n"
+        )
+    elif is_milestone_dispatch:
         prompt = (
             f"Milestone: {args.target_id}.\n"
             f"You are a {args.role} worker. Your role specification is in your system prompt.\n"
@@ -156,14 +218,42 @@ def main() -> int:
             f"Write status-{args.role}.md last with one of: done | needs-changes.\n"
         )
     else:
+        # Cycle-numbered artifacts keep every review round immutable: a later
+        # reviewer writes review-NN.md rather than overwriting review.md.
+        prior_cycle = latest_review_cycle(work_dir)
+        if args.role == "reviewer":
+            cycle = prior_cycle + 1
+            artifact_note = (
+                f"Write your review to review-{cycle:02d}.md (do not overwrite "
+                f"earlier review-NN.md files). Assign every finding a stable issue "
+                f"ID via {sd / 'scripts' / 'issue.py'}.\n"
+            )
+        else:  # programmer
+            cycle = prior_cycle
+            if cycle >= 1:
+                artifact_note = (
+                    f"This is a rework of review cycle {cycle:02d}. Record your "
+                    f"per-issue accepted/rejected decisions in "
+                    f"review-response-{cycle:02d}.md, referencing stable issue IDs.\n"
+                )
+            else:
+                artifact_note = ""
         rework_ctx_note = (
             f"\nIf .plan/work/{work_id}/rework-context.md exists, read it before starting work."
             f" It contains rework guidance from a previous review cycle.\n"
         )
+        repo_note = ""
+        if task_repo_name is not None:
+            repo_note = (
+                f"\nThis task targets workspace repository '{task_repo_name}' at "
+                f"{task_repo_path}. Make and inspect changes there; do not modify "
+                f"other repositories. The lead commits only in that repository.\n"
+            )
         prompt = (
             f"Task: {args.target_id}.\n"
             f"You are a {args.role} worker. Your role specification is in your system prompt.\n"
             f"State directory: .plan/ (in your cwd).\n"
+            f"{repo_note}"
             f"\n"
             f"Get your task spec by running:\n"
             f"  {task_script} get {args.target_id}\n"
@@ -174,6 +264,7 @@ def main() -> int:
             f"\n"
             f"Your scratch directory (the only place you write inside .plan/): "
             f".plan/work/{work_id}/\n"
+            f"{artifact_note}"
             f"Write status-{args.role}.md last with one of: done | blocked | needs-changes.\n"
         )
     if baseline:
@@ -182,7 +273,7 @@ def main() -> int:
             f"Use `git diff {baseline}` to see code changes made for this task.\n"
         )
 
-    cmd = ["pi", "-p"]
+    cmd = ["pi", "-p", "--no-extensions"]
     if model:
         cmd.extend(["--model", model])
     cmd.extend(
@@ -228,6 +319,7 @@ def main() -> int:
     }
     if not is_milestone_dispatch:
         meta["task_title"] = task["title"]
+        meta["review_cycle"] = cycle
     (session_dir / "metadata.json").write_text(_json.dumps(meta, indent=2) + "\n")
 
     if timed_out:
@@ -240,6 +332,13 @@ def main() -> int:
         print(f"--- status-{args.role}.md ---")
         print(status_path.read_text().rstrip())
         print(f"--- end status-{args.role}.md ---")
+        # T-005: needs-changes and blocked must carry a concrete, structured reason.
+        st, reason = parse_worker_status(status_path)
+        if st in {"needs-changes", "blocked"} and not reason:
+            print(
+                f"WARNING: status '{st}' has no reason; a bare {st} is invalid "
+                f"and must not be acted on (T-005)"
+            )
     else:
         print(f"(no status-{args.role}.md written by worker)")
     if rc != 0:

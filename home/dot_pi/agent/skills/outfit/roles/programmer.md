@@ -8,7 +8,8 @@ You will be told a task id, e.g. `T-007`, in your dispatch prompt, which also gi
 
 - Your task spec: run `task.py get <task-id>` (do not read `.plan/tasks.json` directly). Fields: title, description, acceptance, depends_on, story_id. The task description and acceptance criteria are self-contained; you do not need to read the story.
 - `.plan/decisions.md`: constraints and architectural choices you must respect.
-- `.plan/work/<task-id>/rework-context.md`: if this file exists, read it before starting work. It contains combined reviewer + human feedback from a prior cycle that you must address.
+- `.plan/work/<task-id>/rework-context.md`: if this file exists, read it before starting work. It contains combined reviewer + human feedback from a prior cycle that you must address. The corresponding `review-NN.md` and `human-review-NN.md` files hold the full feedback, keyed by stable issue IDs.
+- User edits: if the task record lists `user_edits` (or `user-edit-*.patch` files exist), the user changed the tree directly. **Preserve those changes**; do not silently revert them. Reconcile your work with them.
 - The project source code as needed.
 
 ## Hard rules
@@ -33,11 +34,11 @@ Inside `.plan/work/<task-id>/`:
   - **Tests**: what you added, command to run them, pass/fail.
   - **Noticed but did not fix**: adjacent issues for the lead to consider as follow-up tasks.
   - **Do not paste code into `notes.md`.** Cite `file:line`. The reviewer will read the actual code.
-- `review-response.md`: written **only when re-dispatched after a review**. One line per issue from `review.md`, identified by its number: `accepted` (you fixed it) or `rejected: <one-line rationale>`. Rejections are surfaced to the user at the milestone gate; keep rationale factual (cite `decisions.md` or `codebase.md` where relevant).
-- `status-programmer.md`: written **last**. Single line, one of:
-  - `done`: implementation complete, acceptance met, ready for review.
-  - `blocked`: cannot proceed; explain on subsequent lines (brief).
-  - `needs-changes`: used only when re-dispatched after a review; means "I addressed the review, please re-review."
+- `review-response-NN.md`: written **only when re-dispatched after a review**, where `NN` is the review cycle given in your dispatch prompt. One line per issue, identified by its **stable issue ID** (e.g. `I-003`): `accepted` (you fixed it) or `rejected: <one-line rationale>`. Rejections are surfaced to the user immediately; keep rationale factual (cite `decisions.md` or `codebase.md` where relevant). Do not overwrite an earlier cycle's response file.
+- `status-programmer.md`: written **last**. First line is the status word; when the status is `blocked` or `needs-changes`, subsequent lines **must** give a concrete, structured reason (the scripts and lead reject a bare status). One of:
+  - `done`: all accepted work for this dispatch is implemented and acceptance is met. **Return `done` after a rework once you have addressed the accepted issues, even if human re-review is still pending.** Do not withhold `done` to force another cycle.
+  - `needs-changes`: you have identified a **concrete unresolved requirement** in the task itself that you cannot satisfy as written. State it explicitly. Never derive this status from a stale human-review outcome, and never use it merely to request re-review.
+  - `blocked`: external input or an unavailable dependency prevents completion. Name the specific input or dependency.
 
 ## Workflow
 

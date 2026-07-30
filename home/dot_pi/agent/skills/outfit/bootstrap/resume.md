@@ -13,6 +13,9 @@ Run `./scripts/detect-project.py`. For `in-progress`, proceed with this bootstra
    ./scripts/status.py show
    ./scripts/task.py list --include-cancelled
    ```
+   These commands ensure `.plan/` is listed in `.git/info/exclude`. If `.plan/` is already tracked from an older Outfit run, they stop and require user-directed migration; Outfit does not rewrite history.
+
+1b. **Migrate the schema if needed.** If a script reports the state schema is out of date, run `./scripts/migrate.py --dry-run` then `./scripts/migrate.py`. Migration is forward-only and idempotent; see `MIGRATION.md`.
 
 2. **Determine if the run is complete.**
    - All tasks are `done` or `cancelled`
@@ -33,12 +36,12 @@ Run `./scripts/detect-project.py`. For `in-progress`, proceed with this bootstra
    
    **If phase is `discovery`:**
    - Continue discovery conversation with user
-   - Once stories are confirmed by the user, run `./scripts/status.py approve-discovery` to commit stories + decisions.md and advance to planning atomically (Gate 0)
+   - Once stories are confirmed by the user, run `./scripts/status.py approve-discovery` to record approval locally and advance to planning (Gate 0)
    
    **If phase is `planning`:**
    - Check if tasks exist (`./scripts/task.py list`)
    - If no tasks yet, complete the planning phase
-   - Once tasks are defined for all stories, use `./scripts/status.py approve-gate-1` to commit and advance to execution
+   - Once tasks are defined for all stories, use `./scripts/status.py approve-gate-1` to record approval locally and advance to execution
    
    **If phase is `execution`:**
    - Identify the current task:
@@ -55,4 +58,4 @@ Run `./scripts/detect-project.py`. For `in-progress`, proceed with this bootstra
 - The `.plan/work/<task-id>/` directory contains the full audit trail for each task (code, reviews, test results, session logs)
 - If the working tree is dirty (uncommitted changes outside `.plan/`), alert the user. The previous run may have been interrupted mid-task
 - Check `.plan/work/<task-id>/status-*.md` files to see what the programmer/reviewer/QA last reported
-- Check git log for `outfit:` commits to see the progression history
+- Check git log for Conventional Commits created by completed tasks to see project progression; `.plan/` history remains local

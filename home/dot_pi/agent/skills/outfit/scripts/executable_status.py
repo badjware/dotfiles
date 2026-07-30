@@ -8,20 +8,20 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import glob as _glob
 
 from _state import (  # noqa: E402
     ID_MILESTONE_RE,
     PHASE_TRANSITIONS,
     PHASES,
-    GitError,
     die,
     find_plan_dir,
-    git_commit_all,
+    git_head_sha,
+    read_links,
     read_status,
     read_tasks,
     write_status,
 )
+from audit import run_audit  # noqa: E402
 
 
 def cmd_show(args: argparse.Namespace) -> int:
@@ -67,14 +67,17 @@ def cmd_set_phase(args: argparse.Namespace) -> int:
     if args.phase not in allowed:
         if cur == "planning" and args.phase == "execution":
             die(
-                "cannot enter execution from planning via set-phase; use approve-gate-1"
+                "cannot enter execution from planning via set-phase; use approve-gate-1",
+                category="state",
             )
         if cur == "discovery" and args.phase == "planning":
             die(
-                "cannot enter planning from discovery via set-phase; use approve-discovery"
+                "cannot enter planning from discovery via set-phase; use approve-discovery",
+                category="state",
             )
         die(
-            f"invalid phase transition {cur} -> {args.phase}; allowed: {sorted(allowed) or 'none'}"
+            f"invalid phase transition {cur} -> {args.phase}; allowed: {sorted(allowed) or 'none'}",
+            category="state",
         )
     s["phase"] = args.phase
     note = ""
@@ -89,7 +92,7 @@ def cmd_set_phase(args: argparse.Namespace) -> int:
 
 def cmd_set_milestone(args: argparse.Namespace) -> int:
     if not ID_MILESTONE_RE.match(args.milestone):
-        die(f"milestone must match M\\d+: {args.milestone!r}")
+        die(f"milestone must match M-\\d{{3,}}: {args.milestone!r}")
     plan = find_plan_dir()
     s = read_status(plan)
     # ensure tasks exist for this milestone
@@ -97,8 +100,16 @@ def cmd_set_milestone(args: argparse.Namespace) -> int:
     if not any(t["milestone"] == args.milestone for t in tasks):
         die(f"no tasks reference milestone {args.milestone}; refusing to set")
     s["current_milestone"] = args.milestone
+    # T-011: record the milestone's baseline at activation and never overwrite it,
+    # so QA always diffs against the true milestone start.
+    baselines = s.setdefault("milestone_baselines", {})
+    note = ""
+    if args.milestone not in baselines:
+        head = git_head_sha(plan.parent)
+        baselines[args.milestone] = head or ""
+        note = f" (baseline {head or 'none'})"
     write_status(plan, s)
-    print(f"current_milestone: {args.milestone}")
+    print(f"current_milestone: {args.milestone}{note}")
     return 0
 
 
@@ -114,12 +125,6 @@ def cmd_approve_discovery(args: argparse.Namespace) -> int:
         )
     s["phase"] = "planning"
     write_status(plan, s)
-    try:
-        git_commit_all(plan.parent, "outfit: discovery approved (gate 0)")
-    except GitError as e:
-        s["phase"] = "discovery"
-        write_status(plan, s)
-        die(f"commit failed (state reverted): {e}")
     print("discovery approved; phase: planning")
     return 0
 
@@ -136,23 +141,21 @@ def cmd_approve_gate_1(args: argparse.Namespace) -> int:
     tasks = read_tasks(plan)["tasks"]
     if not tasks:
         die("cannot approve gate 1: no tasks defined")
+    # T-014: every temporary override must have a finalization task.
+    _require_finalization_tasks(plan, tasks)
     s["gate_1_approved"] = True
     s["phase"] = "execution"  # gate 1 atomically advances phase
+    # T-012: the project QA baseline is the project start (gate 1 HEAD).
+    if not s.get("project_baseline"):
+        s["project_baseline"] = git_head_sha(plan.parent) or ""
     write_status(plan, s)
-    try:
-        git_commit_all(plan.parent, "outfit: plan approved (gate 1)")
-    except GitError as e:
-        s["gate_1_approved"] = False
-        s["phase"] = "planning"
-        write_status(plan, s)
-        die(f"commit failed (state reverted): {e}")
     print("gate 1 approved; phase: execution")
     return 0
 
 
 def cmd_approve_milestone(args: argparse.Namespace) -> int:
     if not ID_MILESTONE_RE.match(args.milestone):
-        die(f"milestone must match M\\d+: {args.milestone!r}")
+        die(f"milestone must match M-\\d{{3,}}: {args.milestone!r}")
     plan = find_plan_dir()
     s = read_status(plan)
     tasks = read_tasks(plan)["tasks"]
@@ -163,19 +166,80 @@ def cmd_approve_milestone(args: argparse.Namespace) -> int:
     if not_done:
         die(f"cannot approve {args.milestone}: tasks not done or cancelled: {not_done}")
     gates = s.setdefault("milestone_gates", {})
-    prior = gates.get(args.milestone)
     gates[args.milestone] = "approved"
     write_status(plan, s)
-    try:
-        git_commit_all(plan.parent, f"outfit: milestone {args.milestone} approved")
-    except GitError as e:
-        if prior is None:
-            del gates[args.milestone]
-        else:
-            gates[args.milestone] = prior
-        write_status(plan, s)
-        die(f"commit failed (state reverted): {e}")
     print(f"milestone {args.milestone}: approved")
+    return 0
+
+
+def _require_finalization_tasks(plan, tasks: list[dict]) -> None:
+    """Fail if a linked dependency with a temporary override has no live
+    finalization task (T-014)."""
+    links = read_links(plan)["links"]
+    overrides = [link for link in links if link.get("temporary_override")]
+    if not overrides:
+        return
+    live = [t for t in tasks if t["status"] != "cancelled"]
+    for link in overrides:
+        if not any(link["id"] in t.get("finalizes", []) for t in live):
+            die(
+                f"temporary override for {link['id']} ({link['repository']}) has no "
+                f"finalization task; add one with task.py add --finalizes {link['id']}",
+                category="state",
+            )
+
+
+def cmd_approve_project(args: argparse.Namespace) -> int:
+    """Approve the whole project (T-012). Distinct from final-milestone approval:
+    requires every milestone approved, a passing project QA, and a clean release
+    audit (T-013). Refuses on any blocker."""
+    plan = find_plan_dir()
+    s = read_status(plan)
+    tasks = read_tasks(plan)["tasks"]
+    milestones = sorted({t["milestone"] for t in tasks})
+    if not milestones:
+        die("no milestones defined", category="state")
+    gates = s.get("milestone_gates", {})
+    unapproved = [m for m in milestones if gates.get(m) != "approved"]
+    if unapproved:
+        die(f"cannot approve project: milestones not approved: {unapproved}", category="state")
+
+    # Project QA must have run and passed.
+    qa_file = plan / "work" / "project" / "status-qa.md"
+    if not qa_file.exists():
+        die("project QA has not run; dispatch.py qa project first", category="state")
+    lines = qa_file.read_text().strip().splitlines()
+    first = lines[0].strip() if lines else ""
+    if first != "done":
+        die(f"project QA is not done (status: {first or 'empty'})", category="state")
+
+    # T-014: no temporary override may remain at project approval.
+    remaining = [
+        link for link in read_links(plan)["links"] if link.get("temporary_override")
+    ]
+    if remaining:
+        ids = ", ".join(f"{link['id']} ({link['repository']})" for link in remaining)
+        die(
+            f"cannot approve project: temporary dependency overrides remain: {ids}",
+            category="state",
+        )
+
+    # Automatic release audit (T-013).
+    blockers, warnings, report = run_audit(plan.parent, args.allow_local_replacements)
+    print("=== release audit ===")
+    for line in report:
+        print(line)
+    for w in warnings:
+        print(f"warning: {w}")
+    if blockers:
+        for b in blockers:
+            print(f"BLOCKER: {b}", file=sys.stderr)
+        die("cannot approve project: release audit reported blockers", category="state")
+
+    s["project_approved"] = True
+    s["release_ready"] = True
+    write_status(plan, s)
+    print("project approved; release_ready: true")
     return 0
 
 
@@ -196,7 +260,7 @@ def main() -> int:
 
     p_disc = sub.add_parser(
         "approve-discovery",
-        help="commit stories, advance discovery -> planning (gate 0)",
+        help="approve stories and advance discovery -> planning (gate 0)",
     )
     p_disc.set_defaults(func=cmd_approve_discovery)
 
@@ -206,6 +270,17 @@ def main() -> int:
     p_am = sub.add_parser("approve-milestone", help="record milestone approval")
     p_am.add_argument("milestone")
     p_am.set_defaults(func=cmd_approve_milestone)
+
+    p_ap = sub.add_parser(
+        "approve-project",
+        help="approve the whole project (runs release audit; requires project QA)",
+    )
+    p_ap.add_argument(
+        "--allow-local-replacements",
+        action="store_true",
+        help="permit local module replacements for release",
+    )
+    p_ap.set_defaults(func=cmd_approve_project)
 
     args = ap.parse_args()
     return args.func(args)

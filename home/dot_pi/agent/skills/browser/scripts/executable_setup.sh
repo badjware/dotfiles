@@ -25,6 +25,15 @@ rm -f "${PROFILE_DIR}"/Singleton*
 
 LANDING_URL="${BROWSER_LANDING_URL:-https://duckduckgo.com}"
 
+if command -v chromium &>/dev/null; then
+  browser="chromium"
+elif command -v google-chrome &>/dev/null; then
+  browser="google-chrome"
+else
+  echo "ERROR: Neither chromium nor google-chrome is installed." >&2
+  exit 1
+fi
+
 chrome_args=(
   --remote-debugging-port="${PORT}"
   --user-data-dir="${PROFILE_DIR}"
@@ -34,7 +43,7 @@ chrome_args=(
   --disable-notifications
   --disable-blink-features=AutomationControlled
 )
-google-chrome "${chrome_args[@]}" &>"${BASE_DIR}/chrome.log" &
+"${browser}" "${chrome_args[@]}" &>"${BASE_DIR}/chrome.log" &
 
 echo "waiting for Chrome to be ready..."
 for i in $(seq 1 20); do

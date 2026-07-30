@@ -8,11 +8,11 @@ Run `./scripts/detect-project.py`. If the result is `greenfield`, **confirm with
 
 ## Steps
 
-1. **Initialize `.plan/` and git.** Run `./scripts/plan-init.py`. This will:
+1. **Initialize local `.plan/` state and git.** Run `./scripts/plan-init.py`. This will:
    - run `git init` if cwd is not already a git repo
    - create `.plan/` (refuses if it already exists)
-   - add a `.gitignore` block excluding `.plan/work/*/session-*/`
-   - make an initial commit `outfit: initialize .plan/`
+   - add `.plan/` to `.git/info/exclude` without touching `.gitignore`
+   - create `chore: establish project baseline`, including existing project files but excluding `.plan/`; the commit is empty when no project files exist
 
    If the script does not exist, stop and tell the user.
 

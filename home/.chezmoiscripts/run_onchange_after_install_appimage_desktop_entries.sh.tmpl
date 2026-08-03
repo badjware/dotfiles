@@ -46,4 +46,27 @@ EOT
     echo "Created desktop entry for $app_name"
 
 done
+
+# clean up desktop entries for AppImages that no longer exist
+for desktop_path in "${HOME}/.local/share/applications/"*.desktop; do
+    [ -f "$desktop_path" ] || continue
+
+    exec_line=$(grep -m1 '^Exec=' "$desktop_path" | sed 's/^Exec=//; s/^"//; s/"$//')
+
+    # only consider entries pointing at an AppImage under ~/Applications
+    case "$exec_line" in
+        "$HOME/Applications/"*.AppImage) ;;
+        *) continue ;;
+    esac
+
+    # keep the entry if the AppImage still exists
+    [ -f "$exec_line" ] && continue
+
+    icon_path=$(grep -m1 '^Icon=' "$desktop_path" | sed 's/^Icon=//')
+    rm -f "$desktop_path"
+    [ -n "$icon_path" ] && rm -f "$icon_path"
+
+    echo "Removed stale desktop entry $(basename "$desktop_path")"
+done
+
 {{ end }}

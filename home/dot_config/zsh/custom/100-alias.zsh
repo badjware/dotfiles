@@ -12,9 +12,9 @@ alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
 fpath=(~/develop/github.com/badjware/pibox/completions $fpath)
-pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --harness pi -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
-claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --harness claude -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
-hermesbox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --harness hermes -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
+pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness pi -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
+claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness claude -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
+hermesbox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness hermes -v "$HOME/go/pkg:$HOME/go/pkg" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'

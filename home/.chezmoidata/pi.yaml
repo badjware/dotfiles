@@ -3,3 +3,4 @@ pi:
     # - git:github.com/badjware/mem0-pi-agent-plugin-oss
     - npm:pi-provider-litellm
     - npm:pi-hermes-memory
+    - npm:@bigboss2063/pi-clip

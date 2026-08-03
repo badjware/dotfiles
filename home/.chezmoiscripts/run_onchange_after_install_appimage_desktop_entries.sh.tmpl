@@ -7,11 +7,11 @@ set -o pipefail
 icon_folder="${HOME}/.local/share/icons"
 
 {{ if ne .chassisType "container" }}
-for appimage_path in $(find $HOME/Applications -name '*.AppImage'); do
+while IFS= read -r -d '' appimage_path; do
     chmod +x "$appimage_path"
 
     appimage_filename=$(basename "$appimage_path")
-    app_name="${appimage_filename%.*}"
+    app_name="${appimage_filename%.AppImage}"
     desktop_path="${HOME}/.local/share/applications/$app_name.desktop"
 
     # skip if desktop entry already exists
@@ -19,17 +19,37 @@ for appimage_path in $(find $HOME/Applications -name '*.AppImage'); do
 
     tempdir=$(mktemp -d)
 
-    pushd $tempdir >/dev/null
+    pushd "$tempdir" >/dev/null
     "$appimage_path" --appimage-extract > /dev/null
     cd squashfs-root/
 
-    mapfile -t filenames < <(find -L . -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.svg' \))
+    # prefer the icon referenced by .DirIcon (only when it's a symlink, so we
+    # get a real file extension), otherwise fall back to any png/svg
+    icon_src=""
+    [ -L .DirIcon ] && icon_src=$(readlink -f .DirIcon)
+    if [ -z "$icon_src" ] || [ ! -f "$icon_src" ]; then
+        icon_src=$(find -L . -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.svg' \) | head -n1 || true)
+    fi
 
-    icon_src=${filenames[0]}
-    icon_ext="${icon_src##*.}"
-    icon_dst="${icon_folder}/$app_name.$icon_ext"
-    cp "$icon_src" "$icon_dst"
+    icon_dst=""
+    if [ -n "$icon_src" ]; then
+        icon_ext="${icon_src##*.}"
+        icon_dst="${icon_folder}/$app_name.$icon_ext"
+        cp "$icon_src" "$icon_dst"
+    fi
 
+    # reuse the AppImage's embedded desktop entry for correct Name,
+    # StartupWMClass, Categories, etc., rewriting only Exec and Icon
+    internal_desktop=$(find -L . -maxdepth 1 -name '*.desktop' | head -n1 || true)
+    if [ -n "$internal_desktop" ]; then
+        # preserve the field code (%U, %F, ...) from the embedded Exec line
+        field_code=$(grep -m1 '^Exec=' "$internal_desktop" | grep -oE '%[a-zA-Z]' | head -n1 || true)
+        exec_line="Exec=\"$appimage_path\"${field_code:+ $field_code}"
+        sed -E \
+            -e "s|^Exec=.*|$exec_line|" \
+            -e "s|^Icon=.*|Icon=$icon_dst|" \
+            "$internal_desktop" > "$desktop_path"
+    else
 cat <<EOT > "$desktop_path"
 [Desktop Entry]
 Name=$app_name
@@ -39,13 +59,14 @@ Icon=$icon_dst
 Type=Application
 Terminal=false
 EOT
+    fi
 
     popd >/dev/null
-    rm -rf $tempdir
+    rm -rf "$tempdir"
 
     echo "Created desktop entry for $app_name"
 
-done
+done < <(find "$HOME/Applications" -name '*.AppImage' -print0)
 
 # clean up desktop entries for AppImages that no longer exist
 for desktop_path in "${HOME}/.local/share/applications/"*.desktop; do

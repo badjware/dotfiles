@@ -11,6 +11,6 @@ units:
     - mako.service
     - gammastep.service
     # - wayvnc-event-watcher.service
-    - sit-down.timer
-    - stand-up.timer
+    # - sit-down.timer
+    # - stand-up.timer
     - clean-teams-pwa.timer

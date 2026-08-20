@@ -1,5 +1,11 @@
 #!/bin/bash -xe
 
+export PATH="$HOME/.local/bin:$PATH"
+
+if ! command -v pi >/dev/null; then
+    npm install --prefix "$HOME/.local" --ignore-scripts @earendil-works/pi-coding-agent
+fi
+
 installed=$(pi list 2>/dev/null || true)
 {{ range $ext := .pi.extensions }}
 if ! grep -qF "{{ $ext }}" <<<"$installed"; then

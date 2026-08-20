@@ -1,6 +1,6 @@
 fs:
   # The mountpoint. Can be overwritten via the command line.
-  mountpoint: /home/marchambault/develop/code.badjware.dev
+  mountpoint: {{ .chezmoi.homeDir }}/develop/code.badjware.dev
 
   # Mount options to pass to `fusermount` as its `-o` argument. Can be overwritten via the command line.
   # See mount.fuse(8) for the full list of options.

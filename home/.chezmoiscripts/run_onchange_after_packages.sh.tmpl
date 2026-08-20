@@ -5,7 +5,7 @@
 ################
 
 {{ if eq .chezmoi.osRelease.id "arch" }}
-sudo pacman -Sy
+sudo pacman -Syu --noconfirm
 
 # setup aur helper
 if ! which pikaur >/dev/null; then
@@ -15,10 +15,10 @@ if ! which pikaur >/dev/null; then
     rm -rf /tmp/pikaur
 fi
 
-pikaur -Sy --needed --noconfirm {{ .packages.arch.base | join " " }}
+pikaur -S --needed --noconfirm {{ .packages.arch.base | join " " }}
 
 {{ if ne .chassisType "container" }}
-pikaur -Sy --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
+pikaur -S --needed --noconfirm {{ .packages.arch.base_desktop | join " " }}
 {{ end }}
 
 ############
@@ -135,9 +135,10 @@ if ! which autotiling &>/dev/null; then
     pipx install autotiling
 fi
 
+{{ end }}
+
 if ! which trafilatura &>/dev/null; then
     pipx install trafilatura
 fi
-{{ end }}
 
 # code: language=bash

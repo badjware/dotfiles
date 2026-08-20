@@ -325,8 +325,8 @@ bindsym $mod+Shift+r reload
 # exit
 bindsym $mod+Shift+e exec "swaynag -t warning -m 'Do you really want to exit sway?' -b 'Yes, exit sway' 'swaymsg exit'"
 # lock the screen
-bindsym $mod+Pause exec ~/.local/bin/lock
-bindsym $mod+End exec ~/.local/bin/idle
+bindsym $mod+Pause exec ~/.local/bin/idle
+bindsym $mod+End exec ~/.local/bin/lock
 # suspend
 bindsym $mod+Shift+End exec systemctl suspend
 
@@ -389,7 +389,7 @@ exec ~/.local/bin/autotiling
 # autostart
 exec /usr/bin/dex{{ if eq .chezmoi.osRelease.id "fedora" }}-autostart{{ end }} --autostart
 {{- if hasPrefix "mtl" .chezmoi.hostname }}
-exec ~/applications/Logseq.AppImage
+exec ~/Applications/Logseq.AppImage
 {{- else }}
-exec ~/applications/Obsidian.AppImage
+exec ~/Applications/Obsidian.AppImage
 {{- end }}

@@ -29,6 +29,7 @@ packages:
       - lm_sensors
       - lsd
       - neovim
+      - nodejs
       - openssh
       - pass
       - pay-respects
@@ -191,6 +192,7 @@ packages:
 
       # languages / runtimes
       - cargo
+      - nodejs
       - golang
       - pipx
       - python3-pip

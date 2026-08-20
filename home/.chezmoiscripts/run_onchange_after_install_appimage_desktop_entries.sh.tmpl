@@ -72,16 +72,21 @@ done < <(find "$HOME/Applications" -name '*.AppImage' -print0)
 for desktop_path in "${HOME}/.local/share/applications/"*.desktop; do
     [ -f "$desktop_path" ] || continue
 
-    exec_line=$(grep -m1 '^Exec=' "$desktop_path" | sed 's/^Exec=//; s/^"//; s/"$//')
+    exec_line=$(grep -m1 '^Exec=' "$desktop_path" | sed 's/^Exec=//')
+    if [[ "$exec_line" =~ ^\"([^\"]+)\" ]]; then
+        desktop_appimage_path="${BASH_REMATCH[1]}"
+    else
+        desktop_appimage_path="${exec_line%% *}"
+    fi
 
     # only consider entries pointing at an AppImage under ~/Applications
-    case "$exec_line" in
+    case "$desktop_appimage_path" in
         "$HOME/Applications/"*.AppImage) ;;
         *) continue ;;
     esac
 
     # keep the entry if the AppImage still exists
-    [ -f "$exec_line" ] && continue
+    [ -f "$desktop_appimage_path" ] && continue
 
     icon_path=$(grep -m1 '^Icon=' "$desktop_path" | sed 's/^Icon=//')
     rm -f "$desktop_path"

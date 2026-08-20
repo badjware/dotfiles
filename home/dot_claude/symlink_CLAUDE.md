@@ -1,1 +1,1 @@
-/home/marchambault/.pi/agent/AGENTS.md
+../.pi/agent/AGENTS.md

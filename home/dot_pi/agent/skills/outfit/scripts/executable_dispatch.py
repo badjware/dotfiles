@@ -129,7 +129,7 @@ def main() -> int:
     work_dir = plan / "work" / work_id
     work_dir.mkdir(parents=True, exist_ok=True)
     start = dt.datetime.now()
-    ts = start.strftime("%Y%m%d-%H%M%S")
+    ts = start.strftime("%Y%m%d-%H%M%S-%f")
     session_dir = work_dir / f"session-{args.role}-{ts}"
     session_dir.mkdir()
     log_path = session_dir / "output.log"

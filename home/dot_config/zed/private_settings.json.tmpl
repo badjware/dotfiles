@@ -53,13 +53,13 @@
   "agent_servers": {
     "pibox": {
       "type": "custom",
-      "command": "/home/marchambault/develop/github.com/badjware/pibox/launch.sh",
+      "command": "{{ .chezmoi.homeDir }}/develop/github.com/badjware/pibox/launch.sh",
       "args": ["--acp", "--unsafe-enable-docker"],
       "env": {},
     },
     "pibox-read-only": {
       "type": "custom",
-      "command": "/home/marchambault/develop/github.com/badjware/pibox/launch.sh",
+      "command": "{{ .chezmoi.homeDir }}/develop/github.com/badjware/pibox/launch.sh",
       "args": ["--acp", "--read-only"],
       "env": {},
     },

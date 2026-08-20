@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
-device="$(dirname "$(find /sys/devices -name gpu_busy_percent)" | head -n 1)"
+usage_file="$(find /sys/devices -name gpu_busy_percent -print -quit)"
+[[ -n "$usage_file" ]] || exit 0
 
-usage=$(cat "$device/gpu_busy_percent")
-vram_used_bytes=$(cat "$device/mem_info_vram_used" | numfmt --format="%0.1f" --to=iec-i)B
-vram_total_bytes=$(cat "$device/mem_info_vram_total" | numfmt --format="%0.1f" --to=iec-i)B
+device="$(dirname "$usage_file")"
+[[ -r "$device/mem_info_vram_used" && -r "$device/mem_info_vram_total" ]] || exit 0
 
-if [[ -d "$device" ]]; then
-    percentage="$usage"
-    tooltip="VRAM: $vram_used_bytes/$vram_total_bytes"
-    class="gpu"
+usage=$(<"$usage_file")
+vram_used_bytes=$(numfmt --format="%0.1f" --to=iec-i <"$device/mem_info_vram_used")B
+vram_total_bytes=$(numfmt --format="%0.1f" --to=iec-i <"$device/mem_info_vram_total")B
 
-    jq -c -n --arg text "$percentage%" --arg tooltip "$tooltip" --arg class "$class" \
-        --argjson percentage "$percentage" \
-        '{text: $text, percentage: $percentage, tooltip: $tooltip, class: $class}'
-fi
+jq -c -n --arg text "$usage%" --arg tooltip "VRAM: $vram_used_bytes/$vram_total_bytes" --arg class "gpu" \
+    --argjson percentage "$usage" \
+    '{text: $text, percentage: $percentage, tooltip: $tooltip, class: $class}'

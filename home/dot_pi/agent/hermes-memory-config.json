@@ -1,0 +1,3 @@
+{
+  "llmModelOverride": "litellm/in-cluster/Gemma-4-12B"
+}

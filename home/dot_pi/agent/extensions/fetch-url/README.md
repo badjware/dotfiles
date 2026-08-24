@@ -1,6 +1,6 @@
 # fetch-url extension
 
-A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool which retrieves a web page and returns its readable text content as Markdown, using [trafilatura](https://trafilatura.readthedocs.io/) for main-content extraction. Not suitable for structured data (e.g. API responses); use `bash` with `curl` for that.
+A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool. HTML pages are converted to readable Markdown using [trafilatura](https://trafilatura.readthedocs.io/) for main-content extraction. Other textual resources, such as source files, JSON, YAML, and XML, are returned as-is.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ The tool returns:
 - `content[0].text`: the extracted Markdown, with a truncation notice appended if applicable.
 - `details.requested_url`, `details.truncated`, plus `details.truncation` and `details.fullOutputPath` when truncated.
 
-The HTTP fetch is performed via Node's stdlib (`node:https` / `node:http`, with manual redirect following, configurable timeout, Lynx UA), then the HTML is piped to `trafilatura --output-format markdown --formatting` over stdin. Trafilatura drops navigation, sidebars, footers, comments and ads.
+The HTTP fetch is performed via Node's stdlib (`node:https` / `node:http`, with manual redirect following, configurable timeout, Lynx UA). HTML responses are piped to `trafilatura --output-format markdown --formatting` over stdin; all other responses are returned without extraction. Trafilatura drops navigation, sidebars, footers, comments and ads.
 
 ## Configuration
 

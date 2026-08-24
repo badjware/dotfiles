@@ -23,8 +23,16 @@ const USER_AGENT =
   "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
 const MAX_REDIRECTS = 5;
 
+type FetchResult = {
+  body: string;
+  contentType?: string;
+};
+
 // We use http/https instead of fetch to evade bot detection
-function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
+function fetchResource(
+  url: string,
+  signal?: AbortSignal,
+): Promise<FetchResult> {
   return new Promise((resolve, reject) => {
     const visit = (current: string, redirectsLeft: number) => {
       let parsed: URL;
@@ -79,7 +87,12 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
           res.on("data", (chunk) => {
             body += chunk;
           });
-          res.on("end", () => resolve(body));
+          res.on("end", () =>
+            resolve({
+              body,
+              contentType: res.headers["content-type"],
+            }),
+          );
           res.on("error", reject);
         },
       );
@@ -91,6 +104,15 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
     };
     visit(url, MAX_REDIRECTS);
   });
+}
+
+function isHtml(contentType: string | undefined, body: string): boolean {
+  if (contentType) {
+    const mediaType = contentType.split(";", 1)[0].trim().toLowerCase();
+    return mediaType === "text/html" || mediaType === "application/xhtml+xml";
+  }
+
+  return /^\s*(?:<!doctype\s+html|<html\b)/i.test(body);
 }
 
 function runTrafilatura(
@@ -135,12 +157,12 @@ export default function (pi: ExtensionAPI) {
     defineTool({
       name: "fetch_url",
       label: "Fetch URL",
-      description: `Fetch a web page and extract readable text content. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first). If truncated, full output is saved to a temp file. Not suitable for structured data (e.g. API responses).`,
-      promptSnippet: "Fetch a URL and extract readable page text as Markdown.",
+      description: `Fetch a URL. HTML pages are converted to readable Markdown; other textual resources are returned as-is. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first). If truncated, full output is saved to a temp file.`,
+      promptSnippet: "Fetch a URL as readable Markdown or raw text.",
       promptGuidelines: [
         "Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
-        "Do not use fetch_url to retrieve structured data such as API responses; use bash with curl instead.",
-        "fetch_url runs no JavaScript and keeps no session; it returns near-empty text for JavaScript-rendered or login-walled pages. Best for static articles, docs, and READMEs.",
+        "Use fetch_url for textual resources such as source files, JSON, YAML, and XML; non-HTML text is returned as-is.",
+        "fetch_url runs no JavaScript and keeps no session; it returns near-empty text for JavaScript-rendered or login-walled pages. Best for static articles, docs, READMEs, and raw source files.",
       ],
       parameters: Type.Object({
         url: Type.String({ description: "URL to fetch" }),
@@ -157,28 +179,34 @@ export default function (pi: ExtensionAPI) {
       async execute(_toolCallId, params, signal) {
         const rawUrl = params.url.trim();
         try {
-          const html = await fetchHtml(rawUrl, signal);
-          const traf = await runTrafilatura(html, signal);
-          if (traf.code !== 0 && !traf.stdout.trim()) {
-            const message =
-              traf.stderr.trim() || `trafilatura exited with code ${traf.code}`;
-            return {
-              content: [{ type: "text", text: message }],
-              details: { requested_url: rawUrl, exit_code: traf.code },
-              isError: true,
-            };
-          }
+          const resource = await fetchResource(rawUrl, signal);
+          let text: string;
 
-          const text = traf.stdout
-            .replace(/\r\n/g, "\n")
-            .replace(/\n{3,}/g, "\n\n")
-            .trim();
-          if (!text) {
-            return {
-              content: [{ type: "text", text: "No readable text extracted." }],
-              details: { requested_url: rawUrl },
-              isError: true,
-            };
+          if (isHtml(resource.contentType, resource.body)) {
+            const traf = await runTrafilatura(resource.body, signal);
+            if (traf.code !== 0 && !traf.stdout.trim()) {
+              const message =
+                traf.stderr.trim() || `trafilatura exited with code ${traf.code}`;
+              return {
+                content: [{ type: "text", text: message }],
+                details: { requested_url: rawUrl, exit_code: traf.code },
+                isError: true,
+              };
+            }
+
+            text = traf.stdout
+              .replace(/\r\n/g, "\n")
+              .replace(/\n{3,}/g, "\n\n")
+              .trim();
+            if (!text) {
+              return {
+                content: [{ type: "text", text: "No readable text extracted." }],
+                details: { requested_url: rawUrl },
+                isError: true,
+              };
+            }
+          } else {
+            text = resource.body.replace(/\r\n/g, "\n");
           }
 
           const truncation = truncateHead(text, {

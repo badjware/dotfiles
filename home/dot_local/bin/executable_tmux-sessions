@@ -242,7 +242,9 @@ def read_event(buffer: bytes) -> tuple[str | tuple[str, int, int] | None, bytes]
     mouse = MOUSE.match(buffer)
     if mouse:
         button, x, y, kind = mouse.groups()
-        event = ("click", int(x) - 1, int(y) - 1) if button == b"0" and kind == b"m" else None
+        event = None
+        if kind == b"m" and button in (b"0", b"2"):
+            event = ("rclick" if button == b"2" else "click", int(x) - 1, int(y) - 1)
         return event, buffer[mouse.end() :]
     keys = {b"\x1b[A": "up", b"\x1b[B": "down", b"\x1b[C": "right", b"\x1b[D": "left", b"\r": "enter", b"\n": "enter"}
     for sequence, event in keys.items():
@@ -258,6 +260,14 @@ def attach(session: Session) -> None:
     leave_screen()
     subprocess.run(["tmux", "attach-session", "-t", session.target])
     enter_screen()
+
+
+def open_in_zed(session: Session) -> None:
+    path = tmux("display-message", "-p", "-t", session.target, "#{pane_current_path}").strip()
+    if not path:
+        return
+    editor = "zeditor" if shutil.which("zeditor") else "zed"
+    subprocess.Popen([editor, "--reuse", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def run() -> None:
@@ -311,15 +321,18 @@ def run() -> None:
                     attach(sessions[selected])
                     last_refresh = 0.0
                 elif isinstance(event, tuple) and card_columns:
-                    _, mouse_x, mouse_y = event
+                    kind, mouse_x, mouse_y = event
                     if mouse_y >= 2:
                         column = mouse_x // card_width
                         row = (mouse_y - 2) // card_height
                         index = row * card_columns + column
                         if column < card_columns and index < len(sessions):
                             selected = index
-                            attach(sessions[selected])
-                            last_refresh = 0.0
+                            if kind == "rclick":
+                                open_in_zed(sessions[selected])
+                            else:
+                                attach(sessions[selected])
+                                last_refresh = 0.0
     finally:
         leave_screen()
         termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, original_mode)

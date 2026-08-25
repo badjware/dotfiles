@@ -1,0 +1,332 @@
+#!/usr/bin/env python3
+"""Browse tmux sessions without changing their window layouts."""
+
+from __future__ import annotations
+
+import os
+import re
+import select
+import shutil
+import subprocess
+import sys
+import termios
+import time
+import tty
+from dataclasses import dataclass, field
+from typing import Iterable
+
+REFRESH_INTERVAL_SECONDS = 1
+MIN_CARD_WIDTH = 10
+MIN_CARD_HEIGHT = 5
+ESC = "\033"
+RESET = f"{ESC}[0m"
+MOUSE = re.compile(rb"^\x1b\[<(\d+);(\d+);(\d+)([Mm])")
+
+
+@dataclass
+class Window:
+    target: str
+    active: bool
+    bell: bool
+
+
+@dataclass
+class Session:
+    target: str
+    name: str
+    attached: bool
+    windows: list[Window] = field(default_factory=list)
+    preview: list[str] = field(default_factory=list)
+
+    @property
+    def active_window(self) -> Window | None:
+        return next((window for window in self.windows if window.active), None)
+
+    @property
+    def has_bell(self) -> bool:
+        return any(window.bell for window in self.windows)
+
+
+def tmux(*arguments: str) -> str:
+    result = subprocess.run(
+        ["tmux", *arguments], text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
+    return result.stdout if result.returncode == 0 else ""
+
+
+def load_sessions() -> list[Session]:
+    sessions: dict[str, Session] = {}
+    for row in tmux("list-sessions", "-F", "#{session_id}\t#{session_name}\t#{session_attached}").splitlines():
+        fields = row.split("\t", 2)
+        if len(fields) == 3:
+            target, name, attached = fields
+            sessions[target] = Session(target, name, attached != "0")
+
+    window_format = "#{session_id}\t#{window_id}\t#{window_active}\t#{window_bell_flag}"
+    for row in tmux("list-windows", "-a", "-F", window_format).splitlines():
+        fields = row.split("\t", 3)
+        if len(fields) != 4 or fields[0] not in sessions:
+            continue
+        session_id, window_id, active, bell = fields
+        sessions[session_id].windows.append(Window(window_id, active == "1", bell == "1"))
+
+    for session in sessions.values():
+        active = session.active_window
+        if active:
+            session.preview = tmux("capture-pane", "-p", "-J", "-S", "-16", "-t", active.target).splitlines()
+    return sorted(sessions.values(), key=lambda session: session.name.casefold())
+
+
+def braille_preview(lines: Iterable[str], width: int, height: int) -> list[str]:
+    """Compress non-blank terminal cells into 2-by-4 braille cells."""
+    source = list(lines)[-height * 4 :]
+    source = [line[: width * 2].ljust(width * 2) for line in source]
+    source = [" " * (width * 2)] * max(0, height * 4 - len(source)) + source
+    dots = ((0, 0, 1), (1, 0, 2), (2, 0, 4), (3, 0, 64), (0, 1, 8), (1, 1, 16), (2, 1, 32), (3, 1, 128))
+    preview = []
+    for top in range(0, height * 4, 4):
+        row = []
+        for left in range(0, width * 2, 2):
+            value = 0
+            for source_row, source_column, bit in dots:
+                if not source[top + source_row][left + source_column].isspace():
+                    value |= bit
+            row.append(chr(0x2800 + value))
+        preview.append("".join(row).rstrip())
+    return preview
+
+
+def clean(text: str, width: int) -> str:
+    return "".join(character if character >= " " else " " for character in text)[:width]
+
+
+def put(lines: list[str], row: int, column: int, text: str) -> None:
+    if not 0 <= row < len(lines) or column >= len(lines[row]):
+        return
+    text = clean(text, len(lines[row]) - column)
+    lines[row] = lines[row][:column] + text + lines[row][column + len(text) :]
+
+
+def draw_card(
+    lines: list[str], session: Session, selected: bool, y: int, x: int, width: int, height: int
+) -> None:
+    if selected:
+        put(lines, y, x, "╔" + "═" * (width - 2) + "╗")
+        put(lines, y + height - 1, x, "╚" + "═" * (width - 2) + "╝")
+        vertical = "║"
+    else:
+        put(lines, y, x, "┌" + "─" * (width - 2) + "┐")
+        put(lines, y + height - 1, x, "└" + "─" * (width - 2) + "┘")
+        vertical = "│"
+    for row in range(y + 1, y + height - 1):
+        put(lines, row, x, vertical)
+        put(lines, row, x + width - 1, vertical)
+
+    if selected:
+        put(lines, y + 1, x + 1, "▶")
+    put(lines, y + 1, x + (2 if selected else 1), session.name)
+    preview_rows = height - 4
+    for row, preview in enumerate(braille_preview(session.preview, width - 2, preview_rows)):
+        put(lines, y + 3 + row, x + 1, preview)
+
+
+def paint(styles: list[list[str]], y: int, x: int, width: int, height: int, params: str) -> None:
+    for row in range(max(0, y), min(len(styles), y + height)):
+        line = styles[row]
+        for column in range(max(0, x), min(len(line), x + width)):
+            line[column] = params
+
+
+def add_reverse(styles: list[list[str]], y: int, x: int, width: int, height: int) -> None:
+    for row in range(max(0, y), min(len(styles), y + height)):
+        line = styles[row]
+        for column in range(max(0, x), min(len(line), x + width)):
+            line[column] += ";7"
+
+
+def style_card(styles: list[list[str]], session: Session, selected: bool, y: int, x: int, width: int, height: int) -> None:
+    paint(styles, y, x, width, height, "0;1;32" if session.attached else "0")
+    if selected:
+        paint(styles, y, x, width, 1, "0;1;36")
+        paint(styles, y + height - 1, x, width, 1, "0;1;36")
+        paint(styles, y + 1, x, 1, height - 2, "0;1;36")
+        paint(styles, y + 1, x + width - 1, 1, height - 2, "0;1;36")
+        paint(styles, y + 1, x, width, 1, "0;1;36")
+    if session.has_bell:
+        add_reverse(styles, y, x, width, height)
+
+
+def emit(lines: list[str], styles: list[list[str]]) -> str:
+    out = [f"{ESC}[H{ESC}[2J"]
+    for row, line in enumerate(lines):
+        out.append(f"{ESC}[{row + 1};1H")
+        style_row = styles[row]
+        column = 0
+        while column < len(line):
+            params = style_row[column]
+            end = column
+            while end < len(line) and style_row[end] == params:
+                end += 1
+            out.append(f"{ESC}[{params}m" + line[column:end])
+            column = end
+        out.append(RESET)
+    return "".join(out)
+
+
+def layout(count: int, columns: int, rows: int) -> tuple[int, int, int]:
+    """Choose a compact grid whose terminal-cell ratio approximates a square tile."""
+    available_rows = rows - 2
+    maximum_columns = min(count, max(1, columns // MIN_CARD_WIDTH))
+    candidates = []
+    for card_columns in range(1, maximum_columns + 1):
+        card_rows = (count - 1) // card_columns + 1
+        if count > 2 and card_rows == 1:
+            continue
+        card_width = columns // card_columns
+        card_height = available_rows // card_rows
+        if card_height >= MIN_CARD_HEIGHT:
+            candidates.append((card_columns, card_width, card_height))
+    if not candidates:
+        return 0, 0, 0
+    return min(
+        candidates,
+        key=lambda item: (
+            item[0] * ((count - 1) // item[0] + 1) - count,
+            abs(item[1] / item[2] - 2),
+        ),
+    )
+
+
+def render(sessions: list[Session], selected: int, refreshed_at: str) -> tuple[int, int, int]:
+    size = shutil.get_terminal_size((80, 24))
+    lines = [" " * size.columns for _ in range(size.lines)]
+    styles = [["0"] * size.columns for _ in range(size.lines)]
+    put(lines, 0, 1, f"Every {REFRESH_INTERVAL_SECONDS}s: {refreshed_at}   Enter: attach   r: refresh   q: quit")
+    if not sessions:
+        put(lines, 3, 1, "No tmux sessions found.")
+        sys.stdout.write(emit(lines, styles))
+        sys.stdout.flush()
+        return 0, 0, 0
+
+    card_columns, card_width, card_height = layout(len(sessions), size.columns, size.lines)
+    if not card_columns:
+        put(lines, 2, 1, f"Terminal is too small to show {len(sessions)} sessions on one page.")
+        sys.stdout.write(emit(lines, styles))
+        sys.stdout.flush()
+        return 0, 0, 0
+
+    for index, session in enumerate(sessions):
+        card_row, card_column = divmod(index, card_columns)
+        x = card_column * card_width
+        y = 2 + card_row * card_height
+        draw_card(lines, session, index == selected, y, x, card_width, card_height)
+        style_card(styles, session, index == selected, y, x, card_width, card_height)
+    sys.stdout.write(emit(lines, styles))
+    sys.stdout.flush()
+    return card_columns, card_width, card_height
+
+
+def enter_screen() -> None:
+    sys.stdout.write(f"{ESC}[?1049h{ESC}[?25l{ESC}[?7l{ESC}[?1000h{ESC}[?1006h")
+    sys.stdout.flush()
+
+
+def leave_screen() -> None:
+    sys.stdout.write(f"{ESC}[?1006l{ESC}[?1000l{ESC}[?7h{ESC}[?25h{ESC}[?1049l")
+    sys.stdout.flush()
+
+
+def read_event(buffer: bytes) -> tuple[str | tuple[str, int, int] | None, bytes]:
+    if not buffer:
+        return None, buffer
+    mouse = MOUSE.match(buffer)
+    if mouse:
+        button, x, y, kind = mouse.groups()
+        event = ("click", int(x) - 1, int(y) - 1) if button == b"0" and kind == b"m" else None
+        return event, buffer[mouse.end() :]
+    keys = {b"\x1b[A": "up", b"\x1b[B": "down", b"\x1b[C": "right", b"\x1b[D": "left", b"\r": "enter", b"\n": "enter"}
+    for sequence, event in keys.items():
+        if buffer.startswith(sequence):
+            return event, buffer[len(sequence) :]
+    # A lone ESC may be the start of a sequence still arriving; defer until confirmed alone.
+    if buffer == b"\x1b" or buffer.startswith(b"\x1b["):
+        return None, buffer
+    return chr(buffer[0]), buffer[1:]
+
+
+def attach(session: Session) -> None:
+    leave_screen()
+    subprocess.run(["tmux", "attach-session", "-t", session.target])
+    enter_screen()
+
+
+def run() -> None:
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        raise SystemExit("tmux-sessions requires an interactive terminal.")
+    original_mode = termios.tcgetattr(sys.stdin.fileno())
+    tty.setcbreak(sys.stdin.fileno())
+    enter_screen()
+    sessions: list[Session] = []
+    selected = 0
+    card_columns = 1
+    card_width = MIN_CARD_WIDTH
+    card_height = MIN_CARD_HEIGHT
+    last_refresh = 0.0
+    refreshed_at = "never"
+    buffer = b""
+    try:
+        while True:
+            now = time.monotonic()
+            if now - last_refresh >= REFRESH_INTERVAL_SECONDS:
+                selected_target = sessions[selected].target if sessions else None
+                sessions = load_sessions()
+                selected = next((index for index, session in enumerate(sessions) if session.target == selected_target), 0)
+                last_refresh = now
+                refreshed_at = time.strftime("%H:%M:%S")
+            card_columns, card_width, card_height = render(sessions, selected, refreshed_at)
+            readable, _, _ = select.select([sys.stdin], [], [], 0.25)
+            if readable:
+                buffer += os.read(sys.stdin.fileno(), 1024)
+            elif buffer == b"\x1b":
+                return
+            while True:
+                event, buffer = read_event(buffer)
+                if event is None:
+                    break
+                if event in ("q", "\x1b"):
+                    return
+                if not sessions:
+                    continue
+                if event in ("down", "j"):
+                    selected = min(selected + card_columns, len(sessions) - 1)
+                elif event in ("up", "k"):
+                    selected = max(selected - card_columns, 0)
+                elif event in ("left", "h"):
+                    selected = max(selected - 1, 0)
+                elif event in ("right", "l"):
+                    selected = min(selected + 1, len(sessions) - 1)
+                elif event == "r":
+                    last_refresh = 0.0
+                elif event == "enter":
+                    attach(sessions[selected])
+                    last_refresh = 0.0
+                elif isinstance(event, tuple) and card_columns:
+                    _, mouse_x, mouse_y = event
+                    if mouse_y >= 2:
+                        column = mouse_x // card_width
+                        row = (mouse_y - 2) // card_height
+                        index = row * card_columns + column
+                        if column < card_columns and index < len(sessions):
+                            selected = index
+                            attach(sessions[selected])
+                            last_refresh = 0.0
+    finally:
+        leave_screen()
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, original_mode)
+
+
+if __name__ == "__main__":
+    try:
+        run()
+    except FileNotFoundError:
+        print("tmux is not installed or is not on PATH.", file=sys.stderr)

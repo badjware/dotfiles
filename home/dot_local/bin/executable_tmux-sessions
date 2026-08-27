@@ -198,11 +198,18 @@ def layout(count: int, columns: int, rows: int) -> tuple[int, int, int]:
     )
 
 
-def render(sessions: list[Session], selected: int, refreshed_at: str) -> tuple[int, int, int]:
+def render(sessions: list[Session], selected: int, refreshed_at: str, notice: str) -> tuple[int, int, int]:
     size = shutil.get_terminal_size((80, 24))
     lines = [" " * size.columns for _ in range(size.lines)]
     styles = [["0"] * size.columns for _ in range(size.lines)]
-    put(lines, 0, 1, f"Every {REFRESH_INTERVAL_SECONDS}s: {refreshed_at}   Enter: attach   r: refresh   q: quit")
+    put(
+        lines,
+        0,
+        1,
+        f"Every {REFRESH_INTERVAL_SECONDS}s: {refreshed_at}   Enter: attach   n: new   d: delete   r: refresh   q: quit",
+    )
+    if notice:
+        put(lines, 1, 1, notice)
     if not sessions:
         put(lines, 3, 1, "No tmux sessions found.")
         sys.stdout.write(emit(lines, styles))
@@ -271,6 +278,36 @@ def open_in_zed(session: Session) -> None:
     subprocess.Popen([editor, "--reuse", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def prompt(original_mode: list[object], text: str) -> str:
+    leave_screen()
+    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, original_mode)
+    try:
+        return input(text).strip()
+    finally:
+        tty.setcbreak(sys.stdin.fileno())
+        enter_screen()
+
+
+def create_session(original_mode: list[object]) -> str:
+    name = prompt(original_mode, "New session name: ")
+    if not name:
+        return "Session creation cancelled."
+    result = subprocess.run(["tmux", "new-session", "-s", name], text=True, stderr=subprocess.PIPE)
+    if result.returncode:
+        return result.stderr.strip() or f"Could not create session {name!r}."
+    return f"Created session {name!r}."
+
+
+def delete_session(session: Session, original_mode: list[object]) -> str:
+    answer = prompt(original_mode, f"Delete session {session.name!r}? [y/N] ")
+    if answer.casefold() not in {"y", "yes"}:
+        return "Session deletion cancelled."
+    result = subprocess.run(["tmux", "kill-session", "-t", session.target], text=True, stderr=subprocess.PIPE)
+    if result.returncode:
+        return result.stderr.strip() or f"Could not delete session {session.name!r}."
+    return f"Deleted session {session.name!r}."
+
+
 def run() -> None:
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         raise SystemExit("tmux-sessions requires an interactive terminal.")
@@ -284,6 +321,7 @@ def run() -> None:
     card_height = MIN_CARD_HEIGHT
     last_refresh = 0.0
     refreshed_at = "never"
+    notice = ""
     buffer = b""
     try:
         while True:
@@ -294,7 +332,7 @@ def run() -> None:
                 selected = next((index for index, session in enumerate(sessions) if session.target == selected_target), 0)
                 last_refresh = now
                 refreshed_at = time.strftime("%H:%M:%S")
-            card_columns, card_width, card_height = render(sessions, selected, refreshed_at)
+            card_columns, card_width, card_height = render(sessions, selected, refreshed_at, notice)
             readable, _, _ = select.select([sys.stdin], [], [], 0.25)
             if readable:
                 buffer += os.read(sys.stdin.fileno(), 1024)
@@ -306,6 +344,10 @@ def run() -> None:
                     break
                 if event in ("q", "\x1b"):
                     return
+                if event == "n":
+                    notice = create_session(original_mode)
+                    last_refresh = 0.0
+                    continue
                 if not sessions:
                     continue
                 if event in ("down", "j"):
@@ -317,6 +359,9 @@ def run() -> None:
                 elif event in ("right", "l"):
                     selected = min(selected + 1, len(sessions) - 1)
                 elif event == "r":
+                    last_refresh = 0.0
+                elif event == "d":
+                    notice = delete_session(sessions[selected], original_mode)
                     last_refresh = 0.0
                 elif event == "enter":
                     attach(sessions[selected])

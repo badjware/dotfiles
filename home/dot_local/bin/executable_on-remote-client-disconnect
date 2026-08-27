@@ -15,4 +15,5 @@ if [[ -f "$sunshine_output_restore_cache" ]]; then
 
     rm "$sunshine_output_restore_cache"
     systemctl --user start gammastep swayidle
+    idle
 fi

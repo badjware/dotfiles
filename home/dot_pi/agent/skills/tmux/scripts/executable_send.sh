@@ -14,5 +14,6 @@ load_pane
 
 tmux send-keys -t "$TARGET" -l -- "$1"
 if "$newline"; then
+  sleep 1
   tmux send-keys -t "$TARGET" Enter
 fi

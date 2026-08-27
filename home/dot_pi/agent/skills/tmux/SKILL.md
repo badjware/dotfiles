@@ -42,7 +42,7 @@ Then select exactly one target:
 ./scripts/attach.sh session:window.pane
 ```
 
-`attach.sh` does not attach a terminal client. It records that existing pane as the one pane the skill can control. It refuses to replace an active controlled pane. Run `cleanup.sh` first if the skill currently controls a pane.
+`attach.sh` does not attach a terminal client. It records that existing pane as the one pane the skill can control and replaces any previous selection. If the previous pane no longer exists, clear that stale selection. Changing selection must never kill a tmux session or pane.
 
 ## Input and output
 
@@ -67,4 +67,4 @@ Keep the session open by default. Only run cleanup when the user explicitly asks
 ./scripts/cleanup.sh
 ```
 
-Cleanup clears the recorded pane. If the skill created its detached session, it kills only that session. If the user selected an existing pane, cleanup never kills it. It never kills the tmux server or any unrelated session.
+Cleanup clears the recorded pane. If the skill created its detached session, it kills only that session. If the user selected an existing pane, cleanup never kills it. It never kills the tmux server or any unrelated session. Use it only when the user explicitly asks to close or stop the session, or to forget the current selection.

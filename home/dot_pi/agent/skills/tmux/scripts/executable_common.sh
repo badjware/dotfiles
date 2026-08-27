@@ -23,7 +23,11 @@ load_pane() {
   # State is written only by this skill after tmux validates the target.
   source "$STATE_FILE"
   [[ -n "${TARGET:-}" && -n "${MODE:-}" ]] || fail "invalid pane state"
-  pane_exists "$TARGET" || fail "controlled pane no longer exists; run cleanup.sh"
+  if ! pane_exists "$TARGET"; then
+    rm -f "$STATE_FILE"
+    rmdir "$STATE_DIR" 2>/dev/null || true
+    fail "controlled pane no longer exists; select a pane with attach.sh or create one with setup.sh"
+  fi
 }
 
 write_state() {

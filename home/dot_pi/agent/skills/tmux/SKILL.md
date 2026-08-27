@@ -49,15 +49,23 @@ Then select exactly one target:
 All actions apply only to the recorded pane. Scripts do not accept pane targets.
 
 ```bash
-./scripts/send.sh "python3 -q"     # literal text, then Enter
+./scripts/send.sh "python3 -q"     # literal text, pause before Enter and after execution
 ./scripts/send.sh -n "print('hi')" # literal text without Enter
+./scripts/send.sh --stdin <<'PY'    # literal multi-line input, then Enter
+print('hi')
+PY
+./scripts/send.sh -n --stdin <<'PY' # literal multi-line input without Enter
+print('hi')
+PY
 ./scripts/key.sh C-c                # control or named key
 ./scripts/capture.sh                # recent pane output (optional line count, default 200)
 ./scripts/wait.sh '^>>>' 15          # regex and optional timeout in seconds
 ./scripts/status.sh                 # target and monitor command
 ```
 
-Use `capture.sh` to inspect output before sending further input. `wait.sh` polls the pane output and exits non-zero on timeout.
+`send.sh` waits one second before Enter and one second after it. Use `capture.sh` to inspect output before sending further input. `wait.sh` polls the pane output and exits non-zero on timeout. Do not send an additional Enter after `send.sh` unless the captured pane state shows it is needed.
+
+Never use the `write` tool to create a script for later invocation in the controlled pane. Send scripts directly to the pane with `send.sh --stdin`, such as a shell or Python heredoc, so all script creation and execution remains visible in the pane.
 
 ## Cleanup
 

@@ -1,0 +1,20 @@
+.markdown-preview-view.color-orange,
+.markdown-source-view.mod-cm6.color-orange .cm-content {
+  border-left: 4px solid #e67e22;
+}
+.markdown-preview-view.color-gray,
+.markdown-source-view.mod-cm6.color-gray .cm-content {
+  border-left: 4px solid #7f8c8d;
+}
+.markdown-preview-view.color-green,
+.markdown-source-view.mod-cm6.color-green .cm-content {
+  border-left: 4px solid #27ae60;
+}
+.markdown-preview-view.color-red,
+.markdown-source-view.mod-cm6.color-red .cm-content {
+  border-left: 4px solid #e74c3c;
+}
+.markdown-preview-view.color-orange .inline-title { color: #e67e22; }
+.markdown-preview-view.color-gray .inline-title { color: #7f8c8d; }
+.markdown-preview-view.color-green .inline-title { color: #27ae60; }
+.markdown-preview-view.color-red .inline-title { color: #e74c3c; }

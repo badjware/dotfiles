@@ -18,8 +18,6 @@ except ImportError:
     def figlet_format(string, *args, **kwargs):
        return string + '\n'
 
-term_r, term_c = os.popen('stty size', 'r').read().split()
-
 class Termutils:
     BLACK = '\33[30m'
     RED = '\33[31m'

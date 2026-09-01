@@ -79,14 +79,14 @@ packages:
       - grim
       - libappindicator-gtk3
       - mako
-      # - mpvpaper
+      - mpvpaper
       - qt5-wayland
       - qt6-wayland
       - rofi-wayland
       - sway
       - swayidle
       - swaylock
-      # - swaylock-plugin
+      - swaylock-plugin
       - thunar
       - thunar-archive-plugin
       - waybar

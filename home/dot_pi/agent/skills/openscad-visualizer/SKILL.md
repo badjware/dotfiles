@@ -1,6 +1,9 @@
 ---
 name: openscad-visualizer
 description: Creates parametric OpenSCAD models that explain mechanical mechanisms and spatial assemblies with color-coded parts, adjustable dimensions, motion states, animation, motion envelopes, and individual-part views. Use when a user needs a 3D visualization to understand pivots, cams, linkages, sliders, gears, enclosures, clearances, or how moving components interact before detailed production CAD.
+version: 1
+updated: "2026-09-01"
+compatibility: "Requires python3 for structural validation. OpenSCAD is optional for rendered validation."
 ---
 
 # OpenSCAD Visualizer

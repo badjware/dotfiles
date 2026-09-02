@@ -1,6 +1,8 @@
 ---
 name: tmux
 description: "Control one tmux pane at a time for interactive terminal programs. By default creates one detached session; only select an existing pane when the user explicitly requests it."
+version: 1
+updated: "2026-09-01"
 compatibility: Requires tmux and ripgrep (rg) on PATH.
 ---
 

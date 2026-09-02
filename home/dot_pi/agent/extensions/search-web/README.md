@@ -8,7 +8,7 @@ Pairs naturally with the `fetch-url` extension: the agent uses `search_web` to f
 
 | Parameter | Type | Default | Notes |
 |---|---|---|---|
-| `query` | string | required | Non-empty search query. |
+| `query` | string | required | Focused, non-empty search query, up to 500 characters. |
 | `max_results` | number | `5` | Clamped to `[1, 10]`. |
 
 Returns a numbered list of `{title, url, snippet}` entries:
@@ -25,12 +25,13 @@ Result handling:
 
 | Env var | Default | Effect |
 |---|---|---|
-| `PI_DDG_USER_AGENT` | `pi-search-web/0.5` | `User-Agent` header sent with the request. |
-| `PI_DDG_TIMEOUT_S` | `20` | Per-request timeout (seconds). |
+| `PI_FETCH_USER_AGENT` | a Lynx-compatible value | `User-Agent` header sent with the request. Shared with `fetch_url`. |
+| `PI_FETCH_TIMEOUT_S` | `20` | Total request deadline and socket inactivity timeout, in seconds. Shared with `fetch_url`. |
 | `PI_DDG_DEFAULT_MAX_RESULTS` | `5` | Default for `max_results` when the model omits it. |
 
 ## Caveats
 
 - The parser scrapes DuckDuckGo's lite HTML and is sensitive to layout changes. If results suddenly come back empty, the regexes in `index.ts` likely need updating.
-- DuckDuckGo may rate-limit aggressive use. The tool surfaces these as a tool error rather than retrying.
+- DuckDuckGo may rate-limit aggressive use. Keep queries focused and do not send duplicate searches in parallel. The tool surfaces failures as tool errors rather than retrying.
+- The tool rejects responses that do not identify themselves as DuckDuckGo Lite search pages, rather than treating them as an empty result set.
 - No locale/region/safe-search controls are exposed; the lite endpoint uses defaults.

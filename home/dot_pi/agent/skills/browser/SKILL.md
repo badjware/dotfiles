@@ -1,6 +1,9 @@
 ---
 name: browser
 description: "Control a Chrome browser: navigate, click, type, submit forms, and read content from the live DOM (including JS-rendered or auth-gated pages). Use when the task requires interaction or when the content is only available after client-side rendering. Heavy: starts a persistent Chrome instance and requires a Wayland display (`$WAYLAND_DISPLAY` must be set)."
+version: 1
+updated: "2026-09-01"
+compatibility: "Requires Node.js, Google Chrome, the patchright Node module, and a Wayland display."
 ---
 
 # Browser Skill

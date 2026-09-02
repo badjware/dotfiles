@@ -32,4 +32,4 @@ Tunables (all optional, read from `process.env` at load time):
 | Env var | Default | Effect |
 |---|---|---|
 | `PI_FETCH_TIMEOUT_S` | `20` | Idle timeout for the HTTP request (seconds). |
-| `AGENT_USER_AGENT` | current Lynx UA | `User-Agent` header sent with the HTTP fetch. Defaults to a real-world Lynx UA so the tool identifies honestly as a text browser. |
+| `PI_FETCH_USER_AGENT` | current Lynx UA | `User-Agent` header sent with the HTTP fetch. Shared with `search_web`. Defaults to a real-world Lynx UA so the tool identifies honestly as a text browser. |

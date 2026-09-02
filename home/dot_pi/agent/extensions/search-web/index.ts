@@ -6,19 +6,43 @@ import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 const DDG_LITE_URL = "https://lite.duckduckgo.com/lite/";
-const TIMEOUT_S = Number(process.env.PI_FETCH_TIMEOUT_S || "20");
-const USER_AGENT =
-  process.env.AGENT_USER_AGENT ||
-  "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
 const MAX_REDIRECTS = 5;
+const MAX_QUERY_LENGTH = 500;
+
+function positiveNumber(value: string | undefined, fallback: number): number {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+const TIMEOUT_S = positiveNumber(process.env.PI_FETCH_TIMEOUT_S, 20);
+const USER_AGENT =
+  process.env.PI_FETCH_USER_AGENT ||
+  "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
 const DEFAULT_MAX_RESULTS = Number(
   process.env.PI_DDG_DEFAULT_MAX_RESULTS || "5",
 );
 
 // We use http/https instead of fetch to evade bot detection
 function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
+  const deadline = AbortSignal.timeout(TIMEOUT_S * 1000);
+  const requestSignal = signal
+    ? AbortSignal.any([signal, deadline])
+    : deadline;
+  let timedOut = false;
+  deadline.addEventListener("abort", () => {
+    timedOut = true;
+  });
+
   return new Promise((resolve, reject) => {
     const visit = (current: string, redirectsLeft: number) => {
+      if (requestSignal.aborted) {
+        reject(
+          timedOut
+            ? new Error(`Request timed out after ${TIMEOUT_S}s`)
+            : requestSignal.reason,
+        );
+        return;
+      }
       let parsed: URL;
       try {
         parsed = new URL(current);
@@ -42,7 +66,7 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
         {
           method: "GET",
           headers: { "User-Agent": USER_AGENT, Accept: "*/*" },
-          signal,
+          signal: requestSignal,
           timeout: TIMEOUT_S * 1000,
         },
         (res) => {
@@ -59,7 +83,7 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
             );
             return;
           }
-          if (status >= 400) {
+          if (status >= 300) {
             res.resume();
             reject(
               new Error(`HTTP ${status} ${res.statusMessage ?? ""}`.trim()),
@@ -75,7 +99,11 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
           res.on("error", reject);
         },
       );
-      req.on("error", reject);
+      req.on("error", (error) =>
+        reject(
+          timedOut ? new Error(`Request timed out after ${TIMEOUT_S}s`) : error,
+        ),
+      );
       req.on("timeout", () =>
         req.destroy(new Error(`Request timed out after ${TIMEOUT_S}s`)),
       );
@@ -188,6 +216,10 @@ function parseSearchResults(
   return results;
 }
 
+function isDdgLiteSearchPage(htmlText: string): boolean {
+  return /<title>[\s\S]*?\bat DuckDuckGo<\/title>/i.test(htmlText);
+}
+
 function formatSearchResults(query: string, results: SearchResult[]): string {
   if (results.length === 0) return `No results found for: ${query}`;
   const lines: string[] = [];
@@ -211,6 +243,9 @@ export default function (pi: ExtensionAPI) {
         "Search the web by query and return titles, URLs, and snippets.",
       promptGuidelines: [
         "Use search_web when the user asks for current, external, or web-based information.",
+        "Use a focused query for one issue. Do not combine a long list of topics, requirements, and keywords into one search.",
+        "Do not issue duplicate or near-duplicate searches in parallel. Refine the query after each result.",
+        "If search_web fails or unexpectedly finds no results, change the query or use another source instead of repeating the same request.",
         "After search_web, use fetch_url on one or two relevant results when snippets are not enough.",
       ],
       parameters: Type.Object({
@@ -242,6 +277,18 @@ export default function (pi: ExtensionAPI) {
             isError: true,
           };
         }
+        if (query.length > MAX_QUERY_LENGTH) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `search_web queries must be at most ${MAX_QUERY_LENGTH} characters. Use a focused query.`,
+              },
+            ],
+            details: { query },
+            isError: true,
+          };
+        }
 
         let maxResults = Math.floor(params.max_results ?? DEFAULT_MAX_RESULTS);
         if (!Number.isFinite(maxResults)) maxResults = DEFAULT_MAX_RESULTS;
@@ -252,6 +299,9 @@ export default function (pi: ExtensionAPI) {
 
         try {
           const htmlText = await fetchHtml(url.toString(), signal);
+          if (!isDdgLiteSearchPage(htmlText)) {
+            throw new Error("Unexpected response from the search provider");
+          }
           const results = parseSearchResults(htmlText, maxResults);
           return {
             content: [

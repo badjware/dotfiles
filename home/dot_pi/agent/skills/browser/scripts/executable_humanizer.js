@@ -62,6 +62,7 @@ async function tick(page, s) {
 
 (async () => {
   const browser = await chromium.connectOverCDP("http://localhost:9222", { timeout: 15000 });
+  browser.on("disconnected", () => process.exit(0));
   const ctx = browser.contexts()[0];
 
   ctx.on("page", attach);

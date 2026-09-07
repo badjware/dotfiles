@@ -12,9 +12,14 @@ alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
 fpath=(~/develop/github.com/badjware/pibox/completions $fpath)
-pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness pi -v "$HOME/go:$HOME/go" "$@" }
-claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness claude -v "$HOME/go:$HOME/go" "$@" }
-nanobox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-host-net --unsafe-host-wayland --harness nanobot -v "$HOME/go:$HOME/go" "$@" }
+__pibox_wayland() {
+    if [[ -n "$WAYLAND_DISPLAY" ]]; then
+        echo -n "--unsafe-host-wayland"
+    fi
+}
+pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness pi -v "$HOME/go:$HOME/go" "$@" }
+claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness claude -v "$HOME/go:$HOME/go" "$@" }
+nanobox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-host-net $(__pibox_wayland) --harness nanobot -v "$HOME/go:$HOME/go" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'

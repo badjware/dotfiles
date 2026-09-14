@@ -95,6 +95,8 @@ def main() -> None:
         warnings.append("no $t animation control found")
     if "assert(" not in source:
         warnings.append("no parameter assertions found")
+    if "echo(" not in source:
+        warnings.append("no echo() design summary found")
 
     print(f"Structural check passed: {path} ({len(source.splitlines())} lines)")
     for warning in warnings:

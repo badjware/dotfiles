@@ -1,6 +1,6 @@
 ---
 name: outfit
-description: Runs a structured, multi-agent software project under a single user-facing lead. The lead drives discovery, planning, and execution phases, writes user stories so the user does not have to, and dispatches non-interactive worker agents (programmer, reviewer, QA) for individual tasks. Use whenever the user wants to build a new project or add a non-trivial feature to an existing project with planning, task tracking, and review/QA gates instead of ad-hoc coding.
+description: "Runs a structured multi-agent software project: a lead drives discovery, planning, and execution, writes user stories, and dispatches worker agents (programmer, reviewer, QA). Use when building a new project or a non-trivial feature with planning, task tracking, and review/QA gates instead of ad-hoc coding."
 version: 1
 updated: "2026-09-01"
 compatibility: "Requires pi, git, and python3."

@@ -1,9 +1,9 @@
 ---
-name: openscad-visualizer
-description: Creates parametric OpenSCAD models that explain mechanical mechanisms and spatial assemblies with color-coded parts, adjustable dimensions, motion states, animation, motion envelopes, and individual-part views. Use when a user needs a 3D visualization to understand pivots, cams, linkages, sliders, gears, enclosures, clearances, or how moving components interact before detailed production CAD.
-version: 1
+name: openscad
+description: Creates parametric OpenSCAD models that explain mechanical mechanisms and spatial assemblies with color-coded parts, motion states, and animation. Use when a user needs a 3D visualization to understand pivots, cams, linkages, gears, enclosures, or clearances before production CAD.
+version: 2
 updated: "2026-09-01"
-compatibility: "Requires python3 for structural validation. OpenSCAD is optional for rendered validation."
+compatibility: "Requires python3 for structural validation. OpenSCAD renders geometry (STL) headless; PNG previews need either a display or an EGL-capable OpenSCAD build (2023+) for surfaceless offscreen rendering."
 ---
 
 # OpenSCAD Visualizer
@@ -29,11 +29,12 @@ Organize generated files in this order:
 
 ```scad
 $fn = 64;
+eps = 0.01;  // boolean overlap so cutters clear their targets
 
 // Output and visualization
-part = "assembly";
+part = "assembly";          // [assembly, frame, carrier, follower, output]
 animate = false;
-preview_position = 0;
+preview_position = 0;       // [0:1:2]
 show_motion_envelope = false;
 
 // Motion parameters
@@ -45,21 +46,39 @@ show_motion_envelope = false;
 // Individual component modules
 // Reference geometry
 // Output selection
+
+echo("Motion chain: rotation -> cam -> lift");
+echo("Envelope (mm):", [width, depth, height]);
 ```
 
 Use descriptive parameter names and units in comments. Keep dimensions in millimeters and angles in degrees unless the user specifies otherwise.
 
-Use modules for physical components, for example:
+Annotate user-facing parameters with Customizer comments so the values render as sliders and dropdowns and document their own ranges:
+
+- `// [min:max]` numeric range
+- `// [min:step:max]` numeric range with step
+- `// [option_a, option_b]` dropdown of allowed values
+
+Define `eps` once and reuse it for every `difference()` cutter so subtracted geometry extends past its target instead of leaving a coincident face.
+
+End the file with `echo()` statements that report the motion chain and the key derived dimensions. The agent reads this from the OpenSCAD console during validation, which complements the assertions.
+
+Use modules for physical components, and tag each with `// @feature: name` on the line above so later edits can target one module without disturbing the others:
 
 ```scad
+// @feature: stationary_frame
 module stationary_frame() { }
+// @feature: rotating_carrier
 module rotating_carrier() { }
+// @feature: follower
 module follower() { }
+// @feature: output_link
 module output_link() { }
+// @feature: assembly
 module assembly() { }
 ```
 
-Do not create a single monolithic module when parts move relative to one another.
+Do not create a single monolithic module when parts move relative to one another. Keep one feature per module so an edit stays local.
 
 ## Visualization requirements
 
@@ -134,13 +153,35 @@ First check whether OpenSCAD is available:
 command -v openscad
 ```
 
-If it is available, render the model to a temporary file and inspect errors:
+### Rendered visual validation (preferred)
+
+Seeing the model is the point of a visualization skill. When OpenSCAD is available, render representative motion states to PNG and read each image to confirm the geometry and motion look right:
 
 ```bash
-openscad -o /tmp/openscad-visualizer-check.stl path/to/model.scad
+python3 scripts/render_views.py path/to/model.scad /tmp/openscad-views \
+    --states "0,1,2" --view iso
 ```
 
-Render representative motion states when command-line parameter overrides are practical. Do not treat one successful state as proof that all states are collision-free.
+Use the `read` tool on each generated PNG. Check across states for:
+
+- Inverted or inside-out geometry
+- Boolean operations that removed the wrong volume
+- Parts that float, interpenetrate, or drift out of frame
+- Motion that does not match the intended chain
+
+Render the major components separately with `--parts "frame,carrier,follower"` when an assembled view hides a problem. Do not treat one successful state as proof that all states are collision-free.
+
+PNG rendering needs an OpenGL context. With `$DISPLAY` set, the script uses it. Headless (no display, Wayland without Xwayland) requires an OpenSCAD build with EGL surfaceless offscreen support (2023+ or nightly), which renders through GBM with no X server and no Wayland socket. The script detects a GLX-only build (such as 2021.01) and stops with a clear message rather than crashing. Point it at a newer build with `OPENSCAD_BIN=/path/to/openscad`.
+
+When PNG rendering is unavailable, still confirm the model compiles by exporting geometry, which works headless through CGAL:
+
+```bash
+openscad -o /tmp/openscad-check.stl path/to/model.scad
+```
+
+Read the `echo()` summary OpenSCAD prints during export to confirm the reported dimensions and motion chain match intent.
+
+### Structural fallback (no OpenSCAD)
 
 If OpenSCAD is unavailable, run the bundled structural checker from this skill directory:
 
@@ -161,6 +202,6 @@ After creating a model, report:
 3. The principal preview and animation controls.
 4. The available part or view selectors.
 5. Important placeholder dimensions or assumptions.
-6. Whether OpenSCAD rendered it or only the structural checker passed.
+6. How it was validated: PNG previews read across motion states, a headless geometry export, or only the structural checker.
 
 When explaining the result to a beginner, describe what remains stationary, what moves with the input, and how each stage transfers motion. Keep the model and explanation consistent.

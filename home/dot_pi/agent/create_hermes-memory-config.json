@@ -1,3 +1,5 @@
 {
-  "llmModelOverride": "in-cluster/Gemma-4-E4B"
+  "llmModelOverride": "litellm/in-cluster/Gemma-4-E4B",
+  "childExtensionPaths": ["npm:pi-provider-litellm"],
+  "memoryPolicyStyle": "compact"
 }

@@ -21,6 +21,12 @@ You may clone the content of a repository in `/tmp` if you need to inspect it du
 
 Never suggest the user to create an issue or a pull request on his behalf.
 
+## API access
+
+You may write scripts to access a REST API. If you require a token to access an API, you may find it as an environment variable. If the token is absent from the environment, you must ask the user to add it to the environment before proceeding.
+
+You must not use any API with the verb `POST`, `PUT`, `PATCH`, or `DELETE` without explicit user permission. If you are about to execute a request with one of these verbs, **STOP** and ask the user for permission.
+
 ## Style
 
 **Never use em-dashes (—)**. Rephrase the sentence to avoid the need for them.

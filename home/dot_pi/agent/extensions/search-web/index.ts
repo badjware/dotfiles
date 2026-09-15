@@ -245,7 +245,7 @@ export default function (pi: ExtensionAPI) {
         "Use search_web when the user asks for current, external, or web-based information.",
         "Use a focused query for one issue. Do not combine a long list of topics, requirements, and keywords into one search.",
         "Do not issue duplicate or near-duplicate searches in parallel. Refine the query after each result.",
-        "If search_web fails or unexpectedly finds no results, change the query or use another source instead of repeating the same request.",
+        "If search_web fails or unexpectedly finds no results, change the query instead of repeating the same request.",
         "After search_web, use fetch_url on one or two relevant results when snippets are not enough.",
       ],
       parameters: Type.Object({

@@ -17,7 +17,7 @@ const checkCommandTool = defineTool({
 		"Returns a status per command: 'found' (with its resolved path) or 'missing'.",
 	parameters: Type.Object({
 		commands: Type.Array(Type.String(), {
-			description: "Command names to check",
+			description: "Command names to check. One command per array element.",
 			minItems: 1,
 		}),
 	}),

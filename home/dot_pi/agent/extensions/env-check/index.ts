@@ -13,7 +13,7 @@ const checkEnvTool = defineTool({
 		"Returns a status per name: 'set' or 'unset' (empty values count as unset).",
 	parameters: Type.Object({
 		names: Type.Array(Type.String(), {
-			description: "Environment variable names to check",
+			description: "Environment variable names to check. One environment variable per array element.",
 			minItems: 1,
 		}),
 	}),

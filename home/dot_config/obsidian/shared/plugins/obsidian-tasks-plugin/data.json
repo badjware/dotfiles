@@ -54,7 +54,7 @@
         "type": "CANCELLED"
       },
       {
-        "symbol": "!",
+        "symbol": "/",
         "name": "Blocked",
         "nextStatusSymbol": "d",
         "availableAsCommand": false,
@@ -63,6 +63,13 @@
       {
         "symbol": "d",
         "name": "Doing",
+        "nextStatusSymbol": "f",
+        "availableAsCommand": false,
+        "type": "IN_PROGRESS"
+      },
+      {
+        "symbol": "f",
+        "name": "In review",
         "nextStatusSymbol": "x",
         "availableAsCommand": false,
         "type": "IN_PROGRESS"

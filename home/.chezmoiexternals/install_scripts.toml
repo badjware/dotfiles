@@ -1,6 +1,7 @@
+# update: no releases; pin to the latest master commit SHA (git ls-remote https://github.com/pyenv/pyenv-installer HEAD)
 [".cache/install/pyenv.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer"
+    url = "https://raw.githubusercontent.com/pyenv/pyenv-installer/63a9e6a216796aeba2535a3bac8e79ba5d95166d/bin/pyenv-installer"
     checksum.sha256 = "4b0adf623a6205727163eb98610b6c5e63f23b99183948b874d867cd9b30ef13"
     executable = true
 
@@ -10,6 +11,7 @@
     checksum.sha256 = "44e916b5bfaf77f8f15db57a3a82e310a1709fee541a09ca0324b7e17be48eef"
     executable = true
 
+# update: keep the raw GitHub url; the starship.rs install URL moves
 [".cache/install/starship.sh"]
     type = "file"
     url = "https://raw.githubusercontent.com/starship/starship/v1.26.0/install/install.sh"

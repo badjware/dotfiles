@@ -1,3 +1,4 @@
+# update: pick the x86_64 AppImage; the -py311 suffix can change between releases
 ["Applications/FreeCAD.AppImage"]
     type = "file"
     url = "https://github.com/FreeCAD/FreeCAD/releases/download/1.1.4/FreeCAD_1.1.4-Linux-x86_64-py311.AppImage"
@@ -10,6 +11,7 @@
     checksum.sha256 = "787b0dcbd42ae90620e76fb8d77d7c441ba6473a91c2d7fc3a0fc2466f992437"
     executable = true
 
+# update: skip the -arm64 AppImage
 ["Applications/Obsidian.AppImage"]
     type = "file"
     url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.4/Obsidian-1.14.4.AppImage"

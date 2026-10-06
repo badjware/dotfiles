@@ -8,17 +8,17 @@
 sudo pacman -Syu --noconfirm
 
 # setup aur helper
-if ! which pikaur >/dev/null; then
+if ! command -v pikaur >/dev/null; then
     git clone --depth 1 https://aur.archlinux.org/pikaur.git /tmp/pikaur
     cd /tmp/pikaur
     makepkg -si
     rm -rf /tmp/pikaur
 fi
 
-pikaur -Sy --needed {{ .packages.arch.base | join " " }}
+pikaur -S --needed {{ .packages.arch.base | join " " }}
 
 {{ if ne .chassisType "container" }}
-pikaur -Sy --needed {{ .packages.arch.base_desktop | join " " }}
+pikaur -S --needed {{ .packages.arch.base_desktop | join " " }}
 {{ end }}
 
 ############
@@ -27,7 +27,7 @@ pikaur -Sy --needed {{ .packages.arch.base_desktop | join " " }}
 
 {{ else if eq .chezmoi.osRelease.id "fedora" }}
 # setup extra repos
-sudo dnf install dnf5-plugins
+sudo dnf -y install dnf5-plugins
 {{ range $r := .packages.fedora.repo }}
 sudo dnf -y config-manager addrepo --overwrite --from-repofile {{ $r }}
 {{ end }}
@@ -51,7 +51,7 @@ sudo dnf -y install {{ .packages.fedora.base | join " " }}
 sudo dnf -y install {{ .packages.fedora.base_desktop | join " " }}
 
 # swaylock-plugins
-if ! which swaylock-plugin &>/dev/null; then
+if ! command -v swaylock-plugin &>/dev/null; then
     sudo dnf -y install meson wayland-devel wayland-protocols-devel libxkbcommon-devel cairo-devel gdk-pixbuf2-devel pam-devel scdoc
     git clone --depth 1 https://github.com/mstoeckl/swaylock-plugin.git /tmp/swaylock-plugin
     pushd /tmp/swaylock-plugin
@@ -63,7 +63,7 @@ if ! which swaylock-plugin &>/dev/null; then
 fi
 
 # mpvpaper
-if ! which mpvpaper &>/dev/null; then
+if ! command -v mpvpaper &>/dev/null; then
     sudo dnf -y install ninja meson mpv-devel
     git clone --depth 1 https://github.com/GhostNaN/mpvpaper.git /tmp/mpvpaper
     pushd /tmp/mpvpaper
@@ -90,23 +90,23 @@ fi
 
 go install github.com/badjware/gitforgefs@latest
 
-if ! which pyenv &>/dev/null; then
+if ! command -v pyenv &>/dev/null; then
     bash ~/.cache/install/pyenv.sh
 fi
-if ! which pay-respects &>/dev/null; then
+if ! command -v pay-respects &>/dev/null; then
     bash ~/.cache/install/pay-respects.sh
 fi
-if ! which starship &>/dev/null; then
+if ! command -v starship &>/dev/null; then
     bash ~/.cache/install/starship.sh
 fi
-if ! which mirrord &>/dev/null; then
+if ! command -v mirrord &>/dev/null; then
     bash ~/.cache/install/mirrord.sh
 fi
 
 {{ if ne .chassisType "container" }}
 
 # linux-wallpaperengine
-#if ! which linux-wallpaperengine &>/dev/null; then
+#if ! command -v linux-wallpaperengine &>/dev/null; then
 #    sudo dnf -y install gcc g++ cmake libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGL-devel glew-devel freeglut-devel SDL2-devel lz4-devel ffmpeg-free ffmpeg-free-devel libXxf86vm-devel glm-devel glfw-devel mpv mpv-devel pulseaudio-libs-devel fftw-devel gmp-devel kiss-fft
 #    git clone --depth 1 --recurse-submodules  https://github.com/Almamu/linux-wallpaperengine.git /tmp/linux-wallpaperengine
 #    pushd /tmp/linux-wallpaperengine
@@ -133,13 +133,13 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     rm -rf /tmp/tela-circle
 fi
 
-if ! which autotiling &>/dev/null; then
+if ! command -v autotiling &>/dev/null; then
     pipx install autotiling
 fi
 
 {{ end }}
 
-if ! which trafilatura &>/dev/null; then
+if ! command -v trafilatura &>/dev/null; then
     pipx install trafilatura
 fi
 

@@ -1,0 +1,22 @@
+{
+  "defaultTools": [
+    "bash",
+    "codemode",
+    "edit",
+    "find",
+    "grep",
+    "ls",
+    "read",
+    "tool_search",
+    "write"
+  ],
+  "litellm": {
+    "skills": {
+      "enabled": false
+    },
+    "mcp": {
+      "enabled": false
+    }
+  },
+  "tuiMode": "regular"
+}

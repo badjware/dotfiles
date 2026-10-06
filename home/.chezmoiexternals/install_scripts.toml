@@ -2,26 +2,22 @@
     type = "file"
     url = "https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer"
     checksum.sha256 = "4b0adf623a6205727163eb98610b6c5e63f23b99183948b874d867cd9b30ef13"
-    exact = true
     executable = true
 
 [".cache/install/pay-respects.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/iffse/pay-respects/main/install.sh"
-    checksum.sha256 = "d9d7069d9b6ad0b1c9a95a07f0868f01a8d021b09ffc36c2551e68b1738e0d40"
-    exact = true
+    url = "https://raw.githubusercontent.com/iffse/pay-respects/v0.8.8/install.sh"
+    checksum.sha256 = "44e916b5bfaf77f8f15db57a3a82e310a1709fee541a09ca0324b7e17be48eef"
     executable = true
 
 [".cache/install/starship.sh"]
     type = "file"
-    url = "https://starship.rs/install.sh"
-    checksum.sha256 = "eadb5bb613935c0aec04fec86cf9cb2a1d9c779b3d299995129249ca85777c33"
-    exact = true
+    url = "https://raw.githubusercontent.com/starship/starship/v1.26.0/install/install.sh"
+    checksum.sha256 = "52c64f14a558034ebeb1907ea9364e802b32474576fd3e68265f73bc33cc8fbb"
     executable = true
 
 [".cache/install/mirrord.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/main/scripts/install.sh"
-    checksum.sha256 = "927fad5a001db01b4f1c000006a42111f7a73151d159cb817e8738ce569d5075"
-    exact = true
+    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.270.0/scripts/install.sh"
+    checksum.sha256 = "34db4af8f49feb11d1bce06afdceddeb51cd422fd1fdd0ed195c9d807a80e00b"
     executable = true

@@ -2,7 +2,7 @@
 set -e
 set -o pipefail
 
-# Applications: {{ output "ls" (joinPath .chezmoi.homeDir "Applications") | replace "\n" " " }}
+# Applications: {{ glob (joinPath .chezmoi.homeDir "Applications" "*") | join " " }}
 
 icon_folder="${HOME}/.local/share/icons"
 
@@ -13,8 +13,6 @@ while IFS= read -r -d '' appimage_path; do
     appimage_filename=$(basename "$appimage_path")
     app_name="${appimage_filename%.AppImage}"
     desktop_path="${HOME}/.local/share/applications/$app_name.desktop"
-
-    chmod +x "$appimage_path"
 
     # skip if desktop entry already exists
     [ -f "$desktop_path" ] && continue

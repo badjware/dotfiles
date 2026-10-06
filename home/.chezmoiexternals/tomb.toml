@@ -1,0 +1,5 @@
+[".local/bin/tomb"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/dyne/tomb/v2.13/tomb"
+    checksum.sha256 = "b04f6f9ac6f4f3d4a7b931e1175e51c85b12c8f74115c75461d719ec23f9697b"
+    executable = true

@@ -13,8 +13,9 @@ if [[ ! -f "$sunshine_output_restore_cache" ]]; then
     systemctl --user stop gammastep swayidle
     echo "Enabling output $selected_output"
     swaymsg output "$selected_output" mode "$width"x"$height"@"$fps"Hz position 0 0 transform 0 enable >/dev/null
-    while [[ "$(swaymsg -t get_outputs | jq -r '.[] | select(.name == "HEADLESS-1") | .active')" != "true" ]]; do
+    while [[ "$(swaymsg -t get_outputs | jq -r --arg name "$selected_output" '.[] | select(.name == $name) | .active')" != "true" ]]; do
         echo "Waiting for output $selected_output to become active"
+        sleep 0.1
     done
     for output in $(swaymsg -t get_outputs | jq -r '.[] | select(.active) | .name'); do
         if [[ "$output" != "$selected_output" ]]; then

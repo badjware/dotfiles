@@ -22,7 +22,7 @@ if [[ -n "$ARG_PARTIAL" ]]; then
     fi
 elif [[ -n $ARG_WINDOW  ]]; then
     # get the active window geometry
-    geometry="$(get-focused-window-geometry)"
+    geometry="$(sway-focused-window-geometry)"
 fi
 
 # take a screenshot

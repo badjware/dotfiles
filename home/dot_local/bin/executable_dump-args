@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo $@ &>/tmp/dump_args.last.log
-exec $@

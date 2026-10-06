@@ -3,11 +3,6 @@
 WAYVNCCTL=${WAYVNCCTL:-wayvncctl}
 
 on-client-change() {
-    # if [[ $1 -eq 1 ]]; then
-    #     on-remote-client-connect
-    # elif [[ $1 -eq 0 ]]; then
-    #     on-remote-client-disconnect
-    # fi
     if [[ $1 -eq 0 ]]; then
         echo "No more clients, stopping wayvnc"
         # cleanup the outputs

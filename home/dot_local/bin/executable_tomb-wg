@@ -20,8 +20,6 @@ long_args=help,key:,config:
 
 # parse arguments
 parsed_args=$(getopt --options $short_args --longoptions $long_args --name "$0" -- "$@")
-
-parsed_args=$(getopt --options $short_args --longoptions $long_args --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
 	echo "Failed to parse arguments"
 	exit 2
@@ -66,7 +64,7 @@ if [[ -z "$tomb_file" ]]; then
     exit 1
 fi
 
-if [[ -z "$tomb_file" ]]; then
+if [[ -z "$op" ]]; then
     echo 'Missing required argument "operation"'
     print_help
     exit 1

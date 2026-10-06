@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# You can call this script like this:
-# $ ./brightnessControl.sh up
-# $ ./brightnessControl.sh down
+# usage: brightness-control up|down
 
 # Script inspired by these wonderful people:
 # https://github.com/dastorm/volume-notification-dunst/blob/master/volume.sh
@@ -13,7 +11,6 @@ function get_brightness {
 }
 
 function send_notification {
-  icon="notification-display-brightness"
   echo $(get_brightness) >"$XDG_RUNTIME_DIR/wobpipe"
 }
 

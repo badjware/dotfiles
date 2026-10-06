@@ -1,3 +1,6 @@
 .pi/agent/skills/openscad-visualizer
 .pi/agent/skills/storywriting
 .pi/agent/skills/worldbuilding
+.local/bin/apod
+.local/bin/setup-outputs
+.local/bin/dump-args

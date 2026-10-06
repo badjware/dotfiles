@@ -1,12 +1,9 @@
-#!/bin/bash -x
+#!/bin/bash
 
-# check if battery is discharging
-battery_status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | grep -vq "Discharging")
-
-# select screen
 screens="$(swaymsg -t get_outputs | jq -r '.[] | select(.active==true) | .name' | tr '\n' ' ')"
 
-if [[ -z "$battery_status" || -z "$screens" ]] then
+# animated lockscreens drain the battery
+if ! grep -qs Discharging /sys/class/power_supply/BAT*/status; then
     if which swaylock-plugin &>/dev/null; then
         # check if wallpaper engine is installed
         wallpaper_dir="$(find ~/.steam/steam/steamapps/workshop/content/431960 ~/.local/share/Steam/steamapps/workshop/content/431960 ~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/workshop/content/431960 ~/snap/steam/common/.local/share/Steam/steamapps/workshop/content/431960 -mindepth 1 -maxdepth 1 -name "$WALLPAPERENGINE_STEAM_WORKSHOP_ID" | head -n 1)"
@@ -24,7 +21,7 @@ if [[ -z "$battery_status" || -z "$screens" ]] then
 fi
 
 if [[ -n "$swaylock_command" ]]; then
-    swaylock-plugin $@ --command "$swaylock_command" -d
+    swaylock-plugin "$@" --command "$swaylock_command" -d
 else
-    swaylock $@
+    swaylock "$@"
 fi

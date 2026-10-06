@@ -8,7 +8,7 @@ function stop() {
 while true; do
     echo "Starting $1"
     trap - SIGINT
-    $@
+    "$@"
     trap stop SIGINT
     echo -e "\nPress enter to restart $1..."
     read

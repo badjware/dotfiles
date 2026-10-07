@@ -3,6 +3,7 @@ units:
     - docker.service
     - sshd.service
   user_base:
+    - cptr.service
     - gitforgefs@code.badjware.dev.service
     - gitforgefs@github.com.service
   user_desktop:

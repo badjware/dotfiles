@@ -17,10 +17,8 @@ COPY --chown=user:user . /home/user/.local/share/chezmoi
 RUN --mount=type=secret,id=npmrc,target=/etc/npmrc,mode=0444 \
     CHEZMOI_CHASSIS_TYPE=container chezmoi init --apply && \
     sudo rm -rf /var/cache/pacman/pkg/* && \
-    rm -rf ~/.cache/chezmoi ~/.cache/go-build ~/.cache/pikaur
+    rm -rf ~/.cache/chezmoi ~/.cache/go-build ~/.cache/pikaur ~/.cache/pip
 
-RUN pipx install 'cptr[all]' && \
-    rm -rf ~/.cache/pip
 
 ENV CPTR_DATA_DIR="/data"
 EXPOSE 8000

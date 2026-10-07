@@ -1,0 +1,10 @@
+[Unit]
+Description=Open WebUI Computer
+
+[Service]
+Environment=CPTR_DATA_DIR=%h/.local/share/cptr
+ExecStart=%h/.local/bin/cptr run --port 5901 --headless
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

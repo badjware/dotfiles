@@ -36,7 +36,6 @@ packages:
       # - pay-respects
       - pv
       - ripgrep
-      - rocm-smi-lib
       - rsync
       - starship
       - sudo
@@ -83,6 +82,7 @@ packages:
       - mpvpaper
       - qt5-wayland
       - qt6-wayland
+      - rocm-smi-lib
       - rofi-wayland
       - sway
       - swayidle
@@ -166,7 +166,6 @@ packages:
       - pass
       - pv
       - ripgrep
-      - rocm-smi
       - rsync
       - sudo
       - tmux
@@ -208,6 +207,7 @@ packages:
       - gnome-keyring
       - grim
       - mako
+      - rocm-smi
       - rofi-wayland
       - sway
       - swayidle

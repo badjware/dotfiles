@@ -1,5 +1,8 @@
 
-{{- $swayVersion := output "sway" "--version" | trim | regexFind "[0-9]+\\.[0-9]+(\\.[0-9]+)?" -}}
+{{- $swayVersion := "0.0.0" -}}
+{{- if stat "/usr/bin/sway" -}}
+{{-   $swayVersion = output "/usr/bin/sway" "--version" | trim | regexFind "[0-9]+\\.[0-9]+(\\.[0-9]+)?" -}}
+{{- end -}}
 {{- if not (regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+$" $swayVersion) -}}
 {{-   $swayVersion = printf "%s.0" $swayVersion -}}
 {{- end -}}

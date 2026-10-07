@@ -14,7 +14,8 @@ ENV PATH="/home/user/.local/bin:$PATH"
 ENV SHELL="/bin/zsh"
 
 COPY --chown=user:user . /home/user/.local/share/chezmoi
-RUN CHEZMOI_CHASSIS_TYPE=container chezmoi init --apply && \
+RUN --mount=type=secret,id=npmrc,target=/etc/npmrc,mode=0444 \
+    CHEZMOI_CHASSIS_TYPE=container chezmoi init --apply && \
     sudo rm -rf /var/cache/pacman/pkg/* && \
     rm -rf ~/.cache/chezmoi ~/.cache/go-build ~/.cache/pikaur
 

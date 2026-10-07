@@ -1,16 +1,23 @@
 services:
   cptr:
-    build: .
+    build:
+      context: .
+      secrets:
+        - npmrc
     image: dotfiles-cptr
     container_name: cptr
     init: true
     ports:
       - "8000:8000"
     volumes:
-      - cptr-data:/data
       - cptr-home:/home/user
+      - cptr-data:/data
     restart: unless-stopped
 
+secrets:
+  npmrc:
+    file: ~/.npmrc
+
 volumes:
-  cptr-data:
   cptr-home:
+  cptr-data:

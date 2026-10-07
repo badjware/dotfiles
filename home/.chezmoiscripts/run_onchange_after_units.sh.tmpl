@@ -1,5 +1,7 @@
 #!/bin/bash
 
+{{ if ne .chassisType "container" }}
+
 # unit file hashes:
 {{- range list "*.service" "*.timer" "*.socket" "*.target" }}
 {{- range glob (joinPath $.chezmoi.sourceDir "dot_config/systemd/user" .) }}
@@ -30,4 +32,6 @@ systemctl --user restart {{ . }} || true
 systemctl --user enable {{ . }} || true
 systemctl --user restart {{ . }} || true
 {{ end }}
+{{ end }}
+
 {{ end }}

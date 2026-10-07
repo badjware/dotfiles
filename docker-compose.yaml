@@ -1,0 +1,16 @@
+services:
+  cptr:
+    build: .
+    image: dotfiles-cptr
+    container_name: cptr
+    init: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - cptr-data:/data
+      - cptr-home:/home/user
+    restart: unless-stopped
+
+volumes:
+  cptr-data:
+  cptr-home:

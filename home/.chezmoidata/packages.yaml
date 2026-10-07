@@ -30,6 +30,7 @@ packages:
       - lsd
       - neovim
       - nodejs
+      - npm
       - openssh
       - pass
       # - pay-respects

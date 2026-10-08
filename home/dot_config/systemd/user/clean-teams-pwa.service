@@ -1,6 +1,0 @@
-[Unit]
-Description=Cleanup of Teams PWA cache and IndexedDB
-
-[Service]
-Type=oneshot
-ExecStart=%h/.local/bin/clean-teams-pwa

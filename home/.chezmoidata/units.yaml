@@ -3,7 +3,6 @@ units:
     - docker.service
     - sshd.service
   user_base:
-    - cptr.service
     - gitforgefs@code.badjware.dev.service
     - gitforgefs@github.com.service
   user_desktop:
@@ -14,4 +13,3 @@ units:
     # - wayvnc-event-watcher.service
     # - sit-down.timer
     # - stand-up.timer
-    - clean-teams-pwa.timer

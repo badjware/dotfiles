@@ -3,7 +3,7 @@ Description=Open WebUI Computer
 
 [Service]
 Environment=CPTR_DATA_DIR=%h/.local/share/cptr
-ExecStart=%h/.local/bin/cptr run --port 5901 --headless
+ExecStart=%h/.local/bin/cptr run --host 0.0.0.0 --port 5901 --headless
 Restart=on-failure
 
 [Install]

@@ -1,0 +1,9 @@
+eval "$(pay-respects zsh --alias)"
+
+{{- if not .litellmApiKey }}
+export _PR_AI_DISABLE=1
+{{- end }}
+
+export _PR_AI_URL="{{ .litellmBaseUrl }}/v1/chat/completions"
+export _PR_AI_API_KEY="{{ .litellmApiKey }}"
+export _PR_AI_MODEL="{{ .litellmModel }}"

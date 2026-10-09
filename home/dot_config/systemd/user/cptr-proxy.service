@@ -1,0 +1,7 @@
+[Unit]
+Description=Socket proxy for Open WebUI Computer
+Requires=cptr.service
+After=cptr.service
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd --exit-idle-time=60min 127.0.0.1:5902

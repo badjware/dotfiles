@@ -1,10 +1,10 @@
 [Unit]
 Description=Open WebUI Computer
+StopWhenUnneeded=yes
 
 [Service]
 Environment=CPTR_DATA_DIR=%h/.local/share/cptr
-ExecStart=%h/.local/bin/cptr run --host 0.0.0.0 --port 5901 --headless
+ExecStart=%h/.local/bin/cptr run --host 127.0.0.1 --port 5902 --headless
+# hold the proxy back until uvicorn accepts connections
+ExecStartPost=/usr/bin/bash -c 'until (: >/dev/tcp/127.0.0.1/5902) 2>/dev/null; do sleep 0.5; done'
 Restart=on-failure
-
-[Install]
-WantedBy=default.target

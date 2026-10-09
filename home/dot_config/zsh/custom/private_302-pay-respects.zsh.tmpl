@@ -7,3 +7,15 @@ export _PR_AI_DISABLE=1
 export _PR_AI_URL="{{ .litellmBaseUrl }}/v1/chat/completions"
 export _PR_AI_API_KEY="{{ .litellmApiKey }}"
 export _PR_AI_MODEL="{{ .litellmModel }}"
+export _PR_AI_EXTRA='"chat_template_kwargs": {"enable_thinking": false}'
+
+function __pr_inline() {
+  local mode=inline
+  [[ "$BUFFER" == "#"* ]] && mode=echo
+  local output=$(__pr_base "$mode" "$BUFFER" 2>/dev/null)
+  output="${output%%<PR_BR>*}"
+  if [[ -n "$output" ]]; then
+    BUFFER="$output"
+    CURSOR=${#BUFFER}
+  fi
+}

@@ -1,6 +1,19 @@
 {{- /* chezmoi:modify-template */ -}}
+{{- $current := dict -}}
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}
+{{-   $current = fromToml .chezmoi.stdin -}}
 {{-   $config = fromToml .chezmoi.stdin -}}
 {{- end -}}
-{{- $config | setValueAtPath "auth.mode" "pam" | toToml -}}
+{{- $config = $config
+    | setValueAtPath "auth.mode" "pam"
+    | setValueAtPath (list "app_config" "workspace.auto_gitignore_dot_cptr") false
+    | setValueAtPath (list "app_config" "chat.title_generation.enabled") false
+    | setValueAtPath (list "app_config" "memory.enabled") false -}}
+
+{{- /* Re-serializing changes cptr's quoting and key order, so keep the file untouched when nothing changed. */ -}}
+{{- if eq (toToml $current) (toToml $config) -}}
+{{-   .chezmoi.stdin -}}
+{{- else -}}
+{{-   toToml $config -}}
+{{- end -}}

@@ -1,0 +1,6 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $config = fromToml .chezmoi.stdin -}}
+{{- end -}}
+{{- $config | setValueAtPath "auth.mode" "pam" | toToml -}}

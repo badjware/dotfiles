@@ -1,0 +1,10 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $settings := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $settings = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- $settings
+    | setValueAtPath "litellm.skills.enabled" false
+    | setValueAtPath "litellm.mcp.enabled" false
+    | setValueAtPath "tuiMode" "regular"
+    | toPrettyJson -}}

@@ -1,3 +1,4 @@
+# update: keep the pin on the latest release tag (git ls-remote --tags https://github.com/dyne/tomb), not a commit SHA
 [".local/bin/tomb"]
     type = "file"
     url = "https://raw.githubusercontent.com/dyne/tomb/v2.13/tomb"

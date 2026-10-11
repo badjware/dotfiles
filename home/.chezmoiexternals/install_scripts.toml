@@ -1,8 +1,8 @@
 # update: no releases; pin to the latest master commit SHA (git ls-remote https://github.com/pyenv/pyenv-installer HEAD)
 [".cache/install/pyenv.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/pyenv/pyenv-installer/63a9e6a216796aeba2535a3bac8e79ba5d95166d/bin/pyenv-installer"
-    checksum.sha256 = "4b0adf623a6205727163eb98610b6c5e63f23b99183948b874d867cd9b30ef13"
+    url = "https://raw.githubusercontent.com/pyenv/pyenv-installer/bdd89156f0e591558ca901c5984387dd993157f9/bin/pyenv-installer"
+    checksum.sha256 = "2bf587665219d2ed3e262fc2c3d9e6843b48f64435bc489d936f03e68b5f610d"
     executable = true
 
 [".cache/install/pay-respects.sh"]
@@ -20,6 +20,6 @@
 
 [".cache/install/mirrord.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.270.0/scripts/install.sh"
+    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.272.0/scripts/install.sh"
     checksum.sha256 = "34db4af8f49feb11d1bce06afdceddeb51cd422fd1fdd0ed195c9d807a80e00b"
     executable = true

@@ -7,4 +7,4 @@
     | setValueAtPath "litellm.skills.enabled" false
     | setValueAtPath "litellm.mcp.enabled" false
     | setValueAtPath "tuiMode" "regular"
-    | toPrettyJson -}}
+    | toPrettyJson | trimSuffix "\n" -}}

@@ -6,4 +6,4 @@ swaymsg 'output * adaptive_sync off'
 swaymsg 'output * hdr off'
 
 systemctl --user start gammastep
-sudo systemctl start docker
+sudo systemctl start docker.socket docker.service

@@ -1,0 +1,15 @@
+[Unit]
+Description=pibox pi-web container
+# retry forever so pi-web comes back on its own once docker is up again
+StartLimitIntervalSec=0
+
+[Service]
+Environment=PIBOX_PI_WEB_PORT=18504
+WorkingDirectory=%h/develop
+# pi-web hardcodes fastify per-request logging at info level, so we drop those lines here
+ExecStart=/bin/bash -c 'set -o pipefail; %h/.local/bin/pibox --harness pi-web --volume %h/.local/share/chezmoi:%h/.local/share/chezmoi:rw | /usr/bin/rg --line-buffered -v "msg.:.(incoming request|request completed)."'
+# docker publishes the port before pi-web listens, so we need to probe readiness
+ExecStartPost=/bin/bash -c 'until curl -s -o /dev/null http://127.0.0.1:$PIBOX_PI_WEB_PORT/; do sleep 0.5; done'
+TimeoutStartSec=300
+Restart=always
+RestartSec=60

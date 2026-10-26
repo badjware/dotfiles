@@ -1,0 +1,9 @@
+[Unit]
+Description=pibox pi-web socket
+
+[Socket]
+ListenStream=127.0.0.1:8504
+Service=pibox-pi-web-proxy.service
+
+[Install]
+WantedBy=sockets.target

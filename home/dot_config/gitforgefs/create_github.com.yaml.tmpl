@@ -53,12 +53,12 @@ git:
   # If set to "init", the local copy will be initialized with `git init` and the remote is configured manually. The git server is nerver queried. (fast)
   # If set to "clone", the local copy will be initialized with `git clone`. (slow)
   # NOTE: If set to "init", the local clone will appear empty. Running `git pull master` will download the files from the git server.
-  on_clone: init
+  on_clone: clone
 
   # If set to true, the local clone will automatically run `git pull` in the local clone if it's on the default branch and the worktree is clean.
   # Pulls are asynchronous so it can take a few minutes for all repositories to sync up.
   # It's highly recommended to leave this setting turned off.
-  auto_pull: false
+  auto_pull: true
 
   # The depth of the git history to pull. Set to 0 to pull the full history.
   depth: 1

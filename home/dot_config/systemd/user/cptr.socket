@@ -1,9 +1,0 @@
-[Unit]
-Description=Socket for Open WebUI Computer
-
-[Socket]
-ListenStream=0.0.0.0:5901
-Service=cptr-proxy.service
-
-[Install]
-WantedBy=sockets.target

@@ -4,3 +4,7 @@
 .local/bin/apod
 .local/bin/setup-outputs
 .local/bin/dump-args
+.config/systemd/user/cptr.service
+.config/systemd/user/cptr-proxy.service
+.config/systemd/user/cptr.socket
+.config/systemd/user/pibox-pi-web@.service

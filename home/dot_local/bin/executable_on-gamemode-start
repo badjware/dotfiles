@@ -6,4 +6,5 @@ swaymsg 'output * adaptive_sync on'
 swaymsg 'output * hdr on'
 
 systemctl --user stop gammastep
-sudo systemctl stop docker.service
+# stop the socket too, otherwise any docker client call re-activates dockerd
+sudo systemctl stop docker.socket docker.service

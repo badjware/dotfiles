@@ -19,6 +19,7 @@ packages:
       - dialog
       - dos2unix
       - fd
+      - figlet
       - fzf
       - glances
       - gnupg
@@ -61,7 +62,6 @@ packages:
       - pyenv
       - python-pip
       - python-pipx
-      - python-pyfiglet
       - python-virtualenv
       - yarn
 
@@ -151,6 +151,7 @@ packages:
       - dialog
       - dos2unix
       - fd-find
+      - figlet
       - fzf
       - glances
       - gnupg2
@@ -191,7 +192,6 @@ packages:
       - golang
       - pipx
       - python3-pip
-      - python3-pyfiglet
       - python3-virtualenv
       - yarnpkg
 

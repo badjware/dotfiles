@@ -5,18 +5,20 @@ import shutil
 import os
 import socket
 
-from subprocess import check_call, DEVNULL, CalledProcessError
+from subprocess import check_call, check_output, DEVNULL, CalledProcessError
 
 try:
     import psutil
 except:
     pass
 
-try:
-    from pyfiglet import figlet_format
-except ImportError:
-    def figlet_format(string, *args, **kwargs):
-       return string + '\n'
+def figlet_format(string, font='slant'):
+    if shutil.which('figlet') is None:
+        return string + '\n'
+    try:
+        return check_output(['figlet', '-f', font, string], stderr=DEVNULL, text=True).rstrip('\n')
+    except CalledProcessError:
+        return string + '\n'
 
 class Termutils:
     BLACK = '\33[30m'

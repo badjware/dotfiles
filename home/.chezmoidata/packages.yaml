@@ -94,10 +94,10 @@ packages:
       - wayvnc
       - wl-clipboard
       - wob
+      - wtype
       - xarchiver
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
-      - ydotool
       # - linux-wallpaperengine-git
 
       # pipewire
@@ -218,10 +218,10 @@ packages:
       - wayvnc
       - wl-clipboard
       - wob
+      - wtype
       - xarchiver
       - xdg-desktop-portal-gtk
       - xdg-desktop-portal-wlr
-      - ydotool
 
       # pipewire
       - pavucontrol

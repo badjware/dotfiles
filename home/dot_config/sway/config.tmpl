@@ -212,7 +212,7 @@ bindsym $mod+Control+w exec rofi -show ' ' -modes ' :~/.local/bin/rofi-ope
 # rofi-bookmarks
 bindsym $mod+Control+b exec rofi -show bookmarks -modes 'bookmarks:~/.local/bin/rofi-bookmarks'
 # rofi-pass
-bindsym $mod+Control+p exec rofi-pass
+bindsym $mod+Control+p exec ROFI_PASS_BACKEND=wtype ROFI_PASS_CLIPBOARD_BACKEND=wl-clipboard ~/.local/bin/rofi-pass
 
 
 # change focus

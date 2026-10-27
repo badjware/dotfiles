@@ -1,23 +1,12 @@
 services:
-  cptr:
+  chezmoi:
     build:
       context: .
-      secrets:
-        - npmrc
-    image: dotfiles-cptr
-    container_name: cptr
-    init: true
     ports:
-      - "8000:8000"
+      - "42617:42617"
     volumes:
-      - cptr-home:/home/user
-      - cptr-data:/data
+      - chezmoi-home:/home/user
     restart: unless-stopped
 
-secrets:
-  npmrc:
-    file: ~/.npmrc
-
 volumes:
-  cptr-home:
-  cptr-data:
+  chezmoi-home:

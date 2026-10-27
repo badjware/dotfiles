@@ -1,6 +1,6 @@
 FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm --needed base-devel git chezmoi sudo zsh && \
+RUN pacman -Syu --noconfirm --needed base-devel git chezmoi sudo zsh zeroclaw && \
     rm -rf /var/cache/pacman/pkg/*
 
 RUN useradd --create-home --uid 1000 --shell /bin/zsh user && \
@@ -20,9 +20,8 @@ RUN --mount=type=secret,id=npmrc,target=/etc/npmrc,mode=0444 \
     rm -rf ~/.cache/chezmoi ~/.cache/go-build ~/.cache/pikaur ~/.cache/pip
 
 
-ENV CPTR_DATA_DIR="/data"
-EXPOSE 8000
+EXPOSE 42617
 VOLUME ["/data"]
 
-ENTRYPOINT ["cptr"]
-CMD ["run", "--host", "0.0.0.0", "--port", "8000", "--headless"]
+ENTRYPOINT ["zeroclaw"]
+CMD ["daemon"]

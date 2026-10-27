@@ -1,4 +1,3 @@
-
 {{- $swayVersion := "0.0.0" -}}
 {{- if stat "/usr/bin/sway" -}}
 {{-   $swayVersion = output "/usr/bin/sway" "--version" | trim | regexFind "[0-9]+\\.[0-9]+(\\.[0-9]+)?" -}}
@@ -212,6 +211,9 @@ bindsym $mod+Control+r exec rofi -show ' ' -modes ' :~/.local/bin/rofi-ope
 bindsym $mod+Control+w exec rofi -show ' ' -modes ' :~/.local/bin/rofi-open-workspace-in-code'
 # rofi-bookmarks
 bindsym $mod+Control+b exec rofi -show bookmarks -modes 'bookmarks:~/.local/bin/rofi-bookmarks'
+# rofi-pass
+bindsym $mod+Control+p exec rofi-pass
+
 
 # change focus
 bindsym $mod+h focus left

@@ -1,0 +1,5 @@
+[".local/bin/rofi-pass"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/carnager/rofi-pass/refs/heads/ydotool/rofi-pass"
+    checksum.sha256 = "72fa39c86470d18f22227ed8e216deae83431f812c5bd09f633574b1bdb2a32d"
+    executable = true

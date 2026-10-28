@@ -1,5 +1,6 @@
+# update: last release (2.0.2) is from 2019; pin to the latest master commit SHA (git ls-remote https://github.com/carnager/rofi-pass HEAD)
 [".local/bin/rofi-pass"]
     type = "file"
-    url = "https://raw.githubusercontent.com/carnager/rofi-pass/refs/heads/master/rofi-pass"
+    url = "https://raw.githubusercontent.com/carnager/rofi-pass/37c4c862deb133a85b7d72989acfdbd2ef16b8ad/rofi-pass"
     checksum.sha256 = "d3af74eb7e67796cd4222cd6dacc07334c20d9558bc7791795b9c88ed342e49d"
     executable = true

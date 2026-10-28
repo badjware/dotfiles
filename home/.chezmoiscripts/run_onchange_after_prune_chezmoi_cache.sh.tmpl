@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+# chezmoi never prunes its external cache, so downloads from old .chezmoiexternals pile up.
+# Cache entries are named after the sha256 of the external url.
+
+cache_dir={{ joinPath .chezmoi.cacheDir "external" | quote }}
+
+declare -A keep=(
+{{- range glob (joinPath .chezmoi.sourceDir ".chezmoiexternals" "*") }}
+{{-   $content := "" }}
+{{-   if hasSuffix ".tmpl" . }}
+{{-     $content = includeTemplate . $ }}
+{{-   else }}
+{{-     $content = include . }}
+{{-   end }}
+{{-   range regexFindAll `(?m)^\s*url\s*=\s*"[^"]+"` $content -1 }}
+    [{{ regexReplaceAll `^\s*url\s*=\s*"([^"]+)"` . "${1}" | sha256sum }}]=1
+{{-   end }}
+{{- end }}
+)
+
+[ -d "$cache_dir" ] || exit 0
+
+for path in "$cache_dir"/*; do
+    [ -e "$path" ] || continue
+    [ -n "${keep[$(basename "$path")]}" ] || rm -rf "$path"
+done
+
+# code: language=bash

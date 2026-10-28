@@ -14,12 +14,12 @@
 # update: keep the raw GitHub url; the starship.rs install URL moves
 [".cache/install/starship.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/starship/starship/v1.26.0/install/install.sh"
+    url = "https://raw.githubusercontent.com/starship/starship/v1.27.0/install/install.sh"
     checksum.sha256 = "52c64f14a558034ebeb1907ea9364e802b32474576fd3e68265f73bc33cc8fbb"
     executable = true
 
 [".cache/install/mirrord.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.272.0/scripts/install.sh"
-    checksum.sha256 = "34db4af8f49feb11d1bce06afdceddeb51cd422fd1fdd0ed195c9d807a80e00b"
+    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.280.0/scripts/install.sh"
+    checksum.sha256 = "3e856146fca2c06db39a54dca1fbcdf5ef454a437fdde2572ec09bbf7736dc1c"
     executable = true

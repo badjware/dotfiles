@@ -1,12 +1,5 @@
 {{- if ne .chassisType "container" }}
 
-# update: pick the x86_64 AppImage; the -py311 suffix can change between releases
-# ["Applications/FreeCAD.AppImage"]
-#     type = "file"
-#     url = "https://github.com/FreeCAD/FreeCAD/releases/download/1.1.4/FreeCAD_1.1.4-Linux-x86_64-py311.AppImage"
-#     checksum.sha256 = "f6dc6ba676e5ac96a565ebc8d657232f94c6158e85b4352141bd1a46f6b43434"
-#     executable = true
-
 ["Applications/Moonlight.AppImage"]
     type = "file"
     url = "https://github.com/moonlight-stream/moonlight-qt/releases/download/v6.2.0/Moonlight-6.2.0-x86_64.AppImage"
@@ -16,8 +9,8 @@
 # update: skip the -arm64 AppImage
 ["Applications/Obsidian.AppImage"]
     type = "file"
-    url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.4/Obsidian-1.14.4.AppImage"
-    checksum.sha256 = "6362ddbeeeebb7bbccb48fae009572cf2284ef92f5c919c1332aba48de6ffeaa"
+    url = "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.14.5/Obsidian-1.14.5.AppImage"
+    checksum.sha256 = "306815f60d15dea8610d72886ef5e50ef4b7e7185e952ffc3bb21bee1582d952"
     executable = true
 
 {{- if eq .chezmoi.hostname "pallet" }}
@@ -35,8 +28,8 @@
 
 ["Applications/MoonDeckBuddy.AppImage"]
     type = "file"
-    url = "https://github.com/FrogTheFrog/moondeck-buddy/releases/download/v1.10.0/MoonDeckBuddy-1.10.0-x86_64.AppImage"
-    checksum.sha256 = "51960ec27f897818e10f6e06a3c8994eebfd05c58c9c51ed89cad5b53caa5a46"
+    url = "https://github.com/FrogTheFrog/moondeck-buddy/releases/download/v1.11.0/MoonDeckBuddy-1.11.0-x86_64.AppImage"
+    checksum.sha256 = "ab0e09d2b00f8004ef2c3cdb0ac3f49c85bc0762968168203a3df8c8ec976d47"
     executable = true
 {{- end }}
 

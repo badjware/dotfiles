@@ -36,7 +36,7 @@ Repo-specific exceptions live in the TOML as `# update: <rule>` comments directl
 - Pinning an installer does not pin the binary. Installers like pay-respects and mirrord fetch the latest release at run time; starship takes `--version`, mirrord reads a `VERSION` env var. Mention this if the user wants reproducible versions.
 - Do not add `exact = true` to file externals; it only applies to archives.
 - Do not version target names (`Applications/Obsidian.AppImage`). chezmoi never deletes the old file when a target name changes, and `home/.chezmoiscripts/run_onchange_after_install_appimage_desktop_entries.sh.tmpl` names the desktop entry after the file.
-- chezmoi caches each external under `~/.cache/chezmoi/external/`, keyed by the sha256 of the url. Old versions stay there (hundreds of MB for AppImages). Mention it so the user can clear it.
+- chezmoi caches each external under `~/.cache/chezmoi/external/`, keyed by the sha256 of the url. `home/.chezmoiscripts/run_onchange_after_prune_external_cache.sh.tmpl` deletes entries whose url is no longer in any external on the next apply; no manual cleanup needed.
 - chezmoi may not be installed in the agent container. Matching the checksum against the asset digest or downloaded file is the check.
 - `releases/latest` skips prereleases and nightlies. Keep stable releases unless asked otherwise.
 - `home/.chezmoiscripts/run_onchange_after_packages.sh.tmpl` only runs installer scripts when the command is missing (`command -v`), so a new installer pin does not upgrade an installed tool.

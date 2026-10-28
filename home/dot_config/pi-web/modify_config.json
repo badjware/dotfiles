@@ -1,0 +1,15 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $config = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- /* setValueAtPath mutates $config, so serialize it first */ -}}
+{{- $before := toPrettyJson $config -}}
+{{- $after := $config
+    | setValueAtPath "sessionNaming.model" (printf "litellm/%s" .litellmModel)
+    | toPrettyJson -}}
+{{- if eq $before $after -}}
+{{-   .chezmoi.stdin -}}
+{{- else -}}
+{{-   $after | trimSuffix "\n" -}}
+{{- end -}}

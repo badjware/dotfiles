@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 Environment=PIBOX_PI_WEB_PORT=18504
 WorkingDirectory=%h/develop
 # pi-web hardcodes fastify per-request logging at info level, so we drop those lines here
-ExecStart=/bin/bash -c 'set -o pipefail; %h/.local/bin/pibox --pull --harness pi-web | /usr/bin/rg --line-buffered -v "msg.:.(incoming request|request completed)."'
+ExecStart=/bin/bash -c 'set -o pipefail; %h/.local/bin/pibox --pull --harness pi-web --volume /home/marchambault/.local/share/chezmoi:/home/marchambault/.local/share/chezmoi:rw | /usr/bin/rg --line-buffered -v "msg.:.(incoming request|request completed)."'
 # docker publishes the port before pi-web listens, so we need to probe readiness
 ExecStartPost=/bin/bash -c 'until curl -s -o /dev/null http://127.0.0.1:$PIBOX_PI_WEB_PORT/; do sleep 0.5; done'
 TimeoutStartSec=300

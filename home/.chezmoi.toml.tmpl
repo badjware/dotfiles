@@ -17,6 +17,7 @@
 
 {{- if eq .chezmoi.hostname "pallet" }}
     defaultOutput = "DP-2"
+    frpToken = {{ promptStringOnce . "frpToken" "frp auth token" "" | quote }}
 {{- else if eq $chassisType "laptop" }}
     defaultOutput = "eDP-1"
 {{- end }}

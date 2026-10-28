@@ -1,1 +1,7 @@
 **/__pycache__/**
+
+# only setup frp on pallet for now
+{{- if ne .chezmoi.hostname "pallet" }}
+.config/frp
+.config/systemd/user/frpc.service
+{{- end }}

@@ -6,6 +6,7 @@ units:
     - gitforgefs@code.badjware.dev.service
     - gitforgefs@github.com.service
     - pibox-pi-web.socket
+    - frpc.service
   user_desktop:
     - swayidle.service
     - wob.service

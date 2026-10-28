@@ -1,0 +1,12 @@
+[Unit]
+Description=frp client, tunnels local services to the home cluster
+# retry forever so the tunnel comes back on its own once the cluster is up again
+StartLimitIntervalSec=0
+
+[Service]
+ExecStart=/usr/bin/frpc -c %h/.config/frp/frpc.toml
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=default.target

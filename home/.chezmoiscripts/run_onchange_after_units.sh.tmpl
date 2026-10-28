@@ -12,25 +12,31 @@
 sudo systemctl daemon-reload
 sleep 3
 {{ range .units.system -}}
-sudo systemctl enable --now {{ . }} || true
+if systemctl cat {{ . }} &>/dev/null; then
+  sudo systemctl enable --now {{ . }} || true
+fi
 {{ end -}}
 
 systemctl --user daemon-reload
 sleep 3
 {{ range .units.user_base }}
+if systemctl --user cat {{ . }} &>/dev/null; then
 {{- if hasPrefix "gitforgefs@" . }}
-# restarting gitforgefs would probably fail (if the fs is in use), so we settle on just enabling it
-systemctl --user enable --now {{ . }} || true
+  # restarting gitforgefs would probably fail (if the fs is in use), so we settle on just enabling it
+  systemctl --user enable --now {{ . }} || true
 {{- else }}
-systemctl --user enable {{ . }} || true
-systemctl --user restart {{ . }} || true
+  systemctl --user enable {{ . }} || true
+  systemctl --user restart {{ . }} || true
 {{- end }}
+fi
 {{ end }}
 
 {{ if ne .chassisType "container" }}
 {{ range .units.user_desktop -}}
-systemctl --user enable {{ . }} || true
-systemctl --user restart {{ . }} || true
+if systemctl --user cat {{ . }} &>/dev/null; then
+  systemctl --user enable {{ . }} || true
+  systemctl --user restart {{ . }} || true
+fi
 {{ end }}
 {{ end }}
 

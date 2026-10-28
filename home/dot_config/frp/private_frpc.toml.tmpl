@@ -1,0 +1,23 @@
+serverAddr = "tunnel.badjware.dev"
+serverPort = 443
+transport.protocol = "wss"
+transport.tls.useSystemCa = true
+# keep retrying instead of exiting when frps is unreachable at startup
+loginFailExit = false
+
+auth.method = "token"
+auth.token = {{ .frpToken | quote }}
+
+[[proxies]]
+name = "pi-web"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 8504
+customDomains = ["pi-pallet.badjware.dev"]
+
+[[proxies]]
+name = "llama-swap"
+type = "http"
+localIP = "127.0.0.1"
+localPort = 1867
+customDomains = ["llama-swap-pallet.badjware.dev"]

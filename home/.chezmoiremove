@@ -8,4 +8,7 @@
 .config/systemd/user/cptr-proxy.service
 .config/systemd/user/cptr.socket
 .config/systemd/user/pibox-pi-web@.service
+.config/systemd/user/pibox-pi-web.socket
+.config/systemd/user/pibox-pi-web-proxy.service
+.config/systemd/user/pikaur-cache.service
 .config/rofi-pass

@@ -5,7 +5,7 @@ units:
   user_base:
     - gitforgefs@code.badjware.dev.service
     - gitforgefs@github.com.service
-    - pibox-pi-web.socket
+    - pibox-pi-web.service
     - frpc.service
   user_desktop:
     - swayidle.service

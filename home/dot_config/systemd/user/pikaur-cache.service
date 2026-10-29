@@ -1,6 +1,0 @@
-[Unit]
-Description=Remove unused package files cached by pikaur in user's home directory
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/paccache --cachedir "%h/.cache/pikaur/pkg" --remove

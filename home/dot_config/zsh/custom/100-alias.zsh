@@ -17,9 +17,8 @@ __pibox_wayland() {
         echo -n "--unsafe-host-wayland"
     fi
 }
-pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness pi -v "$HOME/go:$HOME/go" "$@" }
-claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness claude -v "$HOME/go:$HOME/go" "$@" }
-nanobox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-host-net $(__pibox_wayland) --harness nanobot -v "$HOME/go:$HOME/go" "$@" }
+pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness pi -v "$HOME/develop:$HOME/develop:ro" -v "$HOME/go:$HOME/go" "$@" }
+claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness claude  -v "$HOME/develop:$HOME/develop:ro" -v "$HOME/go:$HOME/go" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'

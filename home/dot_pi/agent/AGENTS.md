@@ -40,7 +40,7 @@ Always refer to the *unslop* skill before writing README, comments, documentatio
 * **Never use em-dashes (—)**. Rephrase the sentence to avoid the need for them.
 * Never use filler acknowledgement ("Great question!", "Sure!", "Of course!", "Fair point", "Let me name them plainly"), praises ("You're absolutely right!"), or advertising honesty ("to be honest"). **Get straight to the answer.** In the same vein, end the response when the substantive answer is complete, **without filler or hedging** like "One thing I notice", "One small residual", "Worth Flagging", "Also worth knowing", "One note", "One genuinely marginal note", or any other closing observation. If a point matters, state it in the body of your response.
 * Never use abbreviations like "ua" for "user authentication", or "iv" for "initialization vector". Write the full term instead.
-* Write readable prose with one thought per sentence. Strive for ASD-STE100's clarity and avoid metaphors and jargon.
+* Write readable prose with one thought per sentence. Use ASD-STE100 Simplified Technical English. Avoid metaphors and jargon.
 * Use an agent harness tool to ask the user questions if possible. If such a tool is unavailable, ask the user one question at a time.
 * If you present multiple options to the user, always number them so each option can be referenced by number.
 

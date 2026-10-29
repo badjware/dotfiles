@@ -4,3 +4,4 @@ pi:
     - npm:pi-resource-center
     - npm:pi-provider-litellm
     - npm:@bigboss2063/pi-clip
+    # - npm:pi-claude-marketplace

@@ -1,0 +1,18 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $auth := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $auth = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- /* setValueAtPath mutates $auth, so serialize it first */ -}}
+{{- $before := toPrettyJson $auth -}}
+{{- $after := $auth
+    | setValueAtPath "litellm.type" "api_key"
+    | setValueAtPath "litellm.key" .litellmApiKey
+    | setValueAtPath "litellm.env.LITELLM_BASE_URL" .litellmBaseUrl
+    | setValueAtPath "litellm.env.LITELLM_MODELS_DEV" 0
+    | toPrettyJson -}}
+{{- if eq $before $after -}}
+{{-   .chezmoi.stdin -}}
+{{- else -}}
+{{-   $after | trimSuffix "\n" -}}
+{{- end -}}

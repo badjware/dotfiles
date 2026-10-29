@@ -1,9 +1,10 @@
 /**
  * env-loader
  *
- * Loads environment variables from `<pi-config-dir>/config.env` and injects
- * them into `process.env` at extension load time, so any child process started
- * by pi (bash tool, skill scripts, etc.) inherits them.
+ * Loads environment variables from every `<pi-config-dir>/*.env` file and
+ * injects them into `process.env` at extension load time, so any child process
+ * started by pi (bash tool, skill scripts, etc.) inherits them. Files are
+ * loaded in alphabetical order.
  *
  * The config directory follows pi's own convention:
  *   - `$PI_CODING_AGENT_DIR` if set
@@ -22,13 +23,15 @@
  * Behavior:
  *   - Existing process.env values are NOT overwritten (so a real shell export
  *     still wins). Set PI_ENV_LOADER_OVERRIDE=1 to reverse this.
- *   - Missing file is a silent no-op.
+ *   - Since existing values win, the first file defining a key wins (the last
+ *     one with PI_ENV_LOADER_OVERRIDE=1 or /env-loader).
+ *   - Missing directory or no `*.env` files is a silent no-op.
  *   - Malformed lines are skipped with a warning.
  *   - If the file is world- or group-readable, a warning is printed
  *     (tokens likely live there). Recommended: chmod 600.
  */
 
-import { readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -43,9 +46,25 @@ interface LoadResult {
 	skipped: string[];
 }
 
-function getConfigPath(): string {
-	const baseDir = process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
-	return join(baseDir, "config.env");
+function getConfigDir(): string {
+	return process.env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
+}
+
+/** Return the sorted paths of regular `*.env` files in `dir`, or [] if `dir` is missing. */
+function listEnvFiles(dir: string): string[] {
+	try {
+		return readdirSync(dir, { withFileTypes: true })
+			.filter((e) => e.isFile() && e.name.endsWith(".env"))
+			.map((e) => e.name)
+			.sort()
+			.map((name) => join(dir, name));
+	} catch (err) {
+		if (!isENOENT(err)) {
+			const msg = (err as Error)?.message ?? String(err);
+			console.warn(`${LOG_PREFIX} Failed to list ${dir}: ${msg}`);
+		}
+		return [];
+	}
 }
 
 function isENOENT(err: unknown): boolean {
@@ -211,17 +230,41 @@ function loadEnvFile(path: string, force = false): LoadResult {
 	return { loaded, skipped };
 }
 
+/**
+ * Load every `*.env` file in `dir`, warning about keys defined in more than one
+ * file, and return the merged loaded/skipped keys.
+ */
+function loadEnvFiles(dir: string, force = false): LoadResult {
+	const loaded: string[] = [];
+	const skipped: string[] = [];
+	const firstSeenIn = new Map<string, string>();
+	for (const path of listEnvFiles(dir)) {
+		const result = loadEnvFile(path, force);
+		for (const key of [...result.loaded, ...result.skipped]) {
+			const previous = firstSeenIn.get(key);
+			if (previous) {
+				console.warn(`${LOG_PREFIX} Duplicate key ${key} in ${path} (already defined in ${previous})`);
+			} else {
+				firstSeenIn.set(key, path);
+			}
+		}
+		loaded.push(...result.loaded);
+		skipped.push(...result.skipped);
+	}
+	return { loaded, skipped };
+}
+
 export default function (pi: ExtensionAPI): void {
-	const configPath = getConfigPath();
-	const initial = loadEnvFile(configPath);
+	const configDir = getConfigDir();
+	const initial = loadEnvFiles(configDir);
 
 	pi.registerCommand("env-loader", {
-		description: `Reload and show env vars from ${configPath}`,
+		description: `Reload and show env vars from ${configDir}/*.env`,
 		handler: async (_args, ctx) => {
 			// Re-read the file on demand so users can edit and re-check without
 			// restarting pi. New vars are applied; already-applied vars are
 			// reported as skipped (since they're now set in process.env).
-			const result = loadEnvFile(configPath, true);
+			const result = loadEnvFiles(configDir, true);
 			const parts: string[] = [];
 			if (result.loaded.length > 0) {
 				parts.push(`loaded ${result.loaded.length}: ${result.loaded.join(", ")}`);
@@ -230,7 +273,7 @@ export default function (pi: ExtensionAPI): void {
 				parts.push(`skipped ${result.skipped.length} (already set): ${result.skipped.join(", ")}`);
 			}
 			if (parts.length === 0) {
-				ctx.ui.notify(`${LOG_PREFIX} no vars in ${configPath}`, "info");
+				ctx.ui.notify(`${LOG_PREFIX} no vars in ${configDir}/*.env`, "info");
 				return;
 			}
 			const initialNote =

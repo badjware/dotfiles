@@ -11,9 +11,9 @@
 [data]
     chassisType = {{ $chassisType | quote }}
 
-    litellmBaseUrl = {{ promptStringOnce . "LITELLM_BASE_URL" "LiteLLM base url" "https://genai.badjware.dev" | quote }}
-    litellmApiKey = {{ promptStringOnce . "LITELLM_API_KEY" "LiteLLM API key" "" | quote }}
-    litellmModel = {{ promptStringOnce . "LITELLM_API_KEY" "LiteLLM model" "in-cluster/Gemma-4-E4B" | quote }}
+    litellmBaseUrl = {{ promptStringOnce . "litellmBaseUrl" "LiteLLM base url" "https://genai.badjware.dev" | quote }}
+    litellmApiKey = {{ promptStringOnce . "litellmApiKey" "LiteLLM API key" "" | quote }}
+    litellmModel = {{ promptStringOnce . "litellmModel" "LiteLLM model" "in-cluster/Gemma-4-E4B" | quote }}
 
 {{- if eq .chezmoi.hostname "pallet" }}
     defaultOutput = "DP-2"

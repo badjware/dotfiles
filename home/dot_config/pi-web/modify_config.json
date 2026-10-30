@@ -6,6 +6,8 @@
 {{- /* setValueAtPath mutates $config, so serialize it first */ -}}
 {{- $before := toPrettyJson $config -}}
 {{- $after := $config
+    | setValueAtPath (list "shortcuts" "core:actions.show") "mod+p"
+    | setValueAtPath "plugins.relays.enabled" false
     | setValueAtPath "sessionNaming.model" (printf "litellm/%s" .litellmModel)
     | toPrettyJson -}}
 {{- if eq $before $after -}}

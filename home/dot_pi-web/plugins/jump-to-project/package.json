@@ -1,0 +1,10 @@
+{
+  "name": "pi-web-jump-to-project",
+  "private": true,
+  "description": "PI WEB action that opens a fuzzy-search dialog to jump to another project.",
+  "piWeb": {
+    "plugins": [
+      { "id": "jump-to-project", "browserRoot": ".", "module": "pi-web-plugin.js" }
+    ]
+  }
+}

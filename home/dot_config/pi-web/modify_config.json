@@ -5,10 +5,10 @@
 {{- end -}}
 {{- /* setValueAtPath mutates $config, so serialize it first */ -}}
 {{- $before := toPrettyJson $config -}}
+{{- /* sessionNaming.model "disabled/disabled" is a hack to disable session naming */ -}}
 {{- $after := $config
     | setValueAtPath (list "shortcuts" "core:actions.show") "mod+p"
     | setValueAtPath "plugins.relays.enabled" false
-    /* we have to use a hack to disable session naming */
     | setValueAtPath "sessionNaming.model" "disabled/disabled"
     | toPrettyJson -}}
 {{- if eq $before $after -}}

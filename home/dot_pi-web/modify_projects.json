@@ -2,7 +2,8 @@
 {{- $now := dateInZone "2006-01-02T15:04:05.000Z" now "UTC" -}}
 {{- $defaults := list
   (dict "id" "a606255e-f71f-416a-b97b-34b378a59502" "name" "chezmoi" "path" (joinPath .chezmoi.homeDir ".local/share/chezmoi") "createdAt" $now)
-  (dict "id" "87f8e776-7ed7-4dab-81ad-40ea766fa4e8" "name" "pibox" "path" (joinPath .chezmoi.homeDir "develop/github.com/badjware/pibox") "createdAt" $now) -}}
+  (dict "id" "87f8e776-7ed7-4dab-81ad-40ea766fa4e8" "name" "pibox" "path" (joinPath .chezmoi.homeDir "develop/github.com/badjware/pibox") "createdAt" $now)
+  (dict "id" "7f3ac04a-3498-4cc7-aa3f-9b7338e17571" "name" "💬 Chat" "path" (joinPath .chezmoi.homeDir "develop/code.badjware.dev/badjware/chaton") "createdAt" $now) -}}
 {{- $config := dict -}}
 {{- if .chezmoi.stdin -}}
 {{-   $config = fromJson .chezmoi.stdin -}}

@@ -8,7 +8,8 @@
 {{- $after := $config
     | setValueAtPath (list "shortcuts" "core:actions.show") "mod+p"
     | setValueAtPath "plugins.relays.enabled" false
-    | setValueAtPath "sessionNaming.model" (printf "litellm/%s" .litellmModel)
+    /* we have to use a hack to disable session naming */
+    | setValueAtPath "sessionNaming.model" "disabled/disabled"
     | toPrettyJson -}}
 {{- if eq $before $after -}}
 {{-   .chezmoi.stdin -}}

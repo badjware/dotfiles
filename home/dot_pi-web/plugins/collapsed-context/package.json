@@ -1,0 +1,10 @@
+{
+  "name": "pi-web-collapsed-context",
+  "private": true,
+  "description": "PI WEB plugin that shows the current project and workspace in the bar above the chat when the navigation sidebar is collapsed.",
+  "piWeb": {
+    "plugins": [
+      { "id": "collapsed-context", "browserRoot": ".", "module": "pi-web-plugin.js" }
+    ]
+  }
+}

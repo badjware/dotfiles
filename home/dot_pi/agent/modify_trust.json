@@ -1,0 +1,9 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $trust := dict -}}
+{{- if .chezmoi.stdin -}}
+{{-   $trust = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- /* Pass the key as a list: string paths are split on dots, and the key contains dots */ -}}
+{{- $trust
+    | setValueAtPath (list (printf "%s/develop/code.badjware.dev/badjware/chaton" .chezmoi.homeDir)) true
+    | toPrettyJson | trimSuffix "\n" -}}

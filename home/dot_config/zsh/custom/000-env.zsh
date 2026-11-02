@@ -9,6 +9,7 @@ setopt HIST_REDUCE_BLANKS  # Remove superfluous blanks before recording entry.
 
 # gpg-agent
 export GPG_TTY=$(tty)
+export PINENTRY_USER_DATA=tty
 gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # keychain (for ssh agent)

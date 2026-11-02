@@ -208,6 +208,7 @@ packages:
       - gnome-keyring
       - grim
       - mako
+      - pinentry-qt
       - rocm-smi
       - rofi-wayland
       - sway

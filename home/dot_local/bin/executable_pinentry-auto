@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Use curses when gpg runs from a shell (PINENTRY_USER_DATA=tty, set in 000-env.zsh), else a graphical pinentry.
+if [ "$PINENTRY_USER_DATA" = tty ]; then
+    exec /usr/bin/pinentry-curses "$@"
+fi
+exec /usr/bin/pinentry "$@"

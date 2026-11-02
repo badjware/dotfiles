@@ -1,6 +1,6 @@
 # fetch-url extension
 
-A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool. HTML pages are converted to readable Markdown using [trafilatura](https://trafilatura.readthedocs.io/) for main-content extraction. Other textual resources, such as source files, JSON, YAML, and XML, are returned as-is.
+A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `fetch_url` tool. HTML pages are converted to readable Markdown using [trafilatura](https://trafilatura.readthedocs.io/) for main-content extraction. Other textual resources, such as source files, JSON, YAML, and XML, are returned as-is. PNG, JPEG, GIF and WebP images are returned as image content, resized to provider limits. Other binary files are saved to a temp file and the tool returns its path.
 
 ## Requirements
 
@@ -15,13 +15,15 @@ pipx install trafilatura
 | Parameter | Type | Default | Notes |
 |---|---|---|---|
 | `url` | string | required | URL to fetch. |
-| `include_links` | boolean | `false` | Keep inline `[text](url)` hyperlinks in the extracted Markdown. Useful when the agent intends to follow links. |
 
 Output is truncated to pi's standard tool limits (`DEFAULT_MAX_LINES` lines or `DEFAULT_MAX_BYTES`, whichever is hit first). When truncated, the full extracted Markdown is written to a unique temp file and its path is reported back to the LLM in the truncation notice.
 
 The tool returns:
-- `content[0].text`: the extracted Markdown, with a truncation notice appended if applicable.
-- `details.requested_url`, `details.truncated`, plus `details.truncation` and `details.fullOutputPath` when truncated.
+- For text: `content[0].text` is the extracted Markdown, with a truncation notice appended if applicable. `details.requested_url`, `details.truncated`, plus `details.truncation` and `details.fullOutputPath` when truncated.
+- For images: a short text note and an `image` content block.
+- For other binary files: a text note with the content type, size and temp file path. `details.fullOutputPath` is the temp file path.
+
+The response type is detected from the body, not from `Content-Type`. Images are detected by their file signature. A body with a NUL byte in its first 8 KB is binary. Downloads are limited to 20 MB.
 
 The HTTP fetch is performed via Node's stdlib (`node:https` / `node:http`, with manual redirect following, configurable timeout, Lynx UA). HTML responses are piped to `trafilatura --output-format markdown --formatting` over stdin; all other responses are returned without extraction. Trafilatura drops navigation, sidebars, footers, comments and ads.
 

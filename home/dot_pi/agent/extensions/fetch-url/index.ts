@@ -3,14 +3,16 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import http from "node:http";
 import https from "node:https";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 import {
   DEFAULT_MAX_BYTES,
   DEFAULT_MAX_LINES,
   defineTool,
   type ExtensionAPI,
+  formatDimensionNote,
   formatSize,
+  resizeImage,
   truncateHead,
   type TruncationResult,
 } from "@earendil-works/pi-coding-agent";
@@ -22,10 +24,13 @@ const USER_AGENT =
   process.env.PI_FETCH_USER_AGENT ||
   "Lynx/2.9.2 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/3.0.14";
 const MAX_REDIRECTS = 5;
+const MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024;
 
 type FetchResult = {
-  body: string;
+  bytes: Buffer;
   contentType?: string;
+  /** URL after redirects. */
+  url: string;
 };
 
 // We use http/https instead of fetch to evade bot detection
@@ -82,15 +87,25 @@ function fetchResource(
             );
             return;
           }
-          res.setEncoding("utf-8");
-          let body = "";
-          res.on("data", (chunk) => {
-            body += chunk;
+          const chunks: Buffer[] = [];
+          let size = 0;
+          res.on("data", (chunk: Buffer) => {
+            size += chunk.length;
+            if (size > MAX_DOWNLOAD_BYTES) {
+              req.destroy(
+                new Error(
+                  `Response exceeds ${formatSize(MAX_DOWNLOAD_BYTES)} limit`,
+                ),
+              );
+              return;
+            }
+            chunks.push(chunk);
           });
           res.on("end", () =>
             resolve({
-              body,
+              bytes: Buffer.concat(chunks),
               contentType: res.headers["content-type"],
+              url: current,
             }),
           );
           res.on("error", reject);
@@ -104,6 +119,29 @@ function fetchResource(
     };
     visit(url, MAX_REDIRECTS);
   });
+}
+
+/**
+ * Detect a supported image format from its leading bytes.
+ * Returns the MIME type, or undefined if the bytes are not PNG, JPEG, GIF or WebP.
+ */
+function detectImageMimeType(bytes: Buffer): string | undefined {
+  const ascii = (start: number, end: number) =>
+    bytes.subarray(start, end).toString("latin1");
+  if (
+    bytes.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex"))
+  )
+    return "image/png";
+  if (bytes.subarray(0, 3).equals(Buffer.from("ffd8ff", "hex")))
+    return "image/jpeg";
+  if (ascii(0, 6) === "GIF87a" || ascii(0, 6) === "GIF89a") return "image/gif";
+  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image/webp";
+  return undefined;
+}
+
+/** Treat the body as binary if a NUL byte appears in the first 8 KB. */
+function isBinary(bytes: Buffer): boolean {
+  return bytes.subarray(0, 8192).includes(0);
 }
 
 function isHtml(contentType: string | undefined, body: string): boolean {
@@ -157,11 +195,12 @@ export default function (pi: ExtensionAPI) {
     defineTool({
       name: "fetch_url",
       label: "Fetch URL",
-      description: `Fetch a URL. HTML pages are converted to readable Markdown; other textual resources are returned as-is. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first). If truncated, full output is saved to a temp file.`,
-      promptSnippet: "Fetch a URL as readable Markdown or raw text.",
+      description: `Fetch a URL. HTML pages are converted to readable Markdown; other textual resources are returned as-is. PNG, JPEG, GIF and WebP images are returned as image content. Other binary files are saved to a temp file and its path is returned. Text output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first). If truncated, full output is saved to a temp file.`,
+      promptSnippet: "Fetch a URL as readable Markdown, raw text, or an image.",
       promptGuidelines: [
         "Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
         "Use fetch_url for textual resources such as source files, JSON, YAML, and XML; non-HTML text is returned as-is.",
+        "Use fetch_url to view an image from a URL; PNG, JPEG, GIF and WebP are returned as image content. Other binary files are saved to a temp path for use with read or bash.",
         "fetch_url runs no JavaScript and keeps no session; it returns near-empty text for JavaScript-rendered or login-walled pages. Best for static articles, docs, READMEs, and raw source files.",
       ],
       parameters: Type.Object({
@@ -180,10 +219,59 @@ export default function (pi: ExtensionAPI) {
         const rawUrl = params.url.trim();
         try {
           const resource = await fetchResource(rawUrl, signal);
+
+          const imageMimeType = detectImageMimeType(resource.bytes);
+          if (imageMimeType) {
+            const resized = await resizeImage(resource.bytes, imageMimeType);
+            if (!resized) {
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Could not process image [${imageMimeType}] (${formatSize(resource.bytes.length)}).`,
+                  },
+                ],
+                details: { requested_url: rawUrl },
+                isError: true,
+              };
+            }
+            let note = `Fetched image [${resized.mimeType}]`;
+            const dimensionNote = formatDimensionNote(resized);
+            if (dimensionNote) note += `\n${dimensionNote}`;
+            return {
+              content: [
+                { type: "text", text: note },
+                { type: "image", data: resized.data, mimeType: resized.mimeType },
+              ],
+              details: { requested_url: rawUrl },
+              isError: false,
+            };
+          }
+
+          if (isBinary(resource.bytes)) {
+            const tempDir = await mkdtemp(join(tmpdir(), "pi-fetch-"));
+            const name =
+              basename(decodeURIComponent(new URL(resource.url).pathname)) ||
+              "download";
+            const tempFile = join(tempDir, name);
+            await writeFile(tempFile, resource.bytes);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `Binary content (${resource.contentType ?? "unknown type"}, ${formatSize(resource.bytes.length)}) saved to: ${tempFile}`,
+                },
+              ],
+              details: { requested_url: rawUrl, fullOutputPath: tempFile },
+              isError: false,
+            };
+          }
+
+          const body = resource.bytes.toString("utf-8");
           let text: string;
 
-          if (isHtml(resource.contentType, resource.body)) {
-            const traf = await runTrafilatura(resource.body, signal);
+          if (isHtml(resource.contentType, body)) {
+            const traf = await runTrafilatura(body, signal);
             if (traf.code !== 0 && !traf.stdout.trim()) {
               const message =
                 traf.stderr.trim() || `trafilatura exited with code ${traf.code}`;
@@ -206,7 +294,7 @@ export default function (pi: ExtensionAPI) {
               };
             }
           } else {
-            text = resource.body.replace(/\r\n/g, "\n");
+            text = body.replace(/\r\n/g, "\n");
           }
 
           const truncation = truncateHead(text, {

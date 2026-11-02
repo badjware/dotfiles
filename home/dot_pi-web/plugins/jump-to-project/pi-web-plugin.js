@@ -1,5 +1,7 @@
 // PI WEB browser plugin: "Jump to project" opens a fuzzy-search dialog over the
 // registered projects of the current machine and navigates to the chosen one.
+// The dialog also lists directories that had a Pi session but are not projects
+// yet (from server.js); picking one registers it first.
 
 /** Capability that opts our shadow root into the host's shared UI styles. */
 const stylesheetIntegration = {
@@ -54,14 +56,18 @@ function fuzzyScore(query, text) {
   return score - t.length * 0.01;
 }
 
-/** Filter and sort projects by fuzzy score; the name counts more than the path. */
+/**
+ * Filter and sort projects by fuzzy score; the name counts more than the path.
+ * Registered projects (with an `id`) win ties against session directories.
+ */
 function rank(projects, query) {
   const q = query.trim().toLowerCase().replace(/\s+/g, "");
   if (q === "") return projects;
   return projects
     .map((project) => {
       const name = fuzzyScore(q, project.name);
-      return { project, score: Math.max(name === -1 ? -1 : name + 10, fuzzyScore(q, project.path)) };
+      const score = Math.max(name === -1 ? -1 : name + 10, fuzzyScore(q, project.path));
+      return { project, score: score === -1 || project.id === undefined ? score : score + 1 };
     })
     .filter((entry) => entry.score >= 0)
     .sort((a, b) => b.score - a.score)
@@ -112,7 +118,9 @@ function openDialog(projects, styles, onPick, onClose) {
       name.textContent = project.name;
       const path = document.createElement("small");
       path.className = "ui-selection-detail";
-      path.textContent = project.path;
+      path.textContent = project.id !== undefined
+        ? project.path
+        : `${project.path} · not a project yet, last session ${project.lastSessionAt.slice(0, 10)}`;
       button.append(name, path);
       button.addEventListener("click", () => pick(project));
       list.append(button);
@@ -167,6 +175,60 @@ function openDialog(projects, styles, onPick, onClose) {
   return close;
 }
 
+/**
+ * Ask server.js for directories that had a Pi session, as `{ path, lastSessionAt }`.
+ * Returns an empty list when the backend is unavailable, so the dialog still opens.
+ */
+async function listSessionDirectories(context, signal) {
+  try {
+    const peer = context.backend?.forScope({ kind: "machine" });
+    const result = await peer?.request?.("candidates", null, { signal });
+    return Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.warn("jump-to-project: session directories unavailable", error);
+    return [];
+  }
+}
+
+/**
+ * Register `path` as a project on the context's machine, then open it.
+ *
+ * PRIVATE API: the plugin API has no way to register a project, so this calls
+ * the route used by PI WEB's own "Add Project" dialog,
+ * `POST api/machines/<machineId>/projects` with `{ path }`. It is not part of the
+ * public plugin contract and can change in any PI WEB update. When it fails, fall
+ * back to the public `context.addProject()`, which opens the "Add Project" dialog
+ * without the path.
+ *
+ * The host keeps its project list in memory and `context.navigate()` does not
+ * reload it, so navigating to the new id shows "project not found". Instead,
+ * reload the page on the project's URL (`?project=<id>`, plus `machine=<id>` for
+ * a remote machine), which makes the host fetch the project list again.
+ */
+async function registerProject(context, path) {
+  const machineId = context.catalog.machineId;
+  let project;
+  try {
+    const url = new URL(`api/machines/${encodeURIComponent(machineId)}/projects`, document.baseURI);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ path }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    project = await response.json();
+    if (typeof project?.id !== "string") throw new Error("Response has no project id");
+  } catch (error) {
+    console.warn(`jump-to-project: could not register ${path}`, error);
+    await context.addProject();
+    return;
+  }
+  const target = new URL(window.location.pathname, window.location.origin);
+  if (machineId !== "local") target.searchParams.set("machine", machineId);
+  target.searchParams.set("project", project.id);
+  window.location.assign(target);
+}
+
 export default {
   apiVersion: 5,
   name: "Jump to project",
@@ -184,17 +246,26 @@ export default {
         actions: [{
           id: "project.jump",
           title: "Jump to project",
-          description: "Search registered projects and switch to one",
+          description: "Search projects and Pi session directories and switch to one",
           group: "Navigation",
           shortcut: "mod+alt+o",
           async run(context) {
             if (closeDialog || lifetimeSignal.aborted) return;
-            const projects = await context.catalog.projects.list({ signal: lifetimeSignal });
+            const [projects, sessionDirs] = await Promise.all([
+              context.catalog.projects.list({ signal: lifetimeSignal }),
+              listSessionDirectories(context, lifetimeSignal),
+            ]);
             if (closeDialog || lifetimeSignal.aborted) return;
+            const registered = new Set(projects.map((project) => project.path));
+            const candidates = sessionDirs
+              .filter((dir) => !registered.has(dir.path))
+              .map((dir) => ({ ...dir, name: dir.path.split("/").filter(Boolean).at(-1) ?? dir.path }));
             closeDialog = openDialog(
-              projects,
+              [...projects, ...candidates],
               styles,
-              (project) => context.navigate({ projectId: project.id }, { mode: "patch" }),
+              (project) => project.id !== undefined
+                ? context.navigate({ projectId: project.id }, { mode: "patch" })
+                : registerProject(context, project.path),
               () => { closeDialog = undefined; },
             );
           },

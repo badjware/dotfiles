@@ -1,8 +1,8 @@
 #!/bin/bash
 
-xrandr --output "$(xrandr | grep '+0+' | grep -Eo '^DP-[0-9]')" --primary
+xrandr --output "$(~/.local/bin/sway-primary-output)" --primary
 
-swaymsg 'output * adaptive_sync on'
+#swaymsg 'output * adaptive_sync on'
 swaymsg 'output * hdr on'
 
 systemctl --user stop gammastep

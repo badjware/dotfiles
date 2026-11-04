@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# print the name of the active output closest to the center of the layout
+swaymsg -t get_outputs | jq --raw-output '
+    [.[] | select(.active)]
+    | (map(.rect.x) | min) as $x1 | (map(.rect.x + .rect.width) | max) as $x2
+    | (map(.rect.y) | min) as $y1 | (map(.rect.y + .rect.height) | max) as $y2
+    | min_by(pow(.rect.x + .rect.width / 2 - ($x1 + $x2) / 2; 2) + pow(.rect.y + .rect.height / 2 - ($y1 + $y2) / 2; 2))
+    | .name'

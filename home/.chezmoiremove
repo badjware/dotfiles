@@ -3,6 +3,7 @@
 .pi/agent/skills/worldbuilding
 .local/bin/apod
 .local/bin/setup-outputs
+.local/bin/linux-wallpaperengine
 .local/bin/dump-args
 .config/systemd/user/cptr.service
 .config/systemd/user/cptr-proxy.service

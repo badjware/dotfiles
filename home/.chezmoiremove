@@ -12,4 +12,8 @@
 .config/systemd/user/pibox-pi-web.socket
 .config/systemd/user/pibox-pi-web-proxy.service
 .config/systemd/user/pikaur-cache.service
+.config/systemd/user/sit-down.service
+.config/systemd/user/sit-down.timer
+.config/systemd/user/stand-up.service
+.config/systemd/user/stand-up.timer
 .config/rofi-pass

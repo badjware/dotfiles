@@ -50,23 +50,6 @@
       "api_url": "",
     },
   },
-  "agent_servers": {
-    "pibox": {
-      "type": "custom",
-      "command": "{{ .chezmoi.homeDir }}/develop/github.com/badjware/pibox/launch.sh",
-      "args": ["--acp", "--unsafe-enable-docker"],
-      "env": {},
-    },
-    "pibox-read-only": {
-      "type": "custom",
-      "command": "{{ .chezmoi.homeDir }}/develop/github.com/badjware/pibox/launch.sh",
-      "args": ["--acp", "--read-only"],
-      "env": {},
-    },
-    "github-copilot-cli": {
-      "type": "registry",
-    },
-  },
   "session": {
     "trust_all_worktrees": true,
   },

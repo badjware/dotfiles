@@ -11,14 +11,8 @@ alias rename="perl-rename"
 alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
-fpath=(~/develop/github.com/badjware/pibox/completions $fpath)
-__pibox_wayland() {
-    if [[ -n "$WAYLAND_DISPLAY" ]]; then
-        echo -n "--unsafe-host-wayland"
-    fi
-}
-pibox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
-claudebox() { ~/develop/github.com/badjware/pibox/launch.sh --sac-moe-patience --unsafe-enable-docker $(__pibox_wayland) --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+pibox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+claudebox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'

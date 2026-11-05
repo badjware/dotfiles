@@ -7,8 +7,8 @@
 
 [".cache/install/pay-respects.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/iffse/pay-respects/v0.8.8/install.sh"
-    checksum.sha256 = "44e916b5bfaf77f8f15db57a3a82e310a1709fee541a09ca0324b7e17be48eef"
+    url = "https://raw.githubusercontent.com/iffse/pay-respects/v0.9.0/install.sh"
+    checksum.sha256 = "888b0f05aa17637c48581b1732260d46bfaba239be83cd07c82898d968f219b6"
     executable = true
 
 # update: keep the raw GitHub url; the starship.rs install URL moves
@@ -20,6 +20,6 @@
 
 [".cache/install/mirrord.sh"]
     type = "file"
-    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.280.0/scripts/install.sh"
+    url = "https://raw.githubusercontent.com/metalbear-co/mirrord/3.285.0/scripts/install.sh"
     checksum.sha256 = "3e856146fca2c06db39a54dca1fbcdf5ef454a437fdde2572ec09bbf7736dc1c"
     executable = true

@@ -1,13 +1,52 @@
 #!/bin/bash
 
 primary="$(~/.local/bin/sway-primary-output)"
+cache_dir=~/.cache/lockscreen
+
+# print the average color of the left and right edges of the first frame of video file $1 as RRGGBB, cached per file
+edge_color() {
+    [[ -f "$1" ]] || return 1
+    local cached color
+    cached="$cache_dir/$(stat -c '%n %s %Y' "$1" | sha256sum | cut -d' ' -f1).color"
+    if [[ ! -s "$cached" ]]; then
+        color="$(ffmpeg -loglevel error -i "$1" -frames:v 1 \
+            -vf 'split[a][b];[a]crop=iw/20:ih:0:0[l];[b]crop=iw/20:ih:iw-iw/20:0[r];[l][r]hstack,scale=1:1' \
+            -f rawvideo -pix_fmt rgb24 - | od -An -tx1 | tr -d ' \n')"
+        [[ ${#color} -eq 6 ]] || return 1
+        echo "$color" > "$cached"
+    fi
+    cat "$cached"
+}
 
 # animated lockscreens drain the battery
 if ! grep -qs Discharging /sys/class/power_supply/BAT*/status; then
     if which swaylock-plugin &>/dev/null; then
-        if which mpvpaper &>/dev/null && [[ "$MPVPAPER_VIDEO_PATH" =~ ^https?:// || -e "$MPVPAPER_VIDEO_PATH" ]]; then
-            animated_command="mpvpaper --mpv-option 'no-audio loop $MPVPAPER_OPTION --quiet --panscan=1' 'ALL' -- '$MPVPAPER_VIDEO_PATH'"
-            swaylock_command="if [ \"\$SWAYLOCK_PLUGIN_OUTPUT_NAME\" = '$primary' ]; then exec $animated_command; else exec swaybg -c 000000; fi"
+        mkdir -p "$cache_dir"
+        video="$MPVPAPER_VIDEO_PATH"
+        if [[ "$video" =~ ^https?:// ]]; then
+            download="$cache_dir/$(echo "$video" | sha256sum | cut -d' ' -f1)"
+            # refresh the cached copy in the background, only replacing it with a complete download
+            # we don't want to block since the lockscreen should not be delayed
+            (
+                tmp="$(mktemp "$download.XXXXXX")"
+                # only download if the remote file is newer than the cached copy
+                newer=()
+                [[ -e "$download" ]] && newer=(-z "$download")
+                if curl -fsSLR "${newer[@]}" -o "$tmp" "$video" && [[ -s "$tmp" ]]; then
+                    mv "$tmp" "$download"
+                    edge_color "$download"
+                else
+                    rm -f "$tmp"
+                fi
+            ) &>/dev/null &
+            # play the cached copy when available, so the lockscreen works offline
+            [[ -e "$download" ]] && video="$download"
+        fi
+
+        if which mpvpaper &>/dev/null && [[ "$video" =~ ^https?:// || -e "$video" ]]; then
+            color="$(edge_color "$video" 2>/dev/null)"
+            animated_command="mpvpaper --mpv-option 'no-audio loop $MPVPAPER_OPTION --quiet' 'ALL' -- '$video'"
+            swaylock_command="if [ \"\$SWAYLOCK_PLUGIN_OUTPUT_NAME\" = '$primary' ]; then exec $animated_command; else exec swaybg -c '${color:-000000}'; fi"
         fi
     fi
 fi

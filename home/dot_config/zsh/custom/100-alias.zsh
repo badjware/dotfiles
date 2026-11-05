@@ -11,8 +11,8 @@ alias rename="perl-rename"
 alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
-pibox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
-claudebox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+pibox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-enable-gcx --unsafe-host-wayland --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+claudebox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-enable-gcx --unsafe-host-wayland --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'

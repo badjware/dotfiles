@@ -17,3 +17,5 @@
 .config/systemd/user/stand-up.service
 .config/systemd/user/stand-up.timer
 .config/rofi-pass
+.pi-web
+.config/pi-web

@@ -1,6 +1,8 @@
 .pi/agent/skills/openscad-visualizer
 .pi/agent/skills/storywriting
 .pi/agent/skills/worldbuilding
+.pi/agent/skills/cptr-remote-terminal
+.pi/agent/skills/tmux
 .local/bin/apod
 .local/bin/setup-outputs
 .local/bin/linux-wallpaperengine

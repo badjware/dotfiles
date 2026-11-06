@@ -1,0 +1,9 @@
+{
+  "autoUpdate": false,
+  "advisoryCheck": false,
+  "releaseNotesCheck": false,
+  "pi": {
+    "inline": true,
+    "subagents": false
+  }
+}

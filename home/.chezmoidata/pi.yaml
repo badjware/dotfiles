@@ -1,7 +1,8 @@
 pi:
   extensions:
-    # - git:github.com/badjware/mem0-pi-agent-plugin-oss
     - npm:pi-resource-center
     - npm:pi-provider-litellm
     - npm:@bigboss2063/pi-clip
+    # pinned: an unpinned spec lets billion-context drive `pi update` on itself
+    - npm:billion-context@0.1.212
     # - npm:pi-claude-marketplace

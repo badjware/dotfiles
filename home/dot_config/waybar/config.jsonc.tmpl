@@ -72,11 +72,12 @@
         "tooltip-format-full": "Full",
     },
     "network": {
-        "format-wifi": "{icon} {ipaddr}/{cidr}",
-        "format-ethernet": " {ipaddr}/{cidr}",
+        "interval": 5,
+        "format-wifi": " {bandwidthDownBits:>}  {bandwidthUpBits:>}",
+        "format-ethernet": "  {bandwidthDownBits:>}  {bandwidthUpBits:>}",
         "format-disconnected": " Disconnected",
-        "tooltip-format": " {bandwidthDownBits}\n {bandwidthUpBits}",
-        "tooltip-format-wifi": " {essid}\n {bandwidthDownBits}\n {bandwidthUpBits}",
+        "tooltip-format": " {ipaddr}/{cidr}",
+        "tooltip-format-wifi": "{icon}  {essid}\n {ipaddr}/{cidr}",
         "format-icons": ["", "", ""],
     },
     "wireplumber": {
@@ -96,7 +97,7 @@
     },
     "custom/gpu": {
         "interval": 1,
-        "format": " {percentage:3}%",
+        "format": "<span size=\"170%\">󰢮</span><span rise=\"3000\"> {percentage:3}%</span>",
         "return-type": "json",
         "exec": "{{ .chezmoi.destDir }}/.local/bin/waybar-gpu-status",
         "tooltip": true,

@@ -4,5 +4,5 @@ pi:
     - npm:pi-provider-litellm
     - npm:@bigboss2063/pi-clip
     # pinned: an unpinned spec lets billion-context drive `pi update` on itself
-    - npm:billion-context@0.1.212
+    # - npm:billion-context@0.1.212
     # - npm:pi-claude-marketplace

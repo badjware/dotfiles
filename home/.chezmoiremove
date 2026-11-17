@@ -21,3 +21,4 @@
 .config/rofi-pass
 .pi-web
 .config/pi-web
+.pi/agent/npm/node_modules/billion-context

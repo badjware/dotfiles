@@ -1,0 +1,58 @@
+version: 1
+
+landlock:
+  compatibility: best_effort
+
+filesystem_policy:
+  include_workdir: true
+  read_only:
+    - /usr
+    - /lib
+    - /etc
+    - /opt
+    - /proc
+    - /dev/urandom
+    - /var/log
+    - {{ .chezmoi.homeDir }}/.pi/agent/extensions
+    - {{ .chezmoi.homeDir }}/.gitconfig
+  read_write:
+    - /tmp
+    - /dev/null
+    - {{ .chezmoi.homeDir }}/develop
+    - {{ .chezmoi.homeDir }}/.local/share/chezmoi
+    - {{ .chezmoi.homeDir }}/.pi
+    - {{ .chezmoi.homeDir }}/.cache
+    - {{ .chezmoi.homeDir }}/.claude
+    - {{ .chezmoi.homeDir }}/.claude.json
+    # --unsafe-host-wayland and --unsafe-enable-docker
+    - /run/user/{{ .chezmoi.uid }}
+    - /pibox-docker
+
+network_policies:
+  databricks:
+    endpoints:
+      - host: "**.azuredatabricks.net"
+        port: 443
+        allowed_ips: [10.0.0.0/8]
+    binaries:
+      - { path: /usr/bin/node }
+  badjware.dev:
+    endpoints:
+      - host: genai.badjware.dev
+        port: 443
+    binaries:
+      - { path: /usr/bin/node }
+  github.com:
+    endpoints:
+      - host: github.com
+        port: 443
+      - host: raw.githubusercontent.com
+        port: 443
+    binaries:
+      - { path: /usr/bin/git }
+  raw.githubusercontent.com:
+    endpoints:
+      - host: raw.githubusercontent.com
+        port: 443
+    binaries:
+      - { path: /usr/bin/curl }

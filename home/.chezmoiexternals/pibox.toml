@@ -1,6 +1,6 @@
 # update: no releases; pin to the latest commit SHA (git ls-remote https://github.com/badjware/pibox HEAD)
 [".local/bin/pibox"]
     type = "file"
-    url = "https://raw.githubusercontent.com/badjware/pibox/960f855ca2855cc9fa0224d51554602cd2dc2658/launch.sh"
-    checksum.sha256 = "d42c15518f4dcc1ec1014edd5557adf4f16252fa41b77ceb2bb866dde0d82735"
+    url = "https://raw.githubusercontent.com/badjware/pibox/36034c17d1e955e9d33bd5970f27d17671d988a1/launch.py"
+    checksum.sha256 = "c6c666fbbb005e5fceadec3a4a361b0f7a50efe530a0761633bdff6510047bb4"
     executable = true

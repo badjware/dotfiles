@@ -11,8 +11,8 @@ alias rename="perl-rename"
 alias userctl="systemctl --user"
 alias etckeeper="sudo etckeeper"
 
-pibox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-enable-gcx --unsafe-host-wayland --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
-claudebox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-enable-gcx --unsafe-host-wayland --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+pibox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness pi -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
+claudebox() { ~/.local/bin/pibox --sac-moe-patience --unsafe-enable-docker --unsafe-host-wayland --harness claude -v "$HOME/develop:$HOME/develop:ro,rslave" -v "$HOME/go:$HOME/go" "$@" }
 
 # ls
 alias ls='lsd --group-dirs=first'
@@ -39,6 +39,12 @@ alias kns="kubectl config set-context --current --namespace"
 alias kclean="kubectl delete pods --field-selector status.phase=Failed"
 
 compdef kubecolor=kubectl
+
+# openshell
+alias os="openshell"
+alias osg="openshell gateway"
+alias osp="openshell policy"
+alias oss="openshell sandbox"
 
 # utils
 alias convert-doc="libreoffice --headless --invisible --norestore --convert-to "

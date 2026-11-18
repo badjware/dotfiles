@@ -117,7 +117,10 @@ def print_fs():
             line = line.strip()
             if line.startswith('/'):
                 mount_point = line.split()[1]
-                usage = shutil.disk_usage(mount_point)
+                try:
+                    usage = shutil.disk_usage(mount_point)
+                except PermissionError:
+                    continue
                 Termutils.print_padded('{:<15.15}  {:7.2f}G used  {:7.2f}G free  {:7.2f}G total'.format(
                     mount_point,
                     to_gb(usage.used),

@@ -13,6 +13,7 @@ filesystem_policy:
     - /proc
     - /dev/urandom
     - /var/log
+    - /AGENTS.md
     - {{ .chezmoi.homeDir }}/.pi/agent/extensions
     - {{ .chezmoi.homeDir }}/.gitconfig
   read_write:

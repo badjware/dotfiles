@@ -23,7 +23,7 @@ Not for `git-repo`/`archive` externals without checksums (tmux, vim, zsh) or fil
    - Raw script: replace `<ref>` with the new tag, keep `<path>`. A 404 means the script moved; find it in the repo tree at the new tag.
    - Release asset: derive the new asset name by replacing the old version string in `<asset>` with the new one (version = tag without leading `v`), then confirm it exists in `.assets[]`. If it does not, pick the asset matching the same platform/arch/extension (x86_64/x64, `.AppImage`, not `arm64`/`aarch64`). Use its `browser_download_url`.
 6. Compute the checksum:
-   - Release asset: take the asset's `digest` (`sha256:<hex>`) from the API, so large files are not downloaded. If `digest` is null or the API is unavailable, download to `/tmp` and `sha256sum`; for files over ~100 MB, ask the user first or wait for the rate limit reset.
+   - Release asset: take the asset's `digest` (`sha256:<hex>`) from the API, so large files are not downloaded. If the API is unreachable, scrape `https://github.com/<owner>/<repo>/releases/expanded_assets/<tag>` with `rg -o 'sha256:[0-9a-f]{64}|<asset-prefix>[A-Za-z0-9._-]*' | uniq`; each asset name is followed by its digest (beware `.asc` siblings). A tag page with no assets means a tag without a release yet; keep the old pin. If no digest is available, download to `/tmp` and `sha256sum`; for files over ~100 MB, ask the user first or wait for the rate limit reset.
    - Raw script: download with `curl -sfL` and pipe to `sha256sum` (raw.githubusercontent.com is not API rate limited).
 7. Never execute a downloaded file or pipe one to a shell. Download only to hash.
 8. Edit only `url` and `checksum.sha256` with the edit tool. Keep the target path and all other fields unchanged.

@@ -43,17 +43,45 @@ network_policies:
         port: 443
     binaries:
       - { path: /usr/bin/node }
-  github.com:
+  internet:
     endpoints:
-      - host: github.com
-        port: 443
-      - host: raw.githubusercontent.com
-        port: 443
-    binaries:
-      - { path: /usr/bin/git }
-  raw.githubusercontent.com:
-    endpoints:
-      - host: raw.githubusercontent.com
-        port: 443
-    binaries:
-      - { path: /usr/bin/curl }
+      - { host: "agents.md", port: 443 }
+      - { host: "api.github.com", port: 443 }
+      - { host: "api.nuget.org", port: 443 }
+      - { host: "code.badjware.dev", port: 443 }
+      - { host: "code.claude.com", port: 443 }
+      - { host: "developer.chrome.com", port: 443 }
+      - { host: "developers.openai.com", port: 443 }
+      - { host: "docs.anthropic.com", port: 443 }
+      - { host: "docs.aws.amazon.com", port: 443 }
+      - { host: "docs.claude.com", port: 443 }
+      - { host: "docs.databricks.com", port: 443 }
+      - { host: "docs.docker.com", port: 443 }
+      - { host: "docs.gitlab.com", port: 443 }
+      - { host: "docs.litellm.ai", port: 443 }
+      - { host: "docs.nextcloud.com", port: 443 }
+      - { host: "docs.nvidia.com", port: 443 }
+      - { host: "docs.obsidian.md", port: 443 }
+      - { host: "docs.openwebui.com", port: 443 }
+      - { host: "docs.pipewire.org", port: 443 }
+      - { host: "docs.python.org", port: 443 }
+      - { host: "duckduckgo.com", port: 443 }
+      - { host: "en.wikipedia.org", port: 443 }
+      - { host: "gist.github.com", port: 443 }
+      - { host: "github.com", port: 443 }
+      - { host: "gitlab.com", port: 443 }
+      - { host: "gitlab.freedesktop.org", port: 443 }
+      - { host: "gitlab.gnome.org", port: 443 }
+      - { host: "grafana.com", port: 443 }
+      - { host: "hub.docker.com", port: 443 }
+      - { host: "huggingface.co", port: 443 }
+      - { host: "learn.microsoft.com", port: 443 }
+      - { host: "man.archlinux.org", port: 443 }
+      - { host: "models.dev", port: 443 }
+      - { host: "openrouter.ai", port: 443 }
+      - { host: "pypi.org", port: 443 }
+      - { host: "raw.githubusercontent.com", port: 443 }
+      - { host: "registry.npmjs.org", port: 443 }
+      - { host: "registry.terraform.io", port: 443 }
+      - { host: "www.chezmoi.io", port: 443 }
+      - { host: "www.npmjs.com", port: 443 }

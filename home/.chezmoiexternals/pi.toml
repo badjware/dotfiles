@@ -1,0 +1,23 @@
+[".pi/agent/skills/simplified-technical-english"]
+    type = "archive"
+    url = "https://github.com/0xpili/simplified-technical-english/archive/1e148d670cba46685ad2b4c3f2354a637a7fdbbe.tar.gz"
+    exact = true
+    stripComponents = 1
+
+# https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me
+[".pi/agent/skills/grill-me/SKILL.md"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/mattpocock/skills/62f43a18177be6ec82da242e59ffbc490a4c22ea/skills/productivity/grill-me/SKILL.md"
+
+# https://github.com/cursor/plugins/tree/main/pstack/skills/unslop
+[".pi/agent/skills/unslop/SKILL.md"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/cursor/plugins/99559f2f52047978602ef365589275831e76af07/pstack/skills/unslop/SKILL.md"
+
+# https://github.com/wondelai/skills/tree/main/pragmatic-programmer
+[".pi/agent/skills/pragmatic-programmer"]
+    type = "archive"
+    url = "https://github.com/wondelai/skills/archive/c37678106e63ef1c5472d848fb3d8b8c5b33fafe.tar.gz"
+    exact = true
+    stripComponents = 2
+    include = ["*/pragmatic-programmer/**"]

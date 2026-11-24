@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import http from "node:http";
 import https from "node:https";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 
@@ -121,6 +122,75 @@ function fetchResource(
   });
 }
 
+/** Session-scoped Camoufox browser, started on first use. */
+let browserPromise: Promise<any> | undefined;
+
+/**
+ * Return the shared Camoufox browser, starting it if needed.
+ * Rejects if the camoufox module is missing or the browser does not start.
+ */
+function getBrowser(): Promise<any> {
+  if (!browserPromise) {
+    // createRequire honors NODE_PATH, which finds the global camoufox module.
+    const { Camoufox } = createRequire(import.meta.url)("camoufox");
+    browserPromise = Camoufox({
+      headless: true,
+      i_know_what_im_doing: true,
+      // Connect directly, like fetchResource does.
+      firefox_user_prefs: { "network.proxy.type": 0 },
+    }).then((browser: any) => {
+      browser.on("disconnected", () => {
+        browserPromise = undefined;
+      });
+      return browser;
+    });
+    browserPromise!.catch(() => {
+      browserPromise = undefined;
+    });
+  }
+  return browserPromise!;
+}
+
+/**
+ * Fetch a URL with Camoufox so that JavaScript runs before extraction.
+ * HTML responses return the rendered DOM; other responses return the raw body.
+ * Rejects on any error, including HTTP status >= 400.
+ */
+async function fetchWithCamoufox(
+  url: string,
+  signal?: AbortSignal,
+): Promise<FetchResult> {
+  const browser = await getBrowser();
+  // newPage() creates a fresh context, so no cookies are kept between calls.
+  const page = await browser.newPage();
+  const abort = () => page.close().catch(() => {});
+  signal?.addEventListener("abort", abort, { once: true });
+  try {
+    const res = await page.goto(url, {
+      waitUntil: "load",
+      timeout: TIMEOUT_S * 1000,
+    });
+    if (!res) throw new Error("No response");
+    if (res.status() >= 400) throw new Error(`HTTP ${res.status()}`);
+    const contentType: string | undefined = res.headers()["content-type"];
+    if (!isHtml(contentType, "")) {
+      return { bytes: await res.body(), contentType, url: page.url() };
+    }
+    // Pages that poll forever never go idle; extract what has rendered so far.
+    await page
+      .waitForLoadState("networkidle", { timeout: TIMEOUT_S * 1000 })
+      .catch(() => {});
+    return {
+      bytes: Buffer.from(await page.content(), "utf-8"),
+      contentType,
+      url: page.url(),
+    };
+  } finally {
+    signal?.removeEventListener("abort", abort);
+    await page.close().catch(() => {});
+  }
+}
+
 /**
  * Detect a supported image format from its leading bytes.
  * Returns the MIME type, or undefined if the bytes are not PNG, JPEG, GIF or WebP.
@@ -191,6 +261,13 @@ function runTrafilatura(
 }
 
 export default function (pi: ExtensionAPI) {
+  pi.on("session_shutdown", async () => {
+    const pending = browserPromise;
+    browserPromise = undefined;
+    const browser = await pending?.catch(() => undefined);
+    await browser?.close().catch(() => {});
+  });
+
   pi.registerTool(
     defineTool({
       name: "fetch_url",
@@ -201,7 +278,7 @@ export default function (pi: ExtensionAPI) {
         "Use fetch_url to read a web page after search_web finds a relevant result or when the user gives a URL.",
         "Use fetch_url for textual resources such as source files, JSON, YAML, and XML; non-HTML text is returned as-is.",
         "Use fetch_url to view an image from a URL; PNG, JPEG, GIF and WebP are returned as image content. Other binary files are saved to a temp path for use with read or bash.",
-        "fetch_url runs no JavaScript and keeps no session; it returns near-empty text for JavaScript-rendered or login-walled pages. Best for static articles, docs, READMEs, and raw source files.",
+        "fetch_url runs JavaScript when Camoufox is available, but keeps no session between calls; it cannot read login-walled pages.",
       ],
       parameters: Type.Object({
         url: Type.String({ description: "URL to fetch" }),
@@ -218,7 +295,9 @@ export default function (pi: ExtensionAPI) {
       async execute(_toolCallId, params, signal) {
         const rawUrl = params.url.trim();
         try {
-          const resource = await fetchResource(rawUrl, signal);
+          const resource = await fetchWithCamoufox(rawUrl, signal).catch(
+            () => fetchResource(rawUrl, signal),
+          );
 
           const imageMimeType = detectImageMimeType(resource.bytes);
           if (imageMimeType) {

@@ -10,6 +10,8 @@ A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers
 pipx install trafilatura
 ```
 
+[Camoufox](https://camoufox.com/) is optional. When the `camoufox` Node module can be resolved through `NODE_PATH` and its browser starts, pages are fetched with it so that JavaScript runs before extraction.
+
 ## Tool: `fetch_url`
 
 | Parameter | Type | Default | Notes |
@@ -25,6 +27,10 @@ The tool returns:
 
 The response type is detected from the body, not from `Content-Type`. Images are detected by their file signature. A body with a NUL byte in its first 8 KB is binary. Downloads are limited to 20 MB.
 
+With Camoufox, the tool starts one headless browser on first use and closes it on `session_shutdown`. Each call uses a new browser context, so no cookies are kept between calls. The tool waits for the `load` event, then for `networkidle` up to `PI_FETCH_TIMEOUT_S`. If the network does not go idle, the tool extracts the DOM as it is. HTML responses return the rendered DOM. Other responses return the raw body. The browser ignores the proxy environment variables, like the HTTP fallback does.
+
+If Camoufox fails for any reason (module missing, browser launch failure, navigation error, timeout, HTTP status >= 400, file download), the tool uses the HTTP fetch below.
+
 The HTTP fetch is performed via Node's stdlib (`node:https` / `node:http`, with manual redirect following, configurable timeout, Lynx UA). HTML responses are piped to `trafilatura --output-format markdown --formatting` over stdin; all other responses are returned without extraction. Trafilatura drops navigation, sidebars, footers, comments and ads.
 
 ## Configuration
@@ -33,5 +39,5 @@ Tunables (all optional, read from `process.env` at load time):
 
 | Env var | Default | Effect |
 |---|---|---|
-| `PI_FETCH_TIMEOUT_S` | `20` | Idle timeout for the HTTP request (seconds). |
-| `PI_FETCH_USER_AGENT` | current Lynx UA | `User-Agent` header sent with the HTTP fetch. Shared with `search_web`. Defaults to a real-world Lynx UA so the tool identifies honestly as a text browser. |
+| `PI_FETCH_TIMEOUT_S` | `20` | Idle timeout for the HTTP request, and the Camoufox navigation and `networkidle` timeouts (seconds). |
+| `PI_FETCH_USER_AGENT` | current Lynx UA | `User-Agent` header sent with the HTTP fetch. Camoufox uses its own.  Shared with `search_web`. Defaults to a real-world Lynx UA so the tool identifies honestly as a text browser. |

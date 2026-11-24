@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import { createRequire } from "node:module";
 
 import { defineTool, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -111,6 +112,68 @@ function fetchHtml(url: string, signal?: AbortSignal): Promise<string> {
     };
     visit(url, MAX_REDIRECTS);
   });
+}
+
+/** Session-scoped Camoufox browser, started on first use. */
+let browserPromise: Promise<any> | undefined;
+
+/**
+ * Return the shared Camoufox browser, starting it if needed.
+ * Rejects if the camoufox module is missing or the browser does not start.
+ */
+function getBrowser(): Promise<any> {
+  if (!browserPromise) {
+    // createRequire honors NODE_PATH, which finds the global camoufox module.
+    const { Camoufox } = createRequire(import.meta.url)("camoufox");
+    browserPromise = Camoufox({
+      headless: true,
+      i_know_what_im_doing: true,
+      // Connect directly, like fetchHtml does.
+      firefox_user_prefs: { "network.proxy.type": 0 },
+    }).then((browser: any) => {
+      browser.on("disconnected", () => {
+        browserPromise = undefined;
+      });
+      return browser;
+    });
+    browserPromise!.catch(() => {
+      browserPromise = undefined;
+    });
+  }
+  return browserPromise!;
+}
+
+/**
+ * Fetch a page with Camoufox and return the raw response body.
+ * The raw body is used because DOM serialization changes the quotes that
+ * RESULT_RE matches. Rejects on any error, including HTTP status >= 300 and
+ * pages that are not DuckDuckGo Lite results (for example a CAPTCHA).
+ */
+async function fetchHtmlWithCamoufox(
+  url: string,
+  signal?: AbortSignal,
+): Promise<string> {
+  const browser = await getBrowser();
+  // newPage() creates a fresh context, so no cookies are kept between calls.
+  const page = await browser.newPage();
+  const abort = () => page.close().catch(() => {});
+  signal?.addEventListener("abort", abort, { once: true });
+  try {
+    const res = await page.goto(url, {
+      waitUntil: "load",
+      timeout: TIMEOUT_S * 1000,
+    });
+    if (!res) throw new Error("No response");
+    if (res.status() >= 300) throw new Error(`HTTP ${res.status()}`);
+    const htmlText = await res.text();
+    if (!isDdgLiteSearchPage(htmlText)) {
+      throw new Error("Unexpected response from the search provider");
+    }
+    return htmlText;
+  } finally {
+    signal?.removeEventListener("abort", abort);
+    await page.close().catch(() => {});
+  }
 }
 
 const RESULT_RE =
@@ -233,6 +296,13 @@ function formatSearchResults(query: string, results: SearchResult[]): string {
 }
 
 export default function (pi: ExtensionAPI) {
+  pi.on("session_shutdown", async () => {
+    const pending = browserPromise;
+    browserPromise = undefined;
+    const browser = await pending?.catch(() => undefined);
+    await browser?.close().catch(() => {});
+  });
+
   pi.registerTool(
     defineTool({
       name: "search_web",
@@ -298,7 +368,10 @@ export default function (pi: ExtensionAPI) {
         url.searchParams.set("q", query);
 
         try {
-          const htmlText = await fetchHtml(url.toString(), signal);
+          const htmlText = await fetchHtmlWithCamoufox(
+            url.toString(),
+            signal,
+          ).catch(() => fetchHtml(url.toString(), signal));
           if (!isDdgLiteSearchPage(htmlText)) {
             throw new Error("Unexpected response from the search provider");
           }

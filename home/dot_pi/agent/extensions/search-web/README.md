@@ -2,6 +2,10 @@
 
 A [pi](https://github.com/mariozechner/pi-coding-agent) extension that registers a `search_web` tool backed by DuckDuckGo's lite HTML endpoint (`https://lite.duckduckgo.com/lite/`). No API key needed.
 
+[Camoufox](https://camoufox.com/) is optional. When the `camoufox` Node module can be resolved through `NODE_PATH` and its browser starts, the search page is fetched with it. The tool starts one headless browser on first use and closes it on `session_shutdown`. This browser is separate from the one in `fetch-url`. Each search uses a new browser context, waits for the `load` event, and parses the raw response body. The rendered DOM is not used, because DOM serialization changes the attribute quotes that the parser matches. The browser ignores the proxy environment variables, like the HTTP fallback does.
+
+If Camoufox fails for any reason (module missing, browser launch failure, navigation error, timeout, HTTP status >= 300, or a page that is not a DuckDuckGo Lite results page, such as a CAPTCHA), the tool uses a plain HTTP request with Node's `node:https`.
+
 Pairs naturally with the `fetch-url` extension: the agent uses `search_web` to find candidate pages and `fetch_url` to read the promising ones.
 
 ## Tool: `search_web`
@@ -25,8 +29,8 @@ Result handling:
 
 | Env var | Default | Effect |
 |---|---|---|
-| `PI_FETCH_USER_AGENT` | a Lynx-compatible value | `User-Agent` header sent with the request. Shared with `fetch_url`. |
-| `PI_FETCH_TIMEOUT_S` | `20` | Total request deadline and socket inactivity timeout, in seconds. Shared with `fetch_url`. |
+| `PI_FETCH_USER_AGENT` | a Lynx-compatible value | `User-Agent` header sent with the HTTP fallback. Camoufox uses its own. Shared with `fetch_url`. |
+| `PI_FETCH_TIMEOUT_S` | `20` | Total request deadline and socket inactivity timeout of the HTTP fallback, and the Camoufox navigation timeout, in seconds. Shared with `fetch_url`. |
 | `PI_DDG_DEFAULT_MAX_RESULTS` | `5` | Default for `max_results` when the model omits it. |
 
 ## Caveats

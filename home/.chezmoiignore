@@ -1,5 +1,13 @@
 **/__pycache__/**
 
+# manual install fallbacks, only used on fedora
+{{- if ne .chezmoi.osRelease.id "fedora" }}
+.cache/install/pyenv.sh
+.cache/install/pay-respects.sh
+.cache/install/starship.sh
+.cache/install/mirrord.sh
+{{- end }}
+
 # only setup frp on pallet for now
 {{- if ne .chezmoi.hostname "pallet" }}
 .config/frp

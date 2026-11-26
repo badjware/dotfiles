@@ -77,6 +77,10 @@ if ! command -v mpvpaper &>/dev/null; then
     sudo ninja -C build install
     popd
 fi
+
+if ! command -v autotiling &>/dev/null; then
+    pipx install autotiling
+fi
 {{ end }}
 
 #if ! dnf info msttcore-fonts-installer.noarch &>/dev/null; then
@@ -87,13 +91,6 @@ fi
 if lpf state 2>/dev/null | grep -q approve-wait; then
     lpf update
 fi
-{{ end }}
-
-############
-## Common ##
-############
-
-go install github.com/badjware/gitforgefs@latest
 
 if ! command -v pyenv &>/dev/null; then
     bash ~/.cache/install/pyenv.sh
@@ -107,6 +104,13 @@ fi
 if ! command -v mirrord &>/dev/null; then
     bash ~/.cache/install/mirrord.sh
 fi
+{{ end }}
+
+############
+## Common ##
+############
+
+go install github.com/badjware/gitforgefs@latest
 
 {{ if ne .chassisType "container" }}
 
@@ -124,10 +128,6 @@ if [[ ! -d "$HOME/.local/share/icons/Tela-circle" ]]; then
     ./install.sh -n Tela-circle
     popd
     rm -rf /tmp/tela-circle
-fi
-
-if ! command -v autotiling &>/dev/null; then
-    pipx install autotiling
 fi
 
 {{ end }}

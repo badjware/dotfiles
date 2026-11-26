@@ -21,9 +21,7 @@ packages:
       - fd
       - figlet
       - fzf
-      - glances
       - gnupg
-      - highlight
       - jq
       - keychain
       - less
@@ -34,7 +32,7 @@ packages:
       - npm
       - openssh
       - pass
-      # - pay-respects
+      - pay-respects
       - pv
       - ripgrep
       - rsync
@@ -54,7 +52,7 @@ packages:
       - kubecolor
       - kubectl
       - kustomize
-      # - mirrord-bin
+      - mirrord-bin
       - terraform
 
       # language / runtimes
@@ -63,7 +61,6 @@ packages:
       - pyenv
       - python-pip
       - python-pipx
-      - python-virtualenv
       - yarn
 
     base_desktop:
@@ -154,9 +151,7 @@ packages:
       - fd-find
       - figlet
       - fzf
-      - glances
       - gnupg2
-      - highlight
       - jq
       - keychain
       - less
@@ -193,7 +188,6 @@ packages:
       - golang
       - pipx
       - python3-pip
-      - python3-virtualenv
       - yarnpkg
 
     base_desktop:

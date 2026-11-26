@@ -392,7 +392,7 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
      dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 
 # start autotiling
-exec ~/.local/bin/autotiling
+exec {{ if eq .chezmoi.osRelease.id "fedora" }}~/.local/bin/{{ end }}autotiling
 
 # autostart
 exec /usr/bin/dex{{ if eq .chezmoi.osRelease.id "fedora" }}-autostart{{ end }} --autostart
